@@ -1,0 +1,15 @@
+*.o
+Kernel/*.o
+Userland/*.bin
+Bootloader/Pure64/*.sys
+Image/*.bin
+Image/*.img
+Image/*.qcow2
+Image/*.vmdk
+compile.sh
+compile.shZone.Identifier
+Kernel/asm/*.o
+Userland/SampleCodeModule/obj/*.o
+Userland/SampleCodeModule/obj/snake.o
+Userland/SampleCodeModule/obj/stdlib_user.o
+.bash_history
