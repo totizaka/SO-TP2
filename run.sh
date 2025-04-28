@@ -1,1 +1,1 @@
-qemu-system-x86_64 -hda Image/x64BareBonesImage.qcow2 -m 512 -audiodev none,id=noaudio
+sudo qemu-system-x86_64 -hda Image/x64BareBonesImage.qcow2 -m 512 -audiodev none,id=noaudio
