@@ -92,6 +92,8 @@ int main()
 {	
 	
 	load_idt();
+	//	hacerlo
+	// createMemoryManager(sampleDataModuleAddress, sampleDataModuleAddress + sizeof(MM_ADT), 0x100000);
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");

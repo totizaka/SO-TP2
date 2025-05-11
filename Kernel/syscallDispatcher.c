@@ -15,7 +15,7 @@
 static void syscall_write_handler(int fd, char *buffer, uint64_t length);
 static uint64_t syscall_read_handler(int fd, char *buffer);
 static uint64_t syscall_time_handler();
-static void syscall_drawPixel_handler(uint32_t color, uint64_t x, uint64_t y); 
+static void syscall_drawPixel_handler(uint32_t color, uint64_t x, uint64_t y);
 static void syscall_drawSquare_handler(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
 static uint64_t syscall_getWidth_vd_handler();
 static uint64_t syscall_getHeight_vd_handler();
@@ -29,6 +29,8 @@ static uint8_t syscall_getCurrentPixelSize_handler();
 static void syscall_erraseLine_handler();
 static void syscall_beep_handler( int secs, int frec );
 static uint64_t syscall_regs_values(uint64_t *regs);
+static void* syscall_malloc(size_t memoryToAllocate);
+static void syscall_free();
 
 extern uint64_t reg_shot_available;
 extern uint64_t data_regs[18];
@@ -37,7 +39,7 @@ extern uint64_t data_regs[18];
 void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8) = {(void*)syscall_read_handler, (void*)syscall_write_handler, (void*)syscall_time_handler,
     (void*)syscall_drawPixel_handler, (void*)syscall_drawSquare_handler, (void*)syscall_getWidth_vd_handler, (void*)syscall_getHeight_vd_handler, (void*)syscall_sleep_handler, (void*)syscall_paintAll_vd_handler,
     (void*)syscall_erraseChar_handler, (void*)syscall_increaseFS_handler, (void*)syscall_decreaseFS_handler, (void*)syscall_setPixelSize_handler, (void*)syscall_getCurrentPixelSize_handler, (void*)syscall_erraseLine_handler, (void*)syscall_beep_handler, 
-    (void*)syscall_regs_values};
+    (void*)syscall_regs_values, (void*)syscall_malloc, (void*)syscall_free};
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
     
@@ -130,3 +132,13 @@ static uint64_t syscall_regs_values(uint64_t *regs){
     return 1;
 }
 
+// Hacerlo
+
+// static void* syscall_malloc(size_t memoryToAllocate){
+//     return my_malloc((MemoryManagerADT)0x500000, memoryToAllocate);
+// }
+
+// static void syscall_free(){
+//     my_free((MemoryManagerADT)0x500000);
+//     return;
+// }
