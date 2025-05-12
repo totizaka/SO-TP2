@@ -7,9 +7,7 @@
 #include <idtLoader.h>
 #include <clock.h>
 #include <time.h>
-#include "memory_management/test_util.h" // Para funciones auxiliares del test
-#include "memory_management/mm_dummy.h"  // Para el administrador de memoria
-#include "memory_management/test_mm.h"  // Para el test de memoria
+#include "mm_dummy.h"  // Para el administrador de memoria
 
 
 #define MEMORY_MANAGER_OFFSET 128		//SACARLOO!!!! Y PONER EL SIZEOF(MMCDT) EN SU LUGAR
@@ -111,22 +109,20 @@ int main()
 	ncPrint("[Kernel Main]");
 	ncNewline();
 
-	// ncPrint("  Sample code module at 0x");
-	// ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	// ncNewline();
-	// ncPrint("  Calling the sample code module returned: ");
-	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	// ncNewline();
-	// ncNewline();
+	ncPrint("  Sample code module at 0x");
+	ncPrintHex((uint64_t)sampleCodeModuleAddress);
+	ncNewline();
+	ncPrint("  Calling the sample code module returned: ");
+	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	ncNewline();
+	ncNewline();
 
-	// ncPrint("  Sample data module at 0x");
-	// ncPrintHex((uint64_t)sampleDataModuleAddress);
-	// ncNewline();
-	// ncPrint("  Sample data module contents: ");
-	// ncPrint((char*)sampleDataModuleAddress);
-	// ncNewline();
-
-
+	ncPrint("  Sample data module at 0x");
+	ncPrintHex((uint64_t)sampleDataModuleAddress);
+	ncNewline();
+	ncPrint("  Sample data module contents: ");
+	ncPrint((char*)sampleDataModuleAddress);
+	ncNewline();
 
 	ncPrint("[Finished]");
 	return 0;
