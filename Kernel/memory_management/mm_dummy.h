@@ -9,8 +9,10 @@ MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager
     void *const restrict managedMemory,
     size_t managedMemorySize);
 
-void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
+void *my_malloc(MemoryManagerADT manager);
 
-size_t getFreeMemory(MemoryManagerADT const memoryManager);
+void my_free(MemoryManagerADT manager, void *ptr);
+
+size_t my_get_available_memory(MemoryManagerADT manager);
 
 #endif

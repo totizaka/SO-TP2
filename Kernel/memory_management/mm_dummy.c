@@ -3,8 +3,9 @@
 #include <stdint.h>
 #include <string.h> 
 
-#define MEMORY_ALIGNMENT 8
+#define MEMORY_ALIGNMENT 8//Creo que no es necesario
 
+#define BYTE_SIZE 8
 #define BLOCK_SIZE 64
 #define MAX_BLOCKS 1024
 #define BITMAP_SIZE (MAX_BLOCKS / 8)
@@ -32,8 +33,8 @@ MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager
 
 void *my_malloc(MemoryManagerADT manager) {
     for (size_t i = 0; i < manager->totalBlocks; i++) {
-        size_t byteIndex = i / 8;									// Indice del byte dentro del bitmap
-        size_t bitIndex = i % 8;									// Indice del bit dentro del byte
+        size_t byteIndex = i / BYTE_SIZE;									// Indice del byte dentro del bitmap
+        size_t bitIndex = i % BYTE_SIZE;									// Indice del bit dentro del byte
 
         if (!(manager->bitmap[byteIndex] & (1 << bitIndex))) {		// Obtiene el valor del bit en la posición deseada
             // Bloque libre encontrado
@@ -56,8 +57,8 @@ void my_free(MemoryManagerADT manager, void *ptr) {
 		return; 													// Si esta fuera de rango, no hacer nada
 	}
 
-    size_t byteIndex = blockIndex / 8;
-    size_t bitIndex = blockIndex % 8;
+    size_t byteIndex = blockIndex / BYTE_SIZE;
+    size_t bitIndex = blockIndex % BYTE_SIZE;
 
     manager->bitmap[byteIndex] &= ~(1 << bitIndex);  				// Marcar como libre (en 0)
 }
@@ -66,8 +67,8 @@ size_t my_get_available_memory(MemoryManagerADT manager) {
     size_t freeBlocks = 0;
 
     for (size_t i = 0; i < manager->totalBlocks; i++) {
-        size_t byteIndex = i / 8;
-        size_t bitIndex = i % 8;
+        size_t byteIndex = i / BYTE_SIZE;
+        size_t bitIndex = i % BYTE_SIZE;
 
         if (!(manager->bitmap[byteIndex] & (1 << bitIndex))) {
             freeBlocks++;
