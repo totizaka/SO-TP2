@@ -6,10 +6,10 @@
 void timer_handler();
 int ticks_elapsed();
 int seconds_elapsed();
-uint64_t getCurrentTimeBinary();
+uint64_t get_current_time_binary();
 void sleep(uint64_t secs);
-extern uint8_t getHs(void);
-extern uint8_t getMins(void);
-extern uint8_t getSecs(void);
+extern uint8_t get_hs(void);
+extern uint8_t get_mins(void);
+extern uint8_t get_secs(void);
 
 #endif

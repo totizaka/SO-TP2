@@ -1,5 +1,5 @@
 GLOBAL div0
-global opcode_exc
+global opcode
 
 section .text
 
@@ -32,7 +32,7 @@ pop rbp
 ret 
 
 
-opcode_exc:
+opcode:
 push rbp
 mov rbp, rsp
 

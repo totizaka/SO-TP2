@@ -58,7 +58,7 @@ void ncPrintBin(uint64_t value)
 
 void ncPrintBase(uint64_t value, uint32_t base)
 {
-    uintToBase(value, buffer, base);
+    uint_to_base(value, buffer, base);
     ncPrint(buffer);
 }
 
@@ -71,7 +71,7 @@ void ncClear()
 	currentVideo = video;
 }
 
-uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
+uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base)
 {
 	char *p = buffer;
 	char *p1, *p2;

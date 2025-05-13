@@ -1,10 +1,10 @@
-GLOBAL getHs
-GLOBAL getMins
-GLOBAL getSecs
+GLOBAL get_hs
+GLOBAL get_mins
+GLOBAL get_secs
 
 section .text
 
-	getSecs:
+	get_secs:
 	push rbp
 	mov rbp, rsp
 
@@ -16,7 +16,7 @@ section .text
 	pop rbp
 	ret
 
-	getMins:
+	get_mins:
 	push rbp
 	mov rbp, rsp
 
@@ -28,7 +28,7 @@ section .text
 	pop rbp
 	ret
 
-	getHs:
+	get_hs:
 	push rbp
 	mov rbp, rsp
 

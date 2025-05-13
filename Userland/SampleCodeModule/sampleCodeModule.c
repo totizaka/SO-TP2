@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <syscall.h>
+#include <sys_calls.h>
 #include <snake.h>
 #include <stdlib_user.h>
 #include <shell.h>

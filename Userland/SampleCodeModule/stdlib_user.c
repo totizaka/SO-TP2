@@ -1,30 +1,7 @@
-
 #include <stdio.h>
 #include <stdint.h>
-#include "sys_calls.h"
-
-// extern uint64_t syscall_write();
-extern uint64_t syscall_time();
-extern uint64_t syscall_drawPixel();
-extern uint64_t syscall_drawSquare();
-extern uint64_t syscall_getWidth_vd();
-extern uint64_t syscall_getHeight_vd();
-extern uint64_t syscall_sleep();
-extern uint64_t syscall_paintAll_vd();
-extern uint64_t syscall_erraseChar();
-extern uint64_t syscall_increaseFS();
-extern uint64_t syscall_decreaseFS();
-extern uint64_t syscall_setPixelSize();
-extern uint64_t syscall_getCurrentPixelSize();
-extern uint64_t syscall_erraseLine();
-extern void syscall_beep();
-extern uint64_t syscall_regs();
-
-
-char getCharUser();
-void erraseChar(uint32_t hexColor);
-
-
+#include <sys_calls.h>
+#include "stdlib_user.h"
 
 void print(const char* buf, uint64_t count) {
 	syscall_write(1, buf, count);
@@ -42,15 +19,15 @@ int strlen(char * str){
     return i;
 }
 
-void getString(char* buff, int count){
+void get_string(char* buff, int count){
     int i=0;
     char c=0;
     while(i < (count -1) && (c!='\n')){
-         c = getCharUser();
+         c = get_char_user();
         if(c=='\b'){
             if(i!=0){
              i--;
-             erraseChar(0x000000);
+             errase_char(0x000000);
             }
             buff[i]=0;
         }
@@ -82,8 +59,6 @@ int strcmp(char * s1, char * s2){
     return 0;
 }
 
-
-
 uint64_t itoa(uint64_t number, char* s) {
     int digits = 0;
 
@@ -109,7 +84,7 @@ uint64_t itoa(uint64_t number, char* s) {
     return digits;
 }
 
-void getTime(char* buffer) {
+void get_time(char* buffer) {
     uint64_t time = syscall_time();
     int hours =  (time & 0xFF )-3; 
     if(hours<0){
@@ -135,69 +110,69 @@ uint64_t get_seconds(){
     return (time >> 16) & 0xFF;
 }
 
-void printTime() {
+void print_time() {
     char buffer[10]; // El buffer debe ser lo suficientemente grande
-    getTime(buffer);
+    get_time(buffer);
     print(buffer, 9);
 }
 
-char getCharUser(){
+char get_char_user(){
 	char c;
 	syscall_read(0,&c);
 	return c;
 }
 
-uint64_t getWidth_vd(){
-    int width = syscall_getWidth_vd();
+uint64_t get_width_vd(){
+    int width = syscall_get_width_vd();
     return width;
 }
 
-uint64_t getHeight_vd(){
-    int height = syscall_getHeight_vd();
+uint64_t get_height_vd(){
+    int height = syscall_get_height_vd();
     return height;
 }
 
-void drawPixel(uint32_t color, uint64_t x, uint64_t y){
-    syscall_drawPixel(color, x, y);
+void draw_pixel(uint32_t color, uint64_t x, uint64_t y){
+    syscall_draw_pixel(color, x, y);
 }
 
-void drawSquare(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness){
-    syscall_drawSquare(color, x, y, thickness);
+void draw_square(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness){
+    syscall_draw_square(color, x, y, thickness);
 }
 
 void nano_sleep(uint64_t secs){
     syscall_sleep(secs);
 }
 
-void paintAll_vd(uint32_t hexColor){
-    syscall_paintAll_vd(hexColor);
+void paint_all_vd(uint32_t hexColor){
+    syscall_paint_all_vd(hexColor);
 }
 
-void erraseChar(uint32_t hexColor){
-    syscall_erraseChar(hexColor);
+void errase_char(uint32_t hexColor){
+    syscall_errase_char(hexColor);
 }
 
 void increaseFontSize(){
-    syscall_increaseFS();
+    syscall_increase_FS();
 }
 
 void decreaseFontSize(){
-    syscall_decreaseFS();
+    syscall_decrease_FS();
 }
 
-void setPixelSize(){
-    syscall_setPixelSize();
+void set_pixel_size(){
+    syscall_set_pixel_size();
 }
 
-uint8_t getCurrentPixelSize(){
-    return syscall_getCurrentPixelSize();
+uint8_t get_current_pixel_size(){
+    return syscall_get_current_pixel_size();
 }
 
-void erraseLine(){
-    syscall_erraseLine();
+void errase_line(){
+    syscall_errase_line();
 
 }
-void makeBeep(int secs, int freq){
+void make_beep(int secs, int freq){
     syscall_beep(secs, freq);
 }
 
@@ -205,7 +180,7 @@ uint64_t register_snapshot(uint64_t * regs){
     return syscall_regs(regs);
 }
 
-uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base){
+uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base){
 	char *p = buffer;
 	char *p1, *p2;
 	uint32_t digits = 0;

@@ -1,8 +1,8 @@
 
 GLOBAL _cli
 GLOBAL _sti
-GLOBAL picMasterMask
-GLOBAL picSlaveMask
+GLOBAL pic_master_mask
+GLOBAL pic_slave_mask
 GLOBAL haltcpu
 GLOBAL _hlt
 
@@ -22,13 +22,13 @@ GLOBAL _exception06Handler
 GLOBAL reg_shot_available
 GLOBAL data_regs
 
-EXTERN irqDispatcher
-EXTERN exceptionDispatcher
+EXTERN irq_dispatcher
+EXTERN exception_dispatcher
 EXTERN syscallDispatcher
 EXTERN get_regs
 
 
-EXTERN getStackBase
+EXTERN get_stack_base
 
 SECTION .text
 
@@ -72,7 +72,7 @@ SECTION .text
 	pushState
 
 	mov rdi, %1 ; pasaje de parametro
-	call irqDispatcher
+	call irq_dispatcher
 
 	; signal pic EOI (End of Interrupt)						//le indica al PIC que la interrupción fue manejada y puede continuar.
 	mov al, 20h
@@ -90,10 +90,10 @@ SECTION .text
 	regs_exception
 	mov rdi, %1 ; pasaje de parametro -> n excepcion
 	mov rsi, exc_regs ; para imprimir regs
-	call exceptionDispatcher
+	call exception_dispatcher
 	popState
 
-	call getStackBase  ;deja en el rax el stackbase
+	call get_stack_base  ;deja en el rax el stackbase
 	mov [rsp+24], rax 
     mov rax, userland
     mov [rsp], rax ;estoy pisando con el userland
@@ -174,7 +174,7 @@ _sti:
 	sti
 	ret
 
-picMasterMask:
+pic_master_mask:
 	push rbp
     mov rbp, rsp
     mov ax, di
@@ -182,7 +182,7 @@ picMasterMask:
     pop rbp
     retn
 
-picSlaveMask:
+pic_slave_mask:
 	push    rbp
     mov     rbp, rsp
     mov     ax, di  ; ax = mascara de 16 bits
@@ -192,7 +192,7 @@ picSlaveMask:
 
 
 ;Cada irqHandler llama a irqHandlerMaster pasandole su parametro asociado, 
-;el irqHandlerMaster llama a irqDispatcher que se encarga de llamar al handler asociado a cada interrupcion
+;el irqHandlerMaster llama a irq_dispatcher que se encarga de llamar al handler asociado a cada interrupcion
 
 
 ;Syscall
@@ -213,7 +213,7 @@ _irq01Handler:
 
 	pushState
 	mov rdi, 1 
-	call irqDispatcher
+	call irq_dispatcher
 
 	call get_regs
 

@@ -1,19 +1,19 @@
 GLOBAL syscall_read
 GLOBAL syscall_write
 GLOBAL syscall_time
-GLOBAL syscall_getWidth_vd
-GLOBAL syscall_getHeight_vd
-GLOBAL syscall_drawPixel
-GLOBAL syscall_drawSquare
+GLOBAL syscall_get_width_vd
+GLOBAL syscall_get_height_vd
+GLOBAL syscall_draw_pixel
+GLOBAL syscall_draw_square
 GLOBAL syscall_sleep
 GLOBAL syscall_seconds
-GLOBAL syscall_paintAll_vd
-GLOBAL syscall_erraseChar
-GLOBAL syscall_increaseFS
-GLOBAL syscall_decreaseFS
-GLOBAL syscall_setPixelSize
-GLOBAL syscall_getCurrentPixelSize
-GLOBAL syscall_erraseLine
+GLOBAL syscall_paint_all_vd
+GLOBAL syscall_errase_char
+GLOBAL syscall_increase_FS
+GLOBAL syscall_decrease_FS
+GLOBAL syscall_set_pixel_size
+GLOBAL syscall_get_current_pixel_size
+GLOBAL syscall_errase_line
 GLOBAL syscall_beep
 GLOBAL syscall_regs
 
@@ -34,23 +34,23 @@ syscall_time:
     int 80h
     ret
 
-syscall_drawPixel:
+syscall_draw_pixel:
     mov rax, 0x03
     int 80h
     ret
 
-syscall_drawSquare:
+syscall_draw_square:
     mov rax, 0x04
     mov r10, rcx        ;4to parametro de syscall es R10
     int 80h
     ret
 
-syscall_getWidth_vd:
+syscall_get_width_vd:
     mov rax, 0x05
     int 80h
     ret
 
-syscall_getHeight_vd:
+syscall_get_height_vd:
     mov rax, 0x06
     int 80h
     ret
@@ -60,37 +60,37 @@ syscall_sleep:
     int 80h
     ret 
 
-syscall_paintAll_vd:
+syscall_paint_all_vd:
     mov rax, 0x08
     int 80h
     ret
 
-syscall_erraseChar:
+syscall_errase_char:
     mov rax, 0x09
     int 80h
     ret
 
-syscall_increaseFS:
+syscall_increase_FS:
     mov rax, 0x0A
     int 80h
     ret
 
-syscall_decreaseFS:
+syscall_decrease_FS:
     mov rax, 0x0B
     int 80h
     ret
 
-syscall_setPixelSize:
+syscall_set_pixel_size:
     mov rax, 0x0C
     int 80h
     ret
 
-syscall_getCurrentPixelSize:
+syscall_get_current_pixel_size:
     mov rax, 0x0D
     int 80h
     ret
 
-syscall_erraseLine:
+syscall_errase_line:
     mov rax, 0x0E
     int 80h
     ret
@@ -105,3 +105,62 @@ syscall_regs:
     int 80h
     ret
 
+syscall_my_getpid:
+    mov rax, 0x11
+    int 80h
+    ret
+
+syscall_my_create_process:
+    mov rax, 0x12
+    int 80h
+    ret
+
+syscall_my_nice:
+    mov rax, 0x13
+    int 80h
+    ret
+
+syscall_my_kill:
+    mov rax, 0x14
+    int 80h
+    ret
+
+syscall_my_block:
+    mov rax, 0x15
+    int 80h
+    ret
+
+syscall_my_unblock:
+    mov rax, 0x16
+    int 80h
+    ret
+
+syscall_my_sem_open:
+    mov rax, 0x17
+    int 80h
+    ret
+
+syscall_my_sem_wait:
+    mov rax, 0x18
+    int 80h
+    ret
+
+syscall_my_sem_post:
+    mov rax, 0x19
+    int 80h
+    ret
+
+syscall_my_sem_close:
+    mov rax, 0x1A
+    int 80h
+    ret
+
+syscall_my_yield:
+    mov rax, 0x1B
+    int 80h
+    ret
+
+syscall_my_wait:
+    mov rax, 0x1C
+    int 80h
+    ret

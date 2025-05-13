@@ -13,6 +13,6 @@ void ncPrintBase(uint64_t value, uint32_t base);
 void ncClear();
 void ncPrintCharFormat(char character, uint8_t format);
 void ncPrintFormat(const char* string, uint8_t format);
-uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
+uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
 
 #endif

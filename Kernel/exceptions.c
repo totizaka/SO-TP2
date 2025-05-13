@@ -8,50 +8,50 @@
 
 //naiveConsole se usa solo para la transformacion de hexa a ascii de los valores de los regs
 
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
+static uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
 
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
 static uint32_t white=0xFFFFFF;//chequear si esto esta ok
 static uint32_t red=0xFF0000;
 
-void exceptionDispatcher(int exception, uint64_t * regs) {
+void exception_dispatcher(int exception, uint64_t * regs) {
 	if (exception == ZERO_EXCEPTION_ID){
-		drawWord(red, "Cannot Divide by Zero, Register values:");
-		newLine_vd();
+		draw_word(red, "Cannot Divide by Zero, Register values:");
+		new_line_vd();
 	}
 	else if(exception==OP_CODE_INVALID_EXCEPTION){
-		drawWord(red, "Invalid Opcode Exception, Register values:");
-		newLine_vd();
+		draw_word(red, "Invalid Opcode Exception, Register values:");
+		new_line_vd();
 	}
 	char buffer[17];
 	for(int i=0; i<18; i++){
-		drawWord(white, regstxt[i]);
-		uintToBase(regs[i], buffer, 16);
+		draw_word(white, regstxt[i]);
+		uint_to_base(regs[i], buffer, 16);
 		buffer[16]=0;
-		drawWord(white, buffer);
-		newLine_vd();
+		draw_word(white, buffer);
+		new_line_vd();
 	}
 
-		newLine_vd();
+		new_line_vd();
 
 		char buff=0;
-		picMasterMask(0xFD); //solo habilitadas interrupcionesw teclado
+		pic_master_mask(0xFD); //solo habilitadas interrupcionesw teclado
 		_sti();
-		drawWord(white, "Press key q to continue");
+		draw_word(white, "Press key q to continue");
 
 		while(buff!='q'){
-			buff=getCharPressed();
+			buff=get_char_pressed();
 
 		}
 		_cli();
-		picMasterMask(0xFC);	
-		paintAll_vd(0x000000);
+		pic_master_mask(0xFC);	
+		paint_all_vd(0x000000);
 		return;
 
 
 }
 
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
+static uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base)
 {
 	char *p = buffer;
 	char *p1, *p2;

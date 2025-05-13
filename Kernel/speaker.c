@@ -28,7 +28,7 @@
  }
  
  //make it shut up
- static void nosound() {
+ static void no_sound() {
  	uint8_t tmp = inb(0x61) & 0xFC;
      
  	outb(0x61, tmp);
@@ -38,6 +38,6 @@
  void beep(int secs, int freq) {
  	 play_sound(freq);
  	 sleep(secs);
- 	 nosound();
+ 	 no_sound();
           //set_PIT_2(old_frequency);
  }

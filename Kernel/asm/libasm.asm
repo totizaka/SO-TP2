@@ -1,6 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL RTC
-GLOBAL keyPressed
+GLOBAL key_pressed
 GLOBAL inb
 GLOBAL outb
 
@@ -76,7 +76,7 @@ mov rsp, rbp
 pop rbp
 ret
 
-keyPressed:
+key_pressed:
     push rbp
     mov rbp, rsp
 

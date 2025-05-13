@@ -18,8 +18,8 @@ typedef struct MemoryManagerCDT {
 } MemoryManagerCDT;
 
 
-MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, size_t managedMemorySize) {
-    MemoryManagerADT manager = (MemoryManagerADT) memoryForMemoryManager;
+memory_manager_ADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory, size_t managedMemorySize) {
+    memory_manager_ADT manager = (memory_manager_ADT) memoryForMemoryManager;
 
     manager->baseAddress = (uint8_t *) managedMemory;				// La direccion de la memoria que el MM va a administrar
     manager->totalBlocks = managedMemorySize / BLOCK_SIZE;			// La cantidad de bloques que el MM va a administrar
@@ -31,7 +31,7 @@ MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager
 
 //Por ahora esta hecho para que se pueda solicitar solo un bloque
 
-void *my_malloc(MemoryManagerADT manager) {
+void *my_malloc(memory_manager_ADT manager) {
     for (size_t i = 0; i < manager->totalBlocks; i++) {
         size_t byteIndex = i / BYTE_SIZE;									// Indice del byte dentro del bitmap
         size_t bitIndex = i % BYTE_SIZE;									// Indice del bit dentro del byte
@@ -46,7 +46,7 @@ void *my_malloc(MemoryManagerADT manager) {
     return NULL; 													// No hay bloques disponibles
 }
 
-void my_free(MemoryManagerADT manager, void *ptr) {
+void my_free(memory_manager_ADT manager, void *ptr) {
     if (!ptr) return;												// Si puntero es nulo, no hacer nada
 
     uintptr_t offset = (uint8_t *)ptr - manager->baseAddress;		// Cuánto avanzamos en la memoria desde baseAddress.
@@ -63,7 +63,7 @@ void my_free(MemoryManagerADT manager, void *ptr) {
     manager->bitmap[byteIndex] &= ~(1 << bitIndex);  				// Marcar como libre (en 0)
 }
 
-size_t my_get_available_memory(MemoryManagerADT manager) {
+size_t my_get_available_memory(memory_manager_ADT manager) {
     size_t freeBlocks = 0;
 
     for (size_t i = 0; i < manager->totalBlocks; i++) {

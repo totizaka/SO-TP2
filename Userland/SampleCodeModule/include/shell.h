@@ -2,9 +2,8 @@
 #define _SHELL_H_
 
 #include <stdio.h>
-
 #include <stdlib_user.h>
-#include "snake.h"
+#include <snake.h>
 
 #define menuDIM 7
 #define MAXBUFF 100
@@ -20,17 +19,11 @@ void snake();
 void show_regs();
 void font_size();
 void printTime(); 
-void div0Exc();
-void opcodeExc();
-void showTime();
+void div0_exc();
+void opcode_exc();
+void show_time();
 extern void div0();
-extern void opcode_exc();
-
-extern module menu[];
-
-extern uint64_t *regs;
-extern char *regstxt[18];
-
+extern void opcode();
 void command_wait();
 void shell();
 

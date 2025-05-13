@@ -50,42 +50,42 @@ typedef struct vbe_mode_info_structure * VBEInfoPtr;
 
 VBEInfoPtr VBE_mode_info = (VBEInfoPtr) 0x0000000000005C00;
 
-const uint16_t charWidht = 9;
-const uint16_t charHeight = 16;
-uint8_t pixelSize = 1;
+const uint16_t char_widht = 9;
+const uint16_t char_height = 16;
+uint8_t pixel_size = 1;
 
-void increasePixelSize() {
-    if (pixelSize < 5) {
-        pixelSize++;
+void increase_pixel_size() {
+    if (pixel_size < 5) {
+        pixel_size++;
     }
 }
 
-void decreasePixelSize() {
-    if (pixelSize > 1) {
-        pixelSize--;
+void decrease_pixel_size() {
+    if (pixel_size > 1) {
+        pixel_size--;
     }
 }
 
-void setPixelSize(uint8_t size){
+void set_pixel_size(uint8_t size){
 	if(size >=1 && size <= 5){
-		pixelSize = size;
+		pixel_size = size;
 	}
 }
 
-uint8_t getCurrentPixelSize(){
-	return pixelSize;
+uint8_t get_current_pixel_size(){
+	return pixel_size;
 }
 
-uint16_t getCharWidth() {
-    return charWidht * pixelSize;
+uint16_t get_char_width() {
+    return char_widht * pixel_size;
 }
 
-uint16_t getCharHeight() {
-    return charHeight * pixelSize;
+uint16_t get_char_height() {
+    return char_height * pixel_size;
 }
 
 
-void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
+void put_pixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     uint8_t * framebuffer = (uint8_t *) (uint64_t)VBE_mode_info->framebuffer;
     uint64_t offset = (x * ((VBE_mode_info->bpp)/8)) + (y * VBE_mode_info->pitch);
     framebuffer[offset]     =  (hexColor) & 0xFF;
@@ -93,9 +93,9 @@ void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF;
 }
 
-void drawChar(uint32_t hexColor, char c, uint64_t x, uint64_t y){
+void draw_char(uint32_t hexColor, char c, uint64_t x, uint64_t y){
 	if(c == 10){
-		newLine_vd();
+		new_line_vd();
 		global_x = 0;
 		return;
 	}
@@ -105,22 +105,22 @@ void drawChar(uint32_t hexColor, char c, uint64_t x, uint64_t y){
 	
     int pos=((int)c-32)*16;
 
-	if (global_x + getCharWidth() >= VBE_mode_info->width) {
+	if (global_x + get_char_width() >= VBE_mode_info->width) {
         global_x = 0;
-        if (global_y + getCharHeight() > VBE_mode_info->height) {
-            paintAll_vd(BLACK);
+        if (global_y + get_char_height() > VBE_mode_info->height) {
+            paint_all_vd(BLACK);
         } else {
-            global_y += getCharHeight();
+            global_y += get_char_height();
         }
     }
 
     for (int i = 0; i < 16; i++){
         for (int j = 0; j < 8; j++){
-			for (int t = 0; t < pixelSize; t++){
-                for (int h = 0; h < pixelSize; h++){
+			for (int t = 0; t < pixel_size; t++){
+                for (int h = 0; h < pixel_size; h++){
 					if (font_bitmap[pos+i] >> (7-j) & 0x1)
 					{
-						putPixel(hexColor, x+(j*pixelSize)+t, y+(i*pixelSize)+h);
+						put_pixel(hexColor, x+(j*pixel_size)+t, y+(i*pixel_size)+h);
 					}
 				}
 			}
@@ -128,66 +128,66 @@ void drawChar(uint32_t hexColor, char c, uint64_t x, uint64_t y){
     }
 }
 
-void drawWord(uint32_t hexColor, char* word){
+void draw_word(uint32_t hexColor, char* word){
 	for (int i = 0; word[i]!=0; i++)
 	{	
 		if (global_x >= VBE_mode_info->width) {
         	global_x = 0;
-        	if (global_y + getCharHeight() > VBE_mode_info->height) {
-            	paintAll_vd(BLACK);
+        	if (global_y + get_char_height() > VBE_mode_info->height) {
+            	paint_all_vd(BLACK);
         	} else {
-            	global_y += getCharHeight();
+            	global_y += get_char_height();
         	}
     	}
-		drawChar(hexColor, word[i], (global_x += getCharWidth()), global_y);
+		draw_char(hexColor, word[i], (global_x += get_char_width()), global_y);
 	}
 }
 
-void erraseChar(uint32_t hexColor){
+void errase_char(uint32_t hexColor){
 	
 	for (int i = 0; i < 16; i++){
         for (int j = 0; j < 8; j++){
-			for (int t = 0; t < pixelSize; t++){
-                for (int h = 0; h < pixelSize; h++){
-					putPixel(hexColor, global_x+(j*pixelSize)+t, global_y+(i*pixelSize)+h);
+			for (int t = 0; t < pixel_size; t++){
+                for (int h = 0; h < pixel_size; h++){
+					put_pixel(hexColor, global_x+(j*pixel_size)+t, global_y+(i*pixel_size)+h);
 				}
         	}
     	}
 	}
 	if(global_x!=0){
-		global_x -= getCharWidth();
+		global_x -= get_char_width();
 	}
 	
 }
 
-void newLine_vd(){
-	if (global_y + getCharHeight() > VBE_mode_info->height) {
-        paintAll_vd(BLACK);
+void new_line_vd(){
+	if (global_y + get_char_height() > VBE_mode_info->height) {
+        paint_all_vd(BLACK);
     }else {
-        global_y += getCharHeight();
+        global_y += get_char_height();
     }
 	global_x= 0;
 }
 
 
 
-void putSquarePixel(uint32_t hexColor, uint64_t x, uint64_t y, uint64_t thickness){
+void put_square_pixel(uint32_t hexColor, uint64_t x, uint64_t y, uint64_t thickness){
 	for (uint64_t i = 0; i < thickness; i++){
 		for (uint64_t j = 0; j < thickness; j++){
-			putPixel(hexColor, x+i, y+j);
+			put_pixel(hexColor, x+i, y+j);
 		}
 	}
 }
 
-uint16_t getWidth_vd(){
+uint16_t get_width_vd(){
 	return VBE_mode_info->width;			
 }
 
-uint16_t getHeight_vd(){
+uint16_t get_height_vd(){
 	return VBE_mode_info->height;			
 }
 
-void paintAll_vd(uint32_t hexColor){
+void paint_all_vd(uint32_t hexColor){
     uint8_t * framebuffer = (uint8_t *)(uint64_t) VBE_mode_info->framebuffer;
     uint32_t color = hexColor;
     uint64_t totalPixels = VBE_mode_info->width * VBE_mode_info->height;
@@ -203,21 +203,22 @@ void paintAll_vd(uint32_t hexColor){
 	global_y=0;
 	global_x=0;
 }
-void erraseLine(){
+
+void errase_line(){
     if (global_y > 0)
     {
         global_x = 0;
         for (int i = 0; i < 16; i++){
-            for (int j = 0; j < getWidth_vd(); j++){
-                for (int t = 0; t < pixelSize; t++){
-                    for (int h = 0; h < pixelSize; h++){
-                    putPixel(BLACK, global_x+(j*pixelSize)+t, global_y+(i*pixelSize)+h);
+            for (int j = 0; j < get_width_vd(); j++){
+                for (int t = 0; t < pixel_size; t++){
+                    for (int h = 0; h < pixel_size; h++){
+                    put_pixel(BLACK, global_x+(j*pixel_size)+t, global_y+(i*pixel_size)+h);
                     }
                 }
             }
         }
     }
 	if(global_y > 0){
-    	global_y -= getCharHeight();
+    	global_y -= get_char_height();
 	}
 }

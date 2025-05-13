@@ -3,7 +3,7 @@
 
 void keyboard_handler();
 void printCharPressed();
-char getCharPressed();
+char get_char_pressed();
 int get_regs();
 
 #endif

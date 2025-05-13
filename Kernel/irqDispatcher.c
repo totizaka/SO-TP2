@@ -7,7 +7,7 @@ static void int_21();
 
 void (*interrupt_arr[])(void) = {int_20, int_21};
 
-void irqDispatcher(uint64_t irq) {
+void irq_dispatcher(uint64_t irq) {
 	interrupt_arr[irq]();
 	return;
 }
