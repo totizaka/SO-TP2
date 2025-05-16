@@ -8,6 +8,7 @@
 #include <clock.h>
 #include <time.h>
 #include <mm_dummy.h>  // Para el administrador de memoria
+#include <kernel.h>
 	
 extern uint8_t text;
 extern uint8_t rodata;
@@ -21,13 +22,12 @@ extern uint8_t end_of_kernel;
 
 static void * const sample_code_module_address = (void*)0x400000;
 static void * const sample_data_module_address = (void*)0x500000;
-static void * const memory_address = (void*)0x250000;
+static void * const memory_address = (void*)0x600000;
 
 static const uint64_t page_size = 0x1000;
 
 static memory_manager_ADT memory_manager;    // puntero global para accederlo
 
-memory_manager_ADT get_memory_manager();
 
 typedef int (*EntryPoint)();
 //unsigned int keyRead();

@@ -6,6 +6,7 @@
 #include <syscallDispatcher.h>
 #include <lib.h>
 #include <keyboard.h>
+#include <kernel.h>
 
 
 #define STDIN  0
@@ -36,8 +37,6 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_errase_line_handler, 
     (void*)syscall_beep_handler, 
     (void*)syscall_regs_values, 
-    (void*)syscall_malloc_handler, 
-    (void*)syscall_free_handler, 
     (void*)syscall_my_getpid_handler, 
     (void*)syscall_my_create_process_handler, 
     (void*)syscall_my_nice_handler, 
@@ -49,7 +48,9 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_sem_post_handler, 
     (void*)syscall_my_sem_close_handler, 
     (void*)syscall_my_yield_handler, 
-    (void*)syscall_my_wait_handler
+    (void*)syscall_my_wait_handler,
+    (void*)syscall_malloc_handler, 
+    (void*)syscall_free_handler, 
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
@@ -143,15 +144,6 @@ static uint64_t syscall_regs_values(uint64_t *regs){
     return 1;
 }
 
-static void* syscall_malloc_handler(uint64_t size) {
-    return my_malloc(get_memory_manager(), size);
-}
-
-static void syscall_free_handler(uint64_t ptr) {
-    my_free(get_memory_manager(), (void *)ptr);
-}
-
-
 static int64_t syscall_my_getpid_handler(){
     return get_pid();
 }
@@ -191,4 +183,12 @@ extern int64_t syscall_my_yield_handler(){
 }
 extern int64_t syscall_my_wait_handler(int64_t pid){
 
+}
+
+static void* syscall_malloc_handler(uint64_t size) {
+    return my_malloc(get_memory_manager(), size);
+}
+
+static void syscall_free_handler(uint64_t ptr) {
+    my_free(get_memory_manager(), (void *)ptr);
 }

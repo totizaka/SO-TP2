@@ -1,8 +1,9 @@
 #include <shell.h>
+#include <test_mm.h>
 
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
-{"div0", div0_exc}, {"opcode", opcode_exc}};
+{"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -17,6 +18,11 @@ void help(){
     print("To try Divide by Zero Exception>> enter: div0 \n", MAXBUFF);
     print("To try Invalid Opcode Exception >> enter: opcode \n", MAXBUFF);
     return;
+}
+
+void mm_test_shell(){
+    paint_all_vd(BLACK);
+    test_mm(1, "100000");
 }
 
 void opcode_exc(){
@@ -89,6 +95,7 @@ void snake(){
 }
 
 
+
 void command_wait(){
     while (1){
         print("\n",1);
@@ -98,9 +105,9 @@ void command_wait(){
 
         get_string(buff, MAXBUFF);
 
-        if(strlen(buff)!=0){
-            for(int i=0; i<menuDIM; i++){
-                if(strcmp(buff,menu[i].name)==0){
+        if(strlen_user(buff)!=0){
+            for(int i=0; i<menuDIM+1; i++){
+                if(strcmp_user(buff,menu[i].name)==0){
                     menu[i].function();
                     return;
                 }

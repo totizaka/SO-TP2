@@ -36,5 +36,7 @@ extern int64_t syscall_my_sem_post(char *sem_id);
 extern int64_t syscall_my_sem_close(char *sem_id);
 extern int64_t syscall_my_yield();
 extern int64_t syscall_my_wait(int64_t pid);
+extern int64_t syscall_my_malloc(uint64_t size);
+extern int64_t syscall_my_free(uint64_t ptr);
 
 #endif

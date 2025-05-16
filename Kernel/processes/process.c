@@ -19,6 +19,8 @@ PCB * running;
     uint64_t rflags;
     stack_regs stack_regs;
  }stack;
+ 
+ void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     int64_t pid = find_free_pcb();
@@ -32,7 +34,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     memory_manager_ADT mm;
    current->rsp= my_malloc(mm, sizeof(stack) ); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
     if(current->rsp==NULL){
-        return NULL;
+        return -1;
     }
     current->rsp = load_stack(current->rip,current->rsp, pid, argv, argc);//  inciializar el stack
     current->args = argv;
@@ -62,7 +64,7 @@ int64_t kill_process(uint64_t pid){
 
 int64_t find_free_pcb(){
     int64_t to_ret=0;
-    while(pcb_table[to_ret].state!=free){
+    while(pcb_table[to_ret].state!=available){
         to_ret++;
         if(to_ret == MAX_PID){
         return -1;

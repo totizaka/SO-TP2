@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdint.h>
 #include <sys_calls.h>
@@ -16,9 +17,9 @@ void draw_pixel(uint32_t color, uint64_t x, uint64_t y);
 void draw_square(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
 void nano_sleep(uint64_t secs);
 void err_print(char* buff, int count);
-int strlen(char * str);
+int strlen_user(char * str);
 void get_string(char* buff, int count);
-int strcmp(char * s1, char * s2);
+int strcmp_user(char * s1, char * s2);
 
 
 // static uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
@@ -35,3 +36,8 @@ uint8_t get_current_pixel_size();
 void errase_line();
 void make_beep(int secs, int freq);
 uint64_t register_snapshot(uint64_t * regs);
+
+int64_t my_getpid();
+void* my_malloc(uint64_t size);
+void my_free(uint64_t ptr);
+

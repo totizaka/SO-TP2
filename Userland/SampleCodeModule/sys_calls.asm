@@ -16,6 +16,20 @@ GLOBAL syscall_get_current_pixel_size
 GLOBAL syscall_errase_line
 GLOBAL syscall_beep
 GLOBAL syscall_regs
+GLOBAL syscall_my_getpid
+GLOBAL syscall_my_create_process
+GLOBAL syscall_my_nice
+GLOBAL syscall_my_kill
+GLOBAL syscall_my_block
+GLOBAL syscall_my_unblock
+GLOBAL syscall_my_sem_open
+GLOBAL syscall_my_sem_wait
+GLOBAL syscall_my_sem_post
+GLOBAL syscall_my_sem_close
+GLOBAL syscall_my_yield
+GLOBAL syscall_my_wait
+GLOBAL syscall_my_malloc
+GLOBAL syscall_my_free
 
 section .text
 
@@ -162,5 +176,15 @@ syscall_my_yield:
 
 syscall_my_wait:
     mov rax, 0x1C
+    int 80h
+    ret
+
+syscall_my_malloc:
+    mov rax, 0x1D
+    int 80h
+    ret
+
+syscall_my_free:
+    mov rax, 0x1E
     int 80h
     ret

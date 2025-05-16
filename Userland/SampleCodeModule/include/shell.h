@@ -5,7 +5,7 @@
 #include <stdlib_user.h>
 #include <snake.h>
 
-#define menuDIM 7
+#define menuDIM 8
 #define MAXBUFF 100
 #define BLACK 0x000000
 
@@ -26,6 +26,7 @@ extern void div0();
 extern void opcode();
 void command_wait();
 void shell();
+void mm_test_shell();
 
 
 #endif

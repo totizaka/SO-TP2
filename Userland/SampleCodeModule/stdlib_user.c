@@ -11,7 +11,7 @@ void err_print(char* buff, int count){
     syscall_write(2, buff, count);
 }
 
-int strlen(char * str){
+int strlen_user(char * str){
     int i=0;
     while(str[i]!=0){
         i++;
@@ -45,7 +45,7 @@ void get_string(char* buff, int count){
 }
 }
 
-int strcmp(char * s1, char * s2){
+int strcmp_user(char * s1, char * s2){
    int i = 0;
     while (s1[i] != 0 && s2[i] != 0){
         if (s1[i] - s2[i] != 0){
@@ -210,4 +210,16 @@ uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base){
 	}
 
 	return digits;
+}
+
+void* my_malloc(uint64_t size){
+    return (void*)syscall_my_malloc(size);
+}
+
+void my_free(uint64_t ptr){
+    syscall_my_free(ptr);
+}
+
+int64_t my_getpid(){
+    return syscall_my_getpid();
 }

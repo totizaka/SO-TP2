@@ -6,7 +6,8 @@
 
 #define blocked 2
 #define ready 1
-#define free 0
+#define available 0
+
 #define MAX_PID 50
 
 
@@ -22,7 +23,7 @@ typedef struct {
 
 
 int64_t find_free_pcb();
-uint64_t new_process(uint64_t rip, uint8_t priority);
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 int64_t block_process(uint64_t pid);
 int64_t ready_process(uint64_t pid);
 int64_t kill_process(uint64_t pid);
