@@ -7,14 +7,8 @@
 #include <idtLoader.h>
 #include <clock.h>
 #include <time.h>
-#include "mm_dummy.h"  // Para el administrador de memoria
-
-
-#define MEMORY_MANAGER_OFFSET 128		//SACARLOO!!!! Y PONER EL SIZEOF(MMCDT) EN SU LUGAR
-#define MEMORY_MANAGER_SIZE 0x100000	
-#define MEMORY_MANAGER_ADRESS 0x250000	
-
-
+#include <mm_dummy.h>  // Para el administrador de memoria
+	
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -24,12 +18,16 @@ extern uint8_t end_of_kernel;
 /*char scan_codes[128] = { 0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ',
  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 */
-memory_manager_ADT get_memory_manager();
-static const uint64_t page_size = 0x1000;
 
 static void * const sample_code_module_address = (void*)0x400000;
 static void * const sample_data_module_address = (void*)0x500000;
-static memory_manager_ADT memory_manager;
+static void * const memory_address = (void*)0x250000;
+
+static const uint64_t page_size = 0x1000;
+
+static memory_manager_ADT memory_manager;    // puntero global para accederlo
+
+memory_manager_ADT get_memory_manager();
 
 typedef int (*EntryPoint)();
 //unsigned int keyRead();
@@ -104,8 +102,8 @@ int main()
 {	
 
 	load_idt();
-	// memory_manager = createMemoryManager(sample_data_module_address, sample_data_module_address + MEMORY_MANAGER_OFFSET, MEMORY_MANAGER_SIZE);
 
+	memory_manager = createMemoryManager(memory_address);
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

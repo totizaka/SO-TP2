@@ -144,15 +144,11 @@ static uint64_t syscall_regs_values(uint64_t *regs){
 }
 
 static void* syscall_malloc_handler(uint64_t size) {
-    // void *allocatedMemory = my_malloc(get_memory_manager());
-    // if (allocatedMemory == NULL) {
-    //     ncPrint("Error: No se pudo asignar memoria\n");
-    // }
-    // return allocatedMemory;
+    return my_malloc(get_memory_manager(), size);
 }
 
 static void syscall_free_handler(uint64_t ptr) {
-    // my_free(get_memory_manager(), (void *)ptr);
+    my_free(get_memory_manager(), (void *)ptr);
 }
 
 

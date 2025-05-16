@@ -5,7 +5,6 @@
 
 
 #define MEMORY_ALIGNMENT 8
-#define BLOCK_SIZE 64
 #define MAX_BLOCKS 1024
 #define BYTE_SIZE 8
 #define BITMAP_SIZE (MAX_BLOCKS / BYTE_SIZE)
@@ -37,11 +36,11 @@ static int is_bit_set(uint8_t *bitmap, size_t index) {
 }
 
 
-memory_manager_ADT createMemoryManager(void *memoryForMemoryManager, void *managedMemory, size_t managedMemorySize) {
+memory_manager_ADT createMemoryManager(void *memoryForMemoryManager) {
     memory_manager_ADT manager = (memory_manager_ADT) memoryForMemoryManager;
 
-    manager->baseAddress = (uint8_t *) managedMemory;
-    manager->totalBlocks = managedMemorySize / BLOCK_SIZE;
+    manager->baseAddress = (uint8_t *) memoryForMemoryManager + sizeof(MemoryManagerCDT);
+    manager->totalBlocks = MEMORY_MANAGER_SIZE / BLOCK_SIZE;
 
     memset(manager->bitmap, 0, BITMAP_SIZE);
     return manager;

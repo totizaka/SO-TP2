@@ -3,11 +3,12 @@
 
 #include <stdlib.h>
 
+#define MEMORY_MANAGER_SIZE 0x100000
+#define BLOCK_SIZE 64
+
 typedef struct MemoryManagerCDT *memory_manager_ADT;
 
-memory_manager_ADT createMemoryManager(void *const restrict memoryForMemoryManager,
-    void *const restrict managedMemory,
-    size_t managedMemorySize);
+memory_manager_ADT createMemoryManager(void *const restrict memoryForMemoryManager);
 
 void *my_malloc(memory_manager_ADT manager, size_t size);
 
