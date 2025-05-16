@@ -9,7 +9,7 @@ memory_manager_ADT createMemoryManager(void *const restrict memoryForMemoryManag
     void *const restrict managedMemory,
     size_t managedMemorySize);
 
-void *my_malloc(memory_manager_ADT manager);
+void *my_malloc(memory_manager_ADT manager, size_t size);
 
 void my_free(memory_manager_ADT manager, void *ptr);
 

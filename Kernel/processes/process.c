@@ -1,10 +1,26 @@
 #include <process.h>
+#include <mm_dummy.h>
+
 
 PCB * running;
 
  PCB pcb_table[MAX_PID]={0};
 
-uint64_t new_process(uint64_t rip, uint8_t priority){
+ typedef struct {
+    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
+ }stack_regs;
+
+ typedef struct{
+    uint64_t align;
+    uint64_t ss;
+    uint64_t cs;
+    uint64_t rsp;
+    uint64_t rip;
+    uint64_t rflags;
+    stack_regs stack_regs;
+ }stack;
+
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     int64_t pid = find_free_pcb();
     if (pid == -1){
         return -1; 
@@ -13,7 +29,13 @@ uint64_t new_process(uint64_t rip, uint8_t priority){
     current->priority = priority;
     current->rip = rip;
     current->state = ready;
-    // current->rsp  inciializar el stack
+    memory_manager_ADT mm;
+   current->rsp= my_malloc(mm, sizeof(stack) ); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    if(current->rsp==NULL){
+        return NULL;
+    }
+    current->rsp = load_stack(current->rip,current->rsp, pid, argv, argc);//  inciializar el stack
+    current->args = argv;
     return pid;
 }
 
@@ -60,4 +82,20 @@ int64_t nice(int64_t pid, uint8_t new_prio){
     }
     pcb_table[pid].priority=new_prio;
     return 1;
+}
+
+void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc){
+
+    stack*to_ret=rsp;
+    to_ret->cs=0x8;
+    to_ret->rflags=0x202;
+    to_ret->ss=0x0;
+    to_ret->rsp=rsp;
+    to_ret->stack_regs.rdi=rip;
+    to_ret->stack_regs.rcx=pid;
+    to_ret->stack_regs.rsi=(uint64_t)argv;
+    to_ret->stack_regs.rdx=argc;
+    //falta la parte de la wrapper??
+
+   return (void *) to_ret;
 }

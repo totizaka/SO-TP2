@@ -2,6 +2,7 @@
 #define PROCESS_H
 
 #include <stdint.h>
+#include <defs.h>
 
 #define blocked 2
 #define ready 1
@@ -16,6 +17,7 @@ typedef struct {
     uint8_t state; //ready, blocked o free
     uint8_t priority; //no c si esta ok el tipo de dato, q escala de prioridades vamos a tener????
     char name[32]; //nombre del proceso
+    char** args;
 }PCB;
 
 
