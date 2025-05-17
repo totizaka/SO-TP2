@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 #include <defs.h>
+#include <mm_dummy.h>
 
+#define zombie 3
 #define blocked 2
 #define ready 1
 #define available 0
@@ -29,5 +31,6 @@ int64_t ready_process(uint64_t pid);
 int64_t kill_process(uint64_t pid);
 int64_t get_pid();
 int64_t nice(int64_t pid, uint8_t new_prio);
+void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
 
 #endif

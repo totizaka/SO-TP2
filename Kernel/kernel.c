@@ -1,13 +1,4 @@
-#include <stdint.h>
-#include <string.h>
-#include <lib.h>
-#include <moduleLoader.h>
-#include <naiveConsole.h>
-#include <videoDriver.h>
-#include <idtLoader.h>
-#include <clock.h>
-#include <time.h>
-#include <mm_dummy.h>  // Para el administrador de memoria
+
 #include <kernel.h>
 	
 extern uint8_t text;
@@ -51,46 +42,15 @@ void * initialize_kernel_binary()
 {
 	char buffer[10];
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
-
-	ncPrint("CPU Vendor:");
-	ncPrint(cpuVendor(buffer));
-	ncNewline();
-
-	ncPrint("[Loading modules]");
-	ncNewline();
 	void * moduleAddresses[] = {
 		sample_code_module_address,
 		sample_data_module_address
 	};
 
 	loadModules(&end_of_kernel_binary, moduleAddresses);
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
-
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
-
+	
 	clear_BSS(&bss, &end_of_kernel - &bss);
 
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
-
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
 	return get_stack_base();
 }
 
@@ -105,24 +65,5 @@ int main()
 
 	memory_manager = createMemoryManager(memory_address);
 
-	ncPrint("[Kernel Main]");
-	ncNewline();
-
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sample_code_module_address);
-	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sample_code_module_address)());
-	ncNewline();
-	ncNewline();
-
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sample_data_module_address);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sample_data_module_address);
-	ncNewline();
-
-	ncPrint("[Finished]");
 	return 0;
 }

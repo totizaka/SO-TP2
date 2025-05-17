@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <sys_calls.h>
-#include "stdlib_user.h"
+#include <stdlib_user.h>
 
 void print(const char* buf, uint64_t count) {
 	syscall_write(1, buf, count);
