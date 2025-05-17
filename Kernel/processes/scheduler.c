@@ -13,7 +13,7 @@
 list_adt readys;
 list_adt blockeds;
 
-int initialized=0;
+static int initialized=0;
 
 int compare_elem(list_elem_t e1, list_elem_t e2){
     return ((PCB*)e1)->pid - ((PCB*)e2)->pid;

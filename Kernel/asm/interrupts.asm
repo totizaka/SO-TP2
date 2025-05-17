@@ -26,6 +26,7 @@ EXTERN irq_dispatcher
 EXTERN exception_dispatcher
 EXTERN syscallDispatcher
 EXTERN get_regs
+EXTERN scheduler
 
 
 EXTERN get_stack_base
