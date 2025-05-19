@@ -80,6 +80,12 @@ int64_t get_pid(){
 }
 
 
+PCB* get_pcb(uint64_t pid){
+    if(pid<0 || pid>MAX_PID){
+        return NULL;
+    }
+    return &pcb_table[pid];
+}
 
 
 int64_t nice(int64_t pid, uint8_t new_prio){
