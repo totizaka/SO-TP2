@@ -30,7 +30,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     PCB *current = &pcb_table[pid];
     current->priority = priority;
     current->rip = rip;
-    current->state = ready;
+    current->state = READY;
     memory_manager_ADT mm;
    current->rsp= (uint64_t)my_malloc(mm, STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
     if(current->rsp==NULL){
@@ -46,7 +46,7 @@ int64_t block_process(uint64_t pid){
          //ERROR, VER COMO MANEJAMOS ERRORES???
          return -1;
     }
-    pcb_table[pid].state=blocked;
+    pcb_table[pid].state=BLOCKED;
     return 1;
     //falta sacarlo de la cola de los ready y meterlo en la cola de los blocked
 }
@@ -55,7 +55,7 @@ int64_t ready_process(uint64_t pid){
     if(pid < 0 || pid >= MAX_PID){
         return -1;
     }
-    pcb_table[pid].state=ready;
+    pcb_table[pid].state=READY;
     return 1;
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
@@ -66,7 +66,7 @@ int64_t kill_process(uint64_t pid){
 
 int64_t find_free_pcb(){
     int64_t to_ret=0;
-    while(pcb_table[to_ret].state!=available){
+    while(pcb_table[to_ret].state!=FREE){
         to_ret++;
         if(to_ret == MAX_PID){
         return -1;
@@ -78,6 +78,9 @@ int64_t find_free_pcb(){
 int64_t get_pid(){
     return running->pid;
 }
+
+
+
 
 int64_t nice(int64_t pid, uint8_t new_prio){
     if(pid<0 || pid>MAX_PID){

@@ -37,7 +37,7 @@ int64_t find_free_pcb();
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 int64_t block_process(uint64_t pid);
 int64_t ready_process(uint64_t pid);
-int64_t kill_process(uint64_t pid);
+int64_t kill_process(uint64_t pid);//FALTA IMPLEMENTAR
 int64_t get_pid();
 int64_t nice(int64_t pid, uint8_t new_prio);
 void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
