@@ -1,29 +1,30 @@
 #include <scheduler.h>
+
 //proceso actual
- PCB *running = NULL;
-int64_t ran_time=0;
-typedef uint64_t pid_t;
+PCB *running = NULL;
+int64_t ran_time = 0;
+
 int compare_elem(list_elem_t e1, list_elem_t e2){
     return ((PCB*)e1)->pid - ((PCB*)e2)->pid;
 }
 
 
 void initialize_scheduler(pid_t idle_pid){
-    t_cmp cmp= compare_elem;
+    t_cmp cmp = compare_elem;
     readys = new_list(cmp);
-    blockeds= new_list(cmp);
+    blockeds = new_list(cmp);
 
     if (readys == NULL || blockeds == NULL) {
         return;
     }
 
     idle_pcb = get_pcb(idle_pid);
-    initialized=1;
+    initialized = 1;
     to_begin(readys);
 }
 
 void ready(PCB* process){
-    if (process==NULL || ready_process(process->pid)==-1){
+    if (process == NULL || ready_process(process->pid) == -1){
         return;
     }   
     add_list(readys, (list_elem_t)process);
@@ -31,9 +32,10 @@ void ready(PCB* process){
 }
 
 void block(PCB* process){
-    if (process==NULL || block_process(process->pid)==-1){
+    if (process == NULL || block_process(process->pid) == -1){
         return;
     }
+    remove_list(readys, (list_elem_t)process); //Checkear q pasa si no lo encuentra
     add_list(blockeds, (list_elem_t)process);
 }
 
@@ -86,5 +88,9 @@ uint64_t scheduler(uint64_t current_rsp){
     }
 
     return running->rsp;
+}
+
+void yield(){
+    timer_tick();
 }
 

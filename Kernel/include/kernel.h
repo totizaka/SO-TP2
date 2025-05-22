@@ -10,6 +10,11 @@
 #include <clock.h>
 #include <time.h>
 #include <mm_dummy.h>  // Para el administrador de memoria
+#include <process.h>
+#include <scheduler.h>
+#include <list.h>
+
+
 memory_manager_ADT get_memory_manager();
 
 

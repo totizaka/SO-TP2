@@ -28,41 +28,54 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
         return -1; 
     }
     PCB *current = &pcb_table[pid];
+    current->pid = pid;
     current->priority = priority;
     current->rip = rip;
     current->state = READY;
-    memory_manager_ADT mm;
-   current->rsp= (uint64_t)my_malloc(mm, STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
-    if(current->rsp==NULL){
+    current->rsp= (uint64_t)my_malloc(get_memory_manager(), STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    if(current->rsp == NULL){
         return -1;
     }
-    current->rsp = load_stack(current->rip,current->rsp, pid, argv, argc);//  inciializar el stack
+    current->rsp = load_stack(current->rip, current->rsp, pid, argv, argc);//  inciializar el stack
     current->args = argv;
     return pid;
 }
 
 
 //Implementado como si las listas NO estuvieran en shm
-int64_t block_process(uint64_t pid, list_adt blockeds){
+int64_t block_process(uint64_t pid){
     if(pid < 0 || pid >= MAX_PID){
          //ERROR, VER COMO MANEJAMOS ERRORES???
          return -1;
     }
-    pcb_table[pid].state=BLOCKED;
-    return 1; 
+    pcb_table[pid].state = BLOCKED;
+    return 0; 
 }
 
 int64_t ready_process(uint64_t pid){
     if(pid < 0 || pid >= MAX_PID){
         return -1;
     }
-    pcb_table[pid].state=READY;
-    return 1;
+    pcb_table[pid].state = READY;
+    return 0;
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
+
 //falta implementar
 int64_t kill_process(uint64_t pid){
-    return 0;
+    if (pid < 0 || pid >= MAX_PID || pcb_table[pid].state == FREE){
+        return -1;
+    }
+    if (pcb_table[pid].state == READY){
+        remove_list(readys, (list_elem_t)&pcb_table[pid]);
+    }
+    else if (pcb_table[pid].state == BLOCKED){
+        remove_list(blockeds, (list_elem_t)&pcb_table[pid]);
+    }
+    else if (pcb_table[pid].state == RUNNING){
+        running = NULL;
+    }
+    pcb_table[pid].state = ZOMBIE;
 }
 
 int64_t find_free_pcb(){

@@ -5,6 +5,7 @@ GLOBAL pic_master_mask
 GLOBAL pic_slave_mask
 GLOBAL haltcpu
 GLOBAL _hlt
+GLOBAL timer_tick
 
 
 GLOBAL _int80Handler
@@ -160,6 +161,9 @@ mov[exc_regs], rax
 
 %endmacro
 
+timer_tick:
+	int 0x20
+	ret
 
 _hlt:
 	sti

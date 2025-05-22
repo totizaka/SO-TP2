@@ -1,4 +1,3 @@
-
 #include <kernel.h>
 	
 extern uint8_t text;
@@ -58,12 +57,20 @@ memory_manager_ADT get_memory_manager(){
 	return memory_manager;
 }
 
+void idle_process(){
+	while (1){
+		_hlt();
+	}
+}
+
 int main()
 {	
 
 	load_idt();
 
 	memory_manager = createMemoryManager(memory_address);
+
+	initialize_scheduler(new_process((uint64_t)&idle_process, LOW_PRIORITY, NULL, 0));
 
 	return 0;
 }

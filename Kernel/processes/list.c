@@ -24,11 +24,13 @@ list_adt new_list(t_cmp cmp){
     return to_ret;
 }
 list_elem_t remove_first(list_adt list){
-    if(list==NULL){
-        return;
+    if(list == NULL || list->first == NULL){
+        return NULL;
     }
-    list_elem_t aux=list->first->elem;
-    list->first=list->first->tail;
+    node * aux_node = list->first;
+    list_elem_t aux = aux_node->elem;
+    list->first = aux_node->tail;
+    my_free(get_memory_manager(), aux_node);
     list->size--;
     return aux;
 }
@@ -68,7 +70,7 @@ int8_t add_list(list_adt list, list_elem_t elem){
         current->tail = aux;
     }
     list->size++;
-    return 1;
+    return 0;
 }
 
 int8_t remove_list(list_adt list, list_elem_t elem){

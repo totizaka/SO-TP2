@@ -4,7 +4,7 @@ GLOBAL key_pressed
 GLOBAL inb
 GLOBAL outb
 GLOBAL aqcuire
-GLOBAR release
+GLOBAL release
 
 
 
