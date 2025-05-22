@@ -41,14 +41,15 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     return pid;
 }
 
-int64_t block_process(uint64_t pid){
+
+//Implementado como si las listas NO estuvieran en shm
+int64_t block_process(uint64_t pid, list_adt blockeds){
     if(pid < 0 || pid >= MAX_PID){
          //ERROR, VER COMO MANEJAMOS ERRORES???
          return -1;
     }
     pcb_table[pid].state=BLOCKED;
-    return 1;
-    //falta sacarlo de la cola de los ready y meterlo en la cola de los blocked
+    return 1; 
 }
 
 int64_t ready_process(uint64_t pid){

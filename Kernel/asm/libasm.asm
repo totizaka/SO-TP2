@@ -3,11 +3,24 @@ GLOBAL RTC
 GLOBAL key_pressed
 GLOBAL inb
 GLOBAL outb
+GLOBAL aqcuire
+GLOBAR release
 
 
 
 section .text
 
+aqcuire:
+mov al, 0
+.ciclo:
+xchg byte[rdi], al
+test al, al
+jnz ciclo
+ret
+
+release:
+mov byte[rdi], 1
+ret
 
 
 

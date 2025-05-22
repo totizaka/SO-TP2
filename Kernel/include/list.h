@@ -22,5 +22,5 @@ int8_t is_empty(list_adt list);
 void to_begin(list_adt list);
 list_elem_t next(list_adt list);
 int8_t has_next(list_adt list);
-
+list_elem_t remove_first(list_adt list);
 #endif

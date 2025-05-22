@@ -23,7 +23,15 @@ list_adt new_list(t_cmp cmp){
     to_ret->cmp = cmp;
     return to_ret;
 }
-
+list_elem_t remove_first(list_adt list){
+    if(list==NULL){
+        return;
+    }
+    list_elem_t aux=list->first->elem;
+    list->first=list->first->tail;
+    list->size--;
+    return aux;
+}
 int8_t free_list(list_adt list){
     if(list == NULL){ 
         return -1;

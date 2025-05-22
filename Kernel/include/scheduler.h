@@ -10,13 +10,17 @@
 
 //Round Robin 
 
-//Listas(habria que mandarlas a share memory) 
+//Listas(habria que mandarlas a share memory)
+//(Por ahi no es necesario) 
 list_adt readys;
 list_adt blockeds;
 
-//proceso actual
-static PCB *running = NULL;
+
 static PCB * idle_pcb;
 static int initialized=0;
+
+void ready(PCB *process);
+void block(PCB* process);
+PCB* get_running();
 
 #endif

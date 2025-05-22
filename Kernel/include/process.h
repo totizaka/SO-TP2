@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <defs.h>
 #include <mm_dummy.h>
+#include "list.h"
+
 
 // #define zombie 3
 // #define blocked 2
