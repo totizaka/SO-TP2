@@ -56,8 +56,10 @@ int64_t ready_process(uint64_t pid){
     if(pid < 0 || pid >= MAX_PID){
         return -1;
     }
-    pcb_table[pid].state = READY;
-    return 0;
+    pcb_table[pid].state=READY;
+    ready(pcb_table[pid]);//fijarme si lo hago al reves???
+    return 1;
+    
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
 
@@ -125,3 +127,4 @@ void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64
 
    return (void *) to_ret;
 }
+

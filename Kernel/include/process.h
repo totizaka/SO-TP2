@@ -5,6 +5,7 @@
 #include <defs.h>
 #include <mm_dummy.h>
 #include "list.h"
+#include <scheduler.h>
 
 
 // #define zombie 3
@@ -48,5 +49,6 @@ int64_t get_pid();
 int64_t nice(int64_t pid, uint8_t new_prio);
 void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
 PCB* get_pcb(uint64_t pid);
+PCB* list_processes();//quiza sea mejor directamente printear desde kernel¿?
 
 #endif

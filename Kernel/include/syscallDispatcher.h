@@ -6,6 +6,7 @@
 #include <videoDriver.h>
 #include <mm_dummy.h>
 #include <process.h>
+#include <semaphores.h>
 
 static void syscall_write_handler(int fd, char *buffer, uint64_t length);
 static uint64_t syscall_read_handler(int fd, char *buffer);
@@ -38,9 +39,10 @@ static int64_t syscall_my_block_handler(uint64_t pid);
 static int64_t syscall_my_unblock_handler(uint64_t pid);
 static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue);
 static int64_t syscall_my_sem_wait_handler(char *sem_id);
-static int64_t syscall_my_sem_post_handler(char *sem_id);
-static int64_t syscall_my_sem_close_handler(char *sem_id);
+static int64_t syscall_my_sem_post(char *sem_id);
+static int64_t syscall_my_sem_close(char *sem_id);
 static int64_t syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid);
+static void* syscall_list_processes();
 
 #endif  
