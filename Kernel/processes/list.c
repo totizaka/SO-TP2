@@ -1,6 +1,6 @@
 #include <list.h>
 
-typedef struct {
+typedef struct list_cdt {
     struct node * first;
     uint32_t size;
     struct node* it;

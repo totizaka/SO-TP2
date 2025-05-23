@@ -1,9 +1,6 @@
 #include <process.h>
 #define STACK_SIZE sizeof(stack)
 
-
-PCB * running;
-
  PCB pcb_table[MAX_PID]={0};
 
  typedef struct {
@@ -20,7 +17,7 @@ PCB * running;
     stack_regs stack_regs;
  }stack;
  
- void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
+ 
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     int64_t pid = find_free_pcb();
@@ -33,11 +30,12 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->rip = rip;
     current->state = READY;
     current->rsp= (uint64_t)my_malloc(get_memory_manager(), STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
-    if(current->rsp == NULL){
+    if(current->rsp == 0){
         return -1;
     }
     current->rsp = load_stack(current->rip, current->rsp, pid, argv, argc);//  inciializar el stack
     current->args = argv;
+    ready(current);
     return pid;
 }
 
@@ -57,8 +55,8 @@ int64_t ready_process(uint64_t pid){
         return -1;
     }
     pcb_table[pid].state=READY;
-    ready(pcb_table[pid]);//fijarme si lo hago al reves???
-    return 1;
+    ready(&pcb_table[pid]);//fijarme si lo hago al reves???
+    return 0;
     
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
@@ -68,16 +66,10 @@ int64_t kill_process(uint64_t pid){
     if (pid < 0 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
-    if (pcb_table[pid].state == READY){
-        remove_list(readys, (list_elem_t)&pcb_table[pid]);
-    }
-    else if (pcb_table[pid].state == BLOCKED){
-        remove_list(blockeds, (list_elem_t)&pcb_table[pid]);
-    }
-    else if (pcb_table[pid].state == RUNNING){
-        running = NULL;
-    }
+    remove_from_scheduler(&pcb_table[pid]);
     pcb_table[pid].state = ZOMBIE;
+    
+    return 0;
 }
 
 int64_t find_free_pcb(){
@@ -92,6 +84,7 @@ int64_t find_free_pcb(){
 }
 
 int64_t get_pid(){
+    PCB* running = get_running();
     return running->pid;
 }
 
@@ -112,7 +105,7 @@ int64_t nice(int64_t pid, uint8_t new_prio){
     return 1;
 }
 
-void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc){
+uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc){
 
     stack*to_ret=(stack*)(rsp - STACK_SIZE);
     to_ret->cs=0x8;
@@ -125,6 +118,5 @@ void*  load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64
     to_ret->stack_regs.rdx=argc;
     //falta la parte de la wrapper??
 
-   return (void *) to_ret;
+   return (uint64_t) to_ret;
 }
-

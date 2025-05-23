@@ -13,6 +13,7 @@
 #include <process.h>
 #include <scheduler.h>
 #include <list.h>
+#include <interrupts.h>
 
 
 memory_manager_ADT get_memory_manager();

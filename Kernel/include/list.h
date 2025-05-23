@@ -1,15 +1,16 @@
 #ifndef LIST_H_
 #define LIST_H_
 
-
 #include <stdint.h>
 #include <defs.h>
 #include <stddef.h>
 #include <mm_dummy.h>
-#include <kernel.h>
 #include <process.h>
-typedef list_cdt* list_adt;
-typedef PCB* list_elem_t; //quizas haya q cambiar tipo de dato por proceso
+#include <pcb.h>
+
+
+typedef struct list_cdt * list_adt;
+typedef struct PCB* list_elem_t; 
 
 typedef int (*t_cmp)(list_elem_t e1, list_elem_t e2);
 

@@ -63,6 +63,17 @@ void idle_process(){
 	}
 }
 
+void test_process(){
+	int x;
+		while(1){
+		draw_word( 0, "A\n", 1);
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}
+
 int main()
 {	
 
@@ -71,6 +82,8 @@ int main()
 	memory_manager = createMemoryManager(memory_address);
 
 	initialize_scheduler(new_process((uint64_t)&idle_process, LOW_PRIORITY, NULL, 0));
+
+	new_process((uint64_t)sample_code_module_address, HIGH_PRIORITY, NULL, 0);
 
 	return 0;
 }

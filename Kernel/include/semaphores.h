@@ -4,6 +4,8 @@
 #include <mm_dummy.h>
 #include <scheduler.h>
 #include <process.h>
+#include <list.h>
+
 void realese(uint8_t * lock);
 void acquire(uint8_t * lock);
 int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel );

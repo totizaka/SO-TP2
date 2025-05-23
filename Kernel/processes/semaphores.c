@@ -7,7 +7,7 @@ typedef struct sem{
     int64_t value;
     uint8_t ocupied;
     uint8_t is_kernel;
-    PCB * blockeds;
+    list_adt my_blockeds;
 
 }sem_t;
 
@@ -26,7 +26,7 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
     sem_array[sem_id].ocupied=1;
     sem_array[sem_id].value=value;
     sem_array[sem_id].is_kernel=is_kernel;
-    realese(&sem_array[sem_id].lock);
+    release(&sem_array[sem_id].lock);
 
 }
 
@@ -35,15 +35,15 @@ int64_t my_sem_post ( int64_t sem_id, uint8_t is_kernel ){
         return -1;
     }
     acquire(&sem_array[sem_id].lock);
-    if(sem_array[sem_id].blockeds==NULL||is_empty(sem_array[sem_id].blockeds)){
+    if(sem_array[sem_id].my_blockeds==NULL||is_empty(sem_array[sem_id].my_blockeds)){
         sem_array[sem_id].value++;
     }else{
-        list_elem_t unblock=remove_first(sem_array[sem_id].blockeds);
+        list_elem_t unblock=remove_first(sem_array[sem_id].my_blockeds);
         ready(unblock);
     }
     
 
-    realese(&sem_array[sem_id].lock);
+    release(&sem_array[sem_id].lock);
     return 1;//por ahi hacer void??
 
 }
@@ -54,16 +54,16 @@ int64_t my_sem_wait ( int64_t sem_id, uint8_t is_kernel ){
     acquire(&sem_array[sem_id].lock);
     if(sem_array[sem_id].value>0){
         sem_array[sem_id].value--;
-        realese(&sem_array[sem_id].lock);
+        release(&sem_array[sem_id].lock);
         return 1;
     }
     PCB* running= get_running();
     block(running);
-    if(sem_array[sem_id].blockeds==NULL){
-        sem_array[sem_id].blockeds=new_list(comp);
+    if(sem_array[sem_id].my_blockeds==NULL){
+        sem_array[sem_id].my_blockeds=new_list(comp);
     }
-    add_list(sem_array[sem_id].blockeds, running);
-    realese(&sem_array[sem_id].lock);
+    add_list(sem_array[sem_id].my_blockeds, running);
+    release(&sem_array[sem_id].lock);
     return 1;//hacer void??
 }
 int64_t my_sem_close ( int64_t sem_id, uint8_t is_kernel){
@@ -72,16 +72,16 @@ int64_t my_sem_close ( int64_t sem_id, uint8_t is_kernel){
     }
     acquire(&sem_array[sem_id].lock);
     //me parece q esta mal esto
-    if(sem_array[sem_id].blockeds!=NULL){
+    if(sem_array[sem_id].my_blockeds!=NULL){
     list_elem_t PCB;
-    while(!is_empty(sem_array[sem_id].blockeds)){
-       PCB= remove_first(sem_array[sem_id].blockeds);
+    while(!is_empty(sem_array[sem_id].my_blockeds)){
+       PCB= remove_first(sem_array[sem_id].my_blockeds);
        ready(PCB);
     }
-    free_list(sem_array[sem_id].blockeds);
+    free_list(sem_array[sem_id].my_blockeds);
     }
     
-    realese(&sem_array[sem_id].lock);
+    release(&sem_array[sem_id].lock);
 
     return 0;
 }

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <list.h>
-#include <process.h>
+#include <pcb.h>
 #include <interrupts.h>
 
 #define  QUANTUM 5 //Nose cuanto hacer el quanttum cambiarllo dsp . Entre 20ms y 50ms es razonable 
@@ -13,12 +13,9 @@
 
 //Listas(habria que mandarlas a share memory)
 //(Por ahi no es necesario) 
-list_adt readys;
-list_adt blockeds;
 
 
-static PCB * idle_pcb;
-static int initialized=0;
+
 typedef uint64_t pid_t;
 
 
@@ -29,5 +26,6 @@ void block(PCB* process);
 PCB* get_running();
 uint64_t scheduler(uint64_t current_rsp);
 void yield();
+void remove_from_scheduler(PCB* process);
 
 #endif

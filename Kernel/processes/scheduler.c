@@ -1,8 +1,13 @@
 #include <scheduler.h>
 
+list_adt readys;
+list_adt blockeds;
+
 //proceso actual
 PCB *running = NULL;
 int64_t ran_time = 0;
+static int initialized = 0;
+static PCB * idle_pcb;
 
 int compare_elem(list_elem_t e1, list_elem_t e2){
     return ((PCB*)e1)->pid - ((PCB*)e2)->pid;
@@ -94,3 +99,17 @@ void yield(){
     timer_tick();
 }
 
+void remove_from_scheduler(PCB* process){
+    if (process == NULL){
+        return;
+    }
+    if (process->state == READY){
+        remove_list(readys, (list_elem_t)process);
+    }
+    else if (process->state == BLOCKED){
+        remove_list(blockeds, (list_elem_t)process);
+    }
+    else if (process->state == RUNNING){
+        running = NULL;
+    }
+}

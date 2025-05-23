@@ -3,19 +3,19 @@ GLOBAL RTC
 GLOBAL key_pressed
 GLOBAL inb
 GLOBAL outb
-GLOBAL aqcuire
+GLOBAL acquire
 GLOBAL release
 
 
 
 section .text
 
-aqcuire:
+acquire:
 mov al, 0
 .ciclo:
 xchg byte[rdi], al
 test al, al
-jnz ciclo
+jnz .ciclo
 ret
 
 release:
