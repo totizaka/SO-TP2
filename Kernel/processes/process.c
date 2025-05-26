@@ -62,6 +62,9 @@ static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
     return ans;
 }
  
+void set_free_pcb(pid_t pid){
+    pcb_table[pid].state=FREE;
+}
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     int64_t pid = find_free_pcb();
@@ -120,10 +123,12 @@ int64_t kill_process(uint64_t pid){
         return -1;
     }
     remove_from_scheduler(&pcb_table[pid]);
-    pcb_table[pid].state = ZOMBIE;
+    set_free_pcb(pid);
+    //pcb_table[pid].state = ZOMBIE;
     
     return 0;
 }
+
 
 int64_t find_free_pcb(){
     int64_t to_ret=0;
@@ -160,28 +165,28 @@ int64_t nice(int64_t pid, uint8_t new_prio){
 
 uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc){
 
-    stack*to_ret=(stack*)(rsp - STACK_SIZE);
-    to_ret->cs=0x8;
-    to_ret->rflags=0x202;
-    to_ret->ss=0x0;
-    to_ret->rsp=rsp;
-    to_ret->stack_regs.rdi=rip;
-    to_ret->stack_regs.rcx=pid;
-    to_ret->stack_regs.rsi=(uint64_t)argv;
-    to_ret->stack_regs.rdx=argc;
-    to_ret->rip = (uint64_t)&process_wrapper;
+    stack* to_ret=(stack*)(rsp - STACK_SIZE);
+    to_ret->stack_regs.rdi = rip;
+    to_ret->stack_regs.rsi = argv;
+    to_ret->stack_regs.rdx = argc;
+    to_ret->stack_regs.rcx = pid;
+    to_ret->rip = rip;
+    to_ret->rip = &process_wrapper;
+    to_ret->cs = 0x8;
+    to_ret->rflags = 0x202;
+    to_ret->rsp = rsp;
+    to_ret->ss = 0x0;
 
    return (uint64_t) to_ret;
 }
 
-void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid )
-{
-	int ret = rip ( argv, argc );
-	_cli();
-	PCB * pcb = get_pcb ( pid );
-	if ( pcb == NULL ) {
-		return;
-	}
-    pcb->ret=ret;
-	kill_process(pid);	
+
+void process_wrapper(main_function rip, char **argv, uint64_t argc, uint64_t pid) {
+     int ret = rip(argv, argc);
+    PCB * pcb= get_pcb(pid);
+    if(pcb == NULL){
+        return;
+    }
+    pcb->ret = ret;  //@TODO esto podria estar en kill_process
+    kill_process(pid);
 }

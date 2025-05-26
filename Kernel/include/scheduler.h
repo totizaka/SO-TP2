@@ -21,7 +21,8 @@ typedef uint64_t pid_t;
 
 
 int compare_elem(list_elem_t e1, list_elem_t e2);
-void initialize_scheduler(pid_t idle_pid);
+// void initialize_scheduler(pid_t idle_pid);
+void initialize_scheduler();
 void ready(PCB *process);
 void block(PCB* process);
 PCB* get_running();

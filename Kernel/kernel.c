@@ -154,15 +154,22 @@ int main()
 
 	memory_manager = createMemoryManager(memory_address);
 
-	initialize_scheduler(new_process((main_function)idle_process, LOW_PRIORITY, argv_idle, 1));
+	initialize_scheduler();
 
-	new_process((main_function)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
+	new_process((main_function)t_a, HIGH_PRIORITY, NULL, 0);
 
-	new_process((main_function) t_a, HIGH_PRIORITY, NULL, 0);
-	new_process((main_function) t_b, MEDIUM_PRIORITY, NULL, 0);
-	new_process((main_function) t_c, LOW_PRIORITY, NULL, 0);
 
-	timer_tick();
+	while (1){
+		draw_word(0xFFFFFF, "No deberia llegar aca \n");
+	}
+	
+
+	// new_process((main_function)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
+
+	// new_process((main_function) t_b, MEDIUM_PRIORITY, NULL, 0);
+	// new_process((main_function) t_c, LOW_PRIORITY, NULL, 0);
+
+	// timer_tick();
 
 	return 0;
 }
