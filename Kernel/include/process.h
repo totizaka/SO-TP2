@@ -21,6 +21,7 @@
 #define MEDIUM_PRIORITY 2
 #define HIGH_PRIORITY 3
 
+typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
 
 int64_t find_free_pcb();

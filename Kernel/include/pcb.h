@@ -20,6 +20,7 @@ typedef struct PCB{
     char name[32]; //nombre del proceso
     char** args;
     int time;//Lo que queda para ejecutar
+    int ret;
 }PCB;
 
 #endif

@@ -105,21 +105,64 @@ void test_process(){
 		}
 }}
 
+void t_a(){
+	int x;
+		while(1){
+		draw_word ( 0xFFFFFF, "A\n");
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}
+
+
+void t_b(){
+	int x;
+		while(1){
+		draw_word ( 0xFFFFFF, "b\n");
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}
+
+void t_c(){
+	int x;
+		while(1){
+		draw_word (0xFFFFFF, "c\n");
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}
+
+
 int main()
 {	
 
 	load_idt();
 
-	ncPrintHex(((EntryPoint)sample_code_module_address)());
+	// ncPrintHex(((EntryPoint)sample_code_module_address)());
+
+	draw_word(0xFFFFFF,"hola\n");
 
 	char * argv_idle[] = {"idle"};
 	char * argv_shell[] = {"sh"};
 
 	memory_manager = createMemoryManager(memory_address);
 
-	initialize_scheduler(new_process((uint64_t)idle_process, LOW_PRIORITY, argv_idle, 1));
+	initialize_scheduler(new_process((main_function)idle_process, LOW_PRIORITY, argv_idle, 1));
 
-	new_process((uint64_t)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
+	new_process((main_function)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
+
+	new_process((main_function) t_a, HIGH_PRIORITY, NULL, 0);
+	new_process((main_function) t_b, MEDIUM_PRIORITY, NULL, 0);
+	new_process((main_function) t_c, LOW_PRIORITY, NULL, 0);
+
+	timer_tick();
 
 	return 0;
 }

@@ -2,8 +2,7 @@
 #define STACK_SIZE sizeof(stack)
 
  PCB pcb_table[MAX_PID]={0};
- typedef int ( *main_function ) ( char ** argv, uint64_t argc );
-
+ 
  typedef struct {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
  }stack_regs;
@@ -18,7 +17,50 @@
     stack_regs stack_regs;
  }stack;
  
- void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
+void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
+
+static uint64_t my_strlen ( const char *str )  //@todo poner en otro archivo
+{
+	const char *s = str;
+	while ( *s )
+		++s;
+	return s - str;
+}
+
+static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
+   
+    if( (argc == 0 && argv != NULL) || (argc>0 && argv==NULL)){ //@todo check
+        return NULL;
+    }
+
+   /// pcb_array[pid].argc = argc;
+    
+    if(argc == 0){
+       // pcb_array[pid].argv == NULL;
+        return NULL;
+    }
+    
+    char ** ans = my_malloc(get_memory_manager() ,sizeof(char *) * (argc+1));
+
+    if(ans == NULL){
+        return NULL;
+    }
+
+    for(uint64_t i=0; i<argc;i++){
+        uint64_t len = my_strlen(argv[i])+1;
+        char * p = my_malloc(get_memory_manager() ,len);
+        if(p == NULL){ //@TODO check y modularizar
+            for(uint64_t j=0; j<i;j++){
+                my_free(get_memory_manager() ,ans[j]);
+            }
+            my_free(get_memory_manager() ,ans);
+            return NULL;
+        }
+        memcpy(p, argv[i], len);
+        ans[i] = p;
+    }
+    return ans;
+}
  
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
@@ -26,17 +68,27 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     if (pid == -1){
         return -1; 
     }
+
+    uint64_t rsp_malloc = (uint64_t) my_malloc(get_memory_manager(), STACK_SIZE);
+
+    char ** args_cpy = copy_argv(pid, argv, argc);
+    if(argc > 0 && args_cpy == NULL){
+        my_free(get_memory_manager(),(void *)rsp_malloc); 
+        pcb_table[pid].state = FREE;
+        return -1;
+    }
+
     PCB *current = &pcb_table[pid];
     current->pid = pid;
     current->priority = priority;
     current->rip = rip;
     current->state = READY;
-    current->rsp = (uint64_t)my_malloc(get_memory_manager(), STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    current->rsp = rsp_malloc + STACK_SIZE; //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
     if(current->rsp == 0){
         return -1;
     }
-    current->rsp = load_stack(current->rip, current->rsp, pid, argv, argc);//  inciializar el stack
-    current->args = argv;
+    current->rsp = load_stack(rip, current->rsp, pid, argv, argc);//  inciializar el stack
+    current->args = args_cpy;
     ready(current);
     return pid;
 }
@@ -56,8 +108,7 @@ int64_t ready_process(uint64_t pid){
     if(pid < 0 || pid >= MAX_PID){
         return -1;
     }
-    pcb_table[pid].state=READY;
-    ready(&pcb_table[pid]);//fijarme si lo hago al reves???
+    pcb_table[pid].state = READY;
     return 0;
     
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
@@ -76,11 +127,11 @@ int64_t kill_process(uint64_t pid){
 
 int64_t find_free_pcb(){
     int64_t to_ret=0;
-    while(pcb_table[to_ret].state!=FREE){
+    while(pcb_table[to_ret].state!=FREE && to_ret < MAX_PID){
         to_ret++;
-        if(to_ret == MAX_PID){
+    }
+    if(to_ret == MAX_PID){
         return -1;
-     }
     }
     return to_ret;
 }
@@ -92,7 +143,7 @@ int64_t get_pid(){
 
 
 PCB* get_pcb(uint64_t pid){
-    if(pid<0 || pid>MAX_PID){
+    if(pid < 0 || pid > MAX_PID){
         return NULL;
     }
     return &pcb_table[pid];
@@ -131,6 +182,6 @@ void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid
 	if ( pcb == NULL ) {
 		return;
 	}
-	//make_me_zombie ( ret );
-	timer_tick();
+    pcb->ret=ret;
+	kill_process(pid);	
 }

@@ -4,6 +4,7 @@ typedef struct list_cdt {
     struct node * first;
     uint32_t size;
     struct node* it;
+    struct node * last;
     t_cmp cmp;
 }list_cdt;
 
@@ -20,9 +21,11 @@ list_adt new_list(t_cmp cmp){
     to_ret->size=0;
     to_ret->first=NULL;
     to_ret->it=NULL;
+    to_ret->last=NULL;
     to_ret->cmp = cmp;
     return to_ret;
 }
+
 list_elem_t remove_first(list_adt list){
     if(list == NULL || list->first == NULL){
         return NULL;

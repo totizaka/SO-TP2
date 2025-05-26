@@ -6,6 +6,7 @@
 #include <pcb.h>
 #include <interrupts.h>
 
+
 #define  QUANTUM 5 //Nose cuanto hacer el quanttum cambiarllo dsp . Entre 20ms y 50ms es razonable 
 //Maxima prioridad =0 
 
