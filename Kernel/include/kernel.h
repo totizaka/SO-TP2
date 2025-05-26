@@ -12,7 +12,6 @@
 #include <mm_dummy.h>  // Para el administrador de memoria
 #include <process.h>
 #include <scheduler.h>
-#include <list.h>
 #include <interrupts.h>
 
 

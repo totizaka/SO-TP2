@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <defs.h>
 #include <mm_dummy.h>
-#include <scheduler.h>
 #include <pcb.h>
 #include <kernel.h>
 #include <interrupts.h>

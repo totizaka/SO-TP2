@@ -2,8 +2,8 @@
 #define SCHEDULER_H_
 
 #include <stdint.h>
+
 #include <list.h>
-#include <pcb.h>
 #include <interrupts.h>
 
 
