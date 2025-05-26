@@ -2,6 +2,7 @@
 #define STACK_SIZE sizeof(stack)
 
  PCB pcb_table[MAX_PID]={0};
+ typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
  typedef struct {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
@@ -17,6 +18,7 @@
     stack_regs stack_regs;
  }stack;
  
+ void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
  
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
@@ -29,7 +31,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->priority = priority;
     current->rip = rip;
     current->state = READY;
-    current->rsp= (uint64_t)my_malloc(get_memory_manager(), STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    current->rsp = (uint64_t)my_malloc(get_memory_manager(), STACK_SIZE); //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
     if(current->rsp == 0){
         return -1;
     }
@@ -116,7 +118,19 @@ uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint
     to_ret->stack_regs.rcx=pid;
     to_ret->stack_regs.rsi=(uint64_t)argv;
     to_ret->stack_regs.rdx=argc;
-    //falta la parte de la wrapper??
+    to_ret->rip = (uint64_t)&process_wrapper;
 
    return (uint64_t) to_ret;
+}
+
+void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid )
+{
+	int ret = rip ( argv, argc );
+	_cli();
+	PCB * pcb = get_pcb ( pid );
+	if ( pcb == NULL ) {
+		return;
+	}
+	//make_me_zombie ( ret );
+	timer_tick();
 }

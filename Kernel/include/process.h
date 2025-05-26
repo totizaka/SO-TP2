@@ -7,6 +7,7 @@
 #include <scheduler.h>
 #include <pcb.h>
 #include <kernel.h>
+#include <interrupts.h>
 
 
 // #define zombie 3

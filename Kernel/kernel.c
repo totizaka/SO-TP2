@@ -41,15 +41,46 @@ void * initialize_kernel_binary()
 {
 	char buffer[10];
 
+	ncPrint("[x64BareBones]");
+	ncNewline();
+
+	ncPrint("CPU Vendor:");
+	ncPrint(cpuVendor(buffer));
+	ncNewline();
+
+	ncPrint("[Loading modules]");
+	ncNewline();
 	void * moduleAddresses[] = {
 		sample_code_module_address,
 		sample_data_module_address
 	};
 
 	loadModules(&end_of_kernel_binary, moduleAddresses);
-	
+	ncPrint("[Done]");
+	ncNewline();
+	ncNewline();
+
+	ncPrint("[Initializing kernel's binary]");
+	ncNewline();
+
 	clear_BSS(&bss, &end_of_kernel - &bss);
 
+	ncPrint("  text: 0x");
+	ncPrintHex((uint64_t)&text);
+	ncNewline();
+	ncPrint("  rodata: 0x");
+	ncPrintHex((uint64_t)&rodata);
+	ncNewline();
+	ncPrint("  data: 0x");
+	ncPrintHex((uint64_t)&data);
+	ncNewline();
+	ncPrint("  bss: 0x");
+	ncPrintHex((uint64_t)&bss);
+	ncNewline();
+
+	ncPrint("[Done]");
+	ncNewline();
+	ncNewline();
 	return get_stack_base();
 }
 
@@ -79,11 +110,16 @@ int main()
 
 	load_idt();
 
+	ncPrintHex(((EntryPoint)sample_code_module_address)());
+
+	char * argv_idle[] = {"idle"};
+	char * argv_shell[] = {"sh"};
+
 	memory_manager = createMemoryManager(memory_address);
 
-	initialize_scheduler(new_process((uint64_t)&idle_process, LOW_PRIORITY, NULL, 0));
+	initialize_scheduler(new_process((uint64_t)idle_process, LOW_PRIORITY, argv_idle, 1));
 
-	new_process((uint64_t)sample_code_module_address, HIGH_PRIORITY, NULL, 0);
+	new_process((uint64_t)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
 
 	return 0;
 }
