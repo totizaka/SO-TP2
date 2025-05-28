@@ -15,3 +15,5 @@ Userland/SampleCodeModule/obj/stdlib_user.o
 .bash_history
 .gdbinit
 
+.tgdbinit/tgdbinit
+Kernel/kernel.elf
