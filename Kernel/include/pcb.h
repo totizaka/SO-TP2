@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+typedef uint64_t pid_t;
+
 typedef enum{
     FREE,
     READY,
@@ -12,7 +14,7 @@ typedef enum{
 }process_state_t;
 
 typedef struct PCB{
-    uint64_t pid, ppid; //si se puede usar libreria sys/type ponemos pid_t directo
+    pid_t pid, ppid; //si se puede usar libreria sys/type ponemos pid_t directo
     uint64_t rsp; 
     uint64_t rip; //desp ver si va a estar en el stack - ver desp si es un void*
     process_state_t state; //ready, blocked o free

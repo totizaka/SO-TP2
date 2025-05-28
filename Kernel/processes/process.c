@@ -2,6 +2,7 @@
 #define STACK_SIZE sizeof(stack)
 
  PCB pcb_table[MAX_PID]={0};
+
  
  typedef struct {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
@@ -99,7 +100,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
 
 //Implementado como si las listas NO estuvieran en shm
 int64_t block_process(uint64_t pid){
-    if(pid < 0 || pid >= MAX_PID){
+    if(pid < 1 || pid >= MAX_PID){
          //ERROR, VER COMO MANEJAMOS ERRORES???
          return -1;
     }
@@ -108,7 +109,7 @@ int64_t block_process(uint64_t pid){
 }
 
 int64_t ready_process(uint64_t pid){
-    if(pid < 0 || pid >= MAX_PID){
+    if(pid < 1 || pid >= MAX_PID){
         return -1;
     }
     pcb_table[pid].state = READY;
@@ -119,7 +120,7 @@ int64_t ready_process(uint64_t pid){
 
 //falta implementar
 int64_t kill_process(uint64_t pid){
-    if (pid < 0 || pid >= MAX_PID || pcb_table[pid].state == FREE){
+    if (pid < 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
     remove_from_scheduler(&pcb_table[pid]);
@@ -131,7 +132,7 @@ int64_t kill_process(uint64_t pid){
 
 
 int64_t find_free_pcb(){
-    int64_t to_ret=0;
+    int64_t to_ret=1;
     while(pcb_table[to_ret].state!=FREE && to_ret < MAX_PID){
         to_ret++;
     }
@@ -156,7 +157,7 @@ PCB* get_pcb(uint64_t pid){
 
 
 int64_t nice(int64_t pid, uint8_t new_prio){
-    if(pid<0 || pid>MAX_PID){
+    if(pid<1 || pid>MAX_PID){
         return -1;
     }
     pcb_table[pid].priority=new_prio;
@@ -171,7 +172,6 @@ uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint
     to_ret->stack_regs.rdx = argc;
     to_ret->stack_regs.rcx = pid;
     to_ret->rip = rip;
-    to_ret->rip = &process_wrapper;
     to_ret->cs = 0x8;
     to_ret->rflags = 0x202;
     to_ret->rsp = rsp;
@@ -190,3 +190,34 @@ void process_wrapper(main_function rip, char **argv, uint64_t argc, uint64_t pid
     pcb->ret = ret;  //@TODO esto podria estar en kill_process
     kill_process(pid);
 }
+
+
+void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
+    pid_t pid=0;
+    uint64_t rsp_malloc = (uint64_t) my_malloc(get_memory_manager(), STACK_SIZE);
+    char ** args_cpy = copy_argv(pid, argv, argc);
+
+    if(argc > 0 && args_cpy == NULL){
+        my_free(get_memory_manager(),(void *)rsp_malloc); 
+        pcb_table[pid].state = FREE;
+        return -1;
+    }
+
+    PCB *current = &pcb_table[pid];
+    current->pid = pid;
+    current->priority = priority;
+    current->rip = rip;
+    current->state = READY;
+    current->rsp = rsp_malloc + STACK_SIZE; //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    if(current->rsp == 0){
+        return -1;
+    }
+    current->rsp = load_stack(rip, current->rsp, pid, argv, argc);//  inciializar el stack
+    current->args = args_cpy; 
+}
+
+PCB * get_idle(){
+    return &pcb_table[0];
+}
+
+    

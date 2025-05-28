@@ -155,13 +155,13 @@ int main()
 	memory_manager = createMemoryManager(memory_address);
 
 	initialize_scheduler();
-
+	set_idle(idle_process,LOW_PRIORITY, argv_idle, 1 );
 	new_process((main_function)t_a, HIGH_PRIORITY, NULL, 0);
+	
 
-
-	while (1){
+	/*while (1){
 		draw_word(0xFFFFFF, "No deberia llegar aca \n");
-	}
+	}*/
 	
 
 	// new_process((main_function)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);

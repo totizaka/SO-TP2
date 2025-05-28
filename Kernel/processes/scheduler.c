@@ -1,5 +1,6 @@
 #include <scheduler.h>
 
+
 list_adt readys;
 list_adt blockeds;
 
@@ -7,7 +8,8 @@ list_adt blockeds;
 PCB *running = NULL;
 int64_t ran_time = 0;
 static int initialized = 0;
-static PCB * idle_pcb;
+PCB* idle=NULL;
+uint8_t is_idle=0;
 
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
@@ -17,20 +19,9 @@ int compare_elem(list_elem_t e1, list_elem_t e2){
 
 
 
-// void initialize_scheduler(pid_t idle_pid){
-//     draw_word(0xFFFFFF, "Initializing scheduler\n");
-//     t_cmp cmp = compare_elem;
-//     readys = new_list(cmp);
-//     blockeds = new_list(cmp);
 
-//     if (readys == NULL || blockeds == NULL) {
-//         return;
-//     }
 
-//     idle_pcb = get_pcb(idle_pid);
-//     initialized = 1;
-//     to_begin(readys);
-// }
+//tiene q hacer las dos listas y dsp llamar a set_idle() => en el pcb table en la posicision 0 tenmos el idle 
 
 void initialize_scheduler(){
     draw_word(0xFFFFFF, "Initializing scheduler\n");
@@ -44,6 +35,7 @@ void initialize_scheduler(){
     initialized = 1;
     to_begin(readys);
 }
+
 
 void ready(PCB* process){
     if (process == NULL || ready_process(process->pid) == -1){
@@ -99,7 +91,31 @@ uint64_t itoa(uint64_t number, char* s) {
 }
 
 uint64_t scheduler(uint64_t current_rsp){
-     draw_word(0xFFFFFF, "adentro!!\n");
+    draw_word(0xFFFFFF, "adentro!!\n");
+    if(!initialized){
+        //Caso donde no se inicializo el scheduler
+        return current_rsp;
+    }
+    if(is_empty(readys)){
+        //Si no existen procesos para correr => corre el idle 
+        idle=get_idle();
+        running=NULL;
+        return idle->rsp;
+    }
+    if(running==NULL||running->time==0){
+        //Si no hay processo corriendo/ se acabo el tiepo 
+        if(!has_next(readys)){
+            to_begin(readys);
+        }
+        running = next(readys);
+        running->time = QUANTUM*(10-running->priority);
+        return running->rsp;
+    }
+    if(running != NULL && running->time > 0){
+        running->time--;
+        return running->rsp;
+    }
+     
      return current_rsp;
 }
 

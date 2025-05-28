@@ -20,6 +20,7 @@
 #define MEDIUM_PRIORITY 2
 #define HIGH_PRIORITY 3
 
+
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
 
@@ -33,5 +34,6 @@ int64_t nice(int64_t pid, uint8_t new_prio);
 uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
 PCB* get_pcb(uint64_t pid);
 PCB* list_processes();//quiza sea mejor directamente printear desde kernel¿?
+void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 
 #endif
