@@ -13,3 +13,5 @@ Userland/SampleCodeModule/obj/*.o
 Userland/SampleCodeModule/obj/snake.o
 Userland/SampleCodeModule/obj/stdlib_user.o
 .bash_history
+.gdbinit
+
