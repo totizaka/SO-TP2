@@ -15,7 +15,7 @@
 #include <interrupts.h>
 
 
-memory_manager_adt get_memory_manager();
+memory_manager_ADT get_memory_manager();
 
 
 

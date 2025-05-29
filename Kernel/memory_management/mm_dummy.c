@@ -1,67 +1,120 @@
 #include "mm_dummy.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h> 
+#include <string.h>
 
-
-#define BLOCK_COUNT ((HEAP_SIZE) / BLOCK_SIZE)
-
+#define BLOCK_SIZE 32                        // Tamaño de cada bloque
+#define MAX_BLOCKS 1024                      // Máximo número de bloques
+#define MEMORY_ALIGNMENT 8
+#define HEADER_MAGIC 0xBEEF
+#define HEADER_SIZE ((sizeof(block_header) + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1))
+#define BYTE_SIZE 8
+#define BITMAP_SIZE (MAX_BLOCKS / BYTE_SIZE)
 
 typedef struct {
-	void *start;
-	int64_t current;
-	void *free_ptrs[BLOCK_COUNT];
-} memory_manager_cdt;
+    uint16_t blocks;
+    uint16_t magic;
+} block_header;
 
+typedef struct MemoryManagerCDT {
+    uint8_t *baseAddress;
+    size_t totalBlocks;
+    uint8_t bitmap[BITMAP_SIZE];
+} MemoryManagerCDT;
 
-
-
-memory_manager_adt my_mm_init ( void *p )
-{
-	memory_manager_cdt * aux = ( memory_manager_cdt * ) p;
-
-	for ( int i = 0; i < BLOCK_COUNT; i++ ) {
-		aux->free_ptrs[i] = ( void * ) ( ( char * ) p + i * BLOCK_SIZE );
-	}
-
-	aux->start = ( void * ) ( ( char * ) p );
-	aux->current = 0;
-	for ( int i = 0; i <= ( sizeof ( memory_manager_cdt ) / BLOCK_SIZE ); i++ ) {
-		my_malloc ( ( memory_manager_adt ) aux, 1 );														//reserves the space for the CDT
-	}
-
-	return ( memory_manager_adt ) aux;
+static void set_bit(uint8_t *bitmap, size_t i) {
+    bitmap[i / BYTE_SIZE] |= (1 << (i % BYTE_SIZE));
 }
 
-void * my_malloc (memory_manager_adt mem, uint64_t size )
-{
-	memory_manager_cdt * aux = ( memory_manager_cdt * ) mem;
-	if ( aux == NULL || size > BLOCK_SIZE || aux->current >= BLOCK_COUNT ) {
-		return NULL;
-	}
-
-	return aux->free_ptrs[aux->current++];
+static void clear_bit(uint8_t *bitmap, size_t i) {
+    bitmap[i / BYTE_SIZE] &= ~(1 << (i % BYTE_SIZE));
 }
 
-
-
-void my_free ( void * p, memory_manager_adt mem )
-{
-	memory_manager_cdt * aux = ( memory_manager_cdt * ) mem;
-	if ( aux == NULL ) {
-		return;
-	}
-	aux->current--;
-	aux->free_ptrs[aux->current] = p;
+static int is_bit_set(uint8_t *bitmap, size_t i) {
+    return bitmap[i / BYTE_SIZE] & (1 << (i % BYTE_SIZE));
 }
 
-/*int64_t my_mem_info ( memory_info * info, memory_manager_adt mem )
-{
-	memory_manager_cdt * aux = ( memory_manager_cdt * ) mem;
-	if ( aux == NULL || info == NULL ) {
-		return -1;
-	}
-	info->total_size = HEAP_SIZE;
-	info->free = ( ( BLOCK_COUNT - aux->current ) * BLOCK_SIZE );
-	return 0;
-}*/
+memory_manager_ADT createMemoryManager(void *memory) {
+    memory_manager_ADT manager = (memory_manager_ADT) memory;
+
+    uintptr_t raw_base = (uintptr_t)memory + sizeof(MemoryManagerCDT);
+    raw_base = (raw_base + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1);
+
+    manager->baseAddress = (uint8_t *)raw_base;
+
+    size_t usable_bytes = MEMORY_MANAGER_SIZE - (manager->baseAddress - (uint8_t *)memory);
+    manager->totalBlocks = usable_bytes / BLOCK_SIZE;
+
+    memset(manager->bitmap, 0, BITMAP_SIZE);
+    return manager;
+}
+
+void *my_malloc(memory_manager_ADT manager, size_t size) {
+    if (size == 0 || size > manager->totalBlocks * BLOCK_SIZE - sizeof(block_header)) {
+        return NULL;
+    }
+
+    size_t blocksNeeded = (size + sizeof(block_header) + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    // Buscamos bloques contiguos libres
+    for (size_t i = 0; i <= manager->totalBlocks - blocksNeeded; i++) {
+        int available = 1;
+
+        for (size_t j = 0; j < blocksNeeded; j++) {
+            if (is_bit_set(manager->bitmap, i + j)) {
+                available = 0;
+                i += j;  // salto los ocupados
+                break;
+            }
+        }
+
+        if (available) {
+            // Marcamos los bloques como ocupados
+            for (size_t j = 0; j < blocksNeeded; j++) {
+                set_bit(manager->bitmap, i + j);
+            }
+
+            // Dirección inicial
+            uint8_t *blockStart = manager->baseAddress + i * BLOCK_SIZE;
+            block_header *header = (block_header *)blockStart;
+            header->blocks = blocksNeeded;
+
+            // Retornamos después del header
+            return (void *)(blockStart + sizeof(block_header));
+        }
+    }
+
+    return NULL;  // No hay suficiente memoria contigua
+}
+
+void my_free(memory_manager_ADT manager, void *ptr) {
+    if (!ptr || !manager) return;
+
+    uint8_t *start = (uint8_t *)ptr - HEADER_SIZE;
+
+    if ((uintptr_t)start < (uintptr_t)manager->baseAddress ||
+        (uintptr_t)start >= (uintptr_t)(manager->baseAddress + manager->totalBlocks * BLOCK_SIZE)) return;
+
+    size_t offset = start - manager->baseAddress;
+    if (offset % BLOCK_SIZE != 0) return;
+
+    size_t index = offset / BLOCK_SIZE;
+    block_header *header = (block_header *)start;
+
+    if (header->magic != HEADER_MAGIC || header->blocks == 0 || index + header->blocks > manager->totalBlocks)
+        return;
+
+    for (size_t i = 0; i < header->blocks; i++)
+        clear_bit(manager->bitmap, index + i);
+}
+
+size_t my_get_available_memory(memory_manager_ADT manager) {
+    if (!manager) return 0;
+
+    size_t freeBlocks = 0;
+    for (size_t i = 0; i < manager->totalBlocks; i++) {
+        if (!is_bit_set(manager->bitmap, i))
+            freeBlocks++;
+    }
+    return freeBlocks * BLOCK_SIZE;
+}

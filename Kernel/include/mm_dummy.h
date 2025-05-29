@@ -1,22 +1,18 @@
 #ifndef MM_DUMMY_H
 #define MM_DUMMY_H
-#include "syscall.h"
-#include <stdint.h>
+#include <stdlib.h>
 
+#define MEMORY_MANAGER_SIZE 0x100000
+#define BLOCK_SIZE 64
 
+typedef struct MemoryManagerCDT *memory_manager_ADT;
 
+memory_manager_ADT createMemoryManager(void *const restrict memoryForMemoryManager);
 
+void *my_malloc(memory_manager_ADT manager, size_t size);
 
-typedef struct memory_manager_cdt * memory_manager_adt;
+void my_free(memory_manager_ADT manager, void *ptr);
 
-memory_manager_adt my_mm_init ( void * p );
-void * my_malloc (  struct memory_manager_cdt * mem, uint64_t size);
-void my_free ( void * p, memory_manager_adt adt );
-//int64_t my_mem_info ( memory_info * info, memory_manager_adt adt );
-
-
-
-#define BLOCK_SIZE 0x1000                       // 4k
-#define HEAP_SIZE 0x1000000                     // 16MB
+size_t my_get_available_memory(memory_manager_ADT manager);
 
 #endif
