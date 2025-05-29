@@ -9,7 +9,7 @@ PCB *running = NULL;
 int64_t ran_time = 0;
 static int initialized = 0;
 PCB* idle=NULL;
-uint8_t is_idle=0;
+uint8_t is_idle=0; 
 
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
@@ -126,14 +126,16 @@ uint64_t scheduler(uint64_t current_rsp){
         //Caso donde no se inicializo el scheduler
         return current_rsp;
     }
-    if(is_empty(readys)){
+    if(is_empty(readys) && !is_idle){
         //Si no existen procesos para correr => corre el idle 
         idle=get_idle();
         running=NULL;
+        is_idle++;
         return idle->rsp;
     }
     //Si no hay processo corriendo/ se acabo el tiepo => paso al siguiente
 
+    //IMPORTANTE: CUANDO HAGO SWITCH DE PROCESO PISAR RSP
      return current_rsp;
 }
 
