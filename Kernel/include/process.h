@@ -17,8 +17,8 @@
 #define MAX_PID 50
 
 #define LOW_PRIORITY 1
-#define MEDIUM_PRIORITY 2
-#define HIGH_PRIORITY 3
+#define MEDIUM_PRIORITY 4
+#define HIGH_PRIORITY 7
 
 
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );

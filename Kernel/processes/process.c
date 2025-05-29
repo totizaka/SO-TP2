@@ -96,6 +96,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->priority = priority;
     current->rip = rip;
     current->state = READY;
+    current->time = QUANTUM * (10 - priority);
     // El stack crece hacia abajo, por eso rsp apunta al final del bloque reservado
     current->rsp = rsp_malloc + STACK_SIZE;
     if(current->rsp == 0){

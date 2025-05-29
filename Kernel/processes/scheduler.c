@@ -6,7 +6,6 @@ list_adt blockeds;
 
 //proceso actual
 PCB *running = NULL;
-int64_t ran_time = 0;
 static int initialized = 0;
 PCB* idle=NULL;
 uint8_t is_idle=0; 
@@ -62,19 +61,26 @@ uint64_t scheduler(uint64_t current_rsp){
         //Si no existen procesos para correr => corre el idle 
         idle=get_idle();
         is_idle++;
+        running = idle;
+        idle->time = UINT64_MAX; // El idle no tiene quantum, corre indefinidamente
         return idle->rsp;
     }
-    if(running == NULL){ 
+    if(running == NULL || running->state != RUNNING || running == idle){ 
         running = next(readys);
+        running->time = QUANTUM * (running->priority);
+        running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
         return running->rsp;
     }
-    if(ran_time >= running->priority){
-        PCB * next_pcb = next(readys);
-        ran_time = 0;
-        running = next_pcb;
-        return next_pcb->rsp;
+    if (--running->time == 0) {
+        // Se acabó su quantum, lo re-encolamos si no terminó
+        if (running->state == RUNNING) {
+            ready(running);  // volver a ponerlo en cola
+        }
+        running = next(readys);
+        running->time = QUANTUM * (running->priority);
+        running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
+        return running->rsp;
     }
-    ran_time++;
     return current_rsp;
 }
 
