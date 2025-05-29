@@ -20,8 +20,8 @@
 int compare_elem(list_elem_t e1, list_elem_t e2);
 // void initialize_scheduler(pid_t idle_pid);
 void initialize_scheduler();
-void ready(PCB *process);
-void block(PCB* process);
+int64_t ready(PCB *process);
+int64_t block(PCB* process);
 PCB* get_running();
 uint64_t scheduler(uint64_t current_rsp);
 void yield();

@@ -102,7 +102,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     if(current->rsp == 0){
         return -1;
     }
-    current->rsp = load_stack(rip, current->rsp, pid, argv, argc);//  inciializar el stack
+    current->rsp = load_stack(rip, current->rsp, argv, argc, pid);//  inciializar el stack
     current->args = args_cpy;
     ready(current);
     return pid;
@@ -176,12 +176,18 @@ PCB* get_pcb(uint64_t pid){
 
 
 int64_t nice(int64_t pid, uint8_t new_prio){
-    if(pid<1 || pid>MAX_PID){
+    if(pid<1 || pid>MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
-    pcb_table[pid].priority=new_prio;
+    // Prioridad inválida
+    if (new_prio < LOW_PRIORITY || new_prio > HIGH_PRIORITY) {
+        return -1;
+    }
+    pcb_table[pid].priority = new_prio;
     return 1;
 }
+
+
 
 uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
 
@@ -227,11 +233,11 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     current->priority = priority;
     current->rip = rip;
     current->state = READY;
-    current->rsp = rsp_malloc + STACK_SIZE; //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
+    current->rsp = rsp_malloc + STACK_SIZE; 
     if(current->rsp == 0){
         return ;
     }
-    current->rsp = load_stack(rip, current->rsp, pid, argv, argc);//  inciializar el stack
+    current->rsp = load_stack(rip, current->rsp, argv, argc, pid);//  inciializar el stack
     current->args = args_cpy; 
 }
 

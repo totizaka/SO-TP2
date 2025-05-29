@@ -30,20 +30,24 @@ void initialize_scheduler(){
     initialized = 1;
 }
 
-void ready(PCB* process){
+int64_t ready(PCB* process){
     if (process == NULL || ready_process(process->pid) == -1){
-        return;
+        return -1;
     }   
     add_list(readys, (list_elem_t)process);
     remove_list(blockeds, (list_elem_t)process); 
+    return 0;
 }
-
-void block(PCB* process){
+int64_t block(PCB* process){
     if (process == NULL || block_process(process->pid) == -1){
-        return;
+        return -1;
     }
     remove_list(readys, (list_elem_t)process);
     add_list(blockeds, (list_elem_t)process);
+    if (running == process) {
+        yield();
+    }
+    return 0;
 }
 
 PCB* get_running(){
@@ -51,35 +55,40 @@ PCB* get_running(){
 }
 
 uint64_t scheduler(uint64_t current_rsp){
-    if(!initialized){
+    if (!initialized){
         return current_rsp;
     }
-    if(running != NULL){
+    if (running != NULL){
         running->rsp = current_rsp;
     }
-    if(is_empty(readys)){
+    if (is_empty(readys)){
         //Si no existen procesos para correr => corre el idle 
         running = get_idle();
         idle = get_idle();
+        //is_idle = 1; // Indicamos que estamos en el idle
         running->time = UINT64_MAX; // El idle no tiene quantum, corre indefinidamente
-        return running->rsp;
-    }
-    if(running == NULL || running->state != RUNNING || running == idle){ 
+        current_rsp = running->rsp;
+    }else{
+    if (running == NULL || running->state != RUNNING || running == idle){ 
         running = next(readys);
-        running->time = QUANTUM * (running->priority);
+        running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
+        //is_idle = 0; // Si se selecciona un proceso diferente al idle, no estamos en idle
         return running->rsp;
     }
+
     if (--running->time == 0) {
         // Se acabó su quantum, lo re-encolamos si no terminó
         if (running->state == RUNNING) {
             ready(running);  // volver a ponerlo en cola
         }
         running = next(readys);
-        running->time = QUANTUM * (running->priority);
+        running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
+        //is_idle = 0; // Si se selecciona un proceso diferente al idle, no estamos en idle
         return running->rsp;
     }
+}
     return current_rsp;
 }
 

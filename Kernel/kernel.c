@@ -161,7 +161,14 @@ int main()
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
 	// new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);
 	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+
 	// new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
+
+	new_process((void(*))test_prio, LOW_PRIORITY, NULL, 0);
+
+	// test_process();
+
+	
 
 	timer_tick();
 

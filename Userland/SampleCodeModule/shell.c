@@ -1,9 +1,12 @@
 #include <shell.h>
 #include <test_mm.h>
+#include <test_prio.h>
+#include <test_processes.h>
 
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
-{"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}};
+{"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
+{"testprocesses", proc_test_shell}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -23,6 +26,16 @@ void help(){
 void mm_test_shell(){
     paint_all_vd(BLACK);
     test_mm(1, "100000");
+}
+
+void proc_test_shell(){
+    paint_all_vd(BLACK);
+    test_processes(1, "10");
+}
+
+void prio_test_shell(){
+    paint_all_vd(BLACK);
+    test_prio();
 }
 
 void opcode_exc(){

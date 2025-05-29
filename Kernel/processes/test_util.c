@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "syscall.h"
-#include <shell.h>
 
 // Random
 static uint32_t m_z = 362436069;
@@ -65,12 +64,37 @@ void endless_loop() {
     ;
 }
 
+uint64_t itoa(uint64_t number, char* s) {
+    int digits = 0;
+
+    // Contar los dígitos
+    for (uint64_t n = number; n != 0; digits++, n /= 10);
+
+    // Manejo del caso donde number es 0
+    if (digits == 0) {
+        s[0] = '0';
+        s[1] = '\0';
+        return 1;
+    }
+
+    // Terminar la cadena con un carácter nulo
+    s[digits] = '\0';
+
+    // Convertir los dígitos en orden inverso
+    for (int i = digits - 1; i >= 0; i--) {
+        s[i] = (number % 10) + '0';
+        number /= 10;
+    }
+
+    return digits;
+}
+
 void endless_loop_print(uint64_t wait) {
-  int64_t pid = my_getpid();
+  int64_t pid = get_pid();
   char str[4];
     while (1) {
       itoa(pid, str);
-      print(str, MAXBUFF);
+      draw_word(0xFFFFFF ,str);
       bussy_wait(wait);
     }
 }

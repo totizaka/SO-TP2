@@ -148,40 +148,45 @@ static int64_t syscall_my_getpid_handler(){
     return get_pid();
 }
 
-extern int64_t syscall_my_create_process_handler(char *name, uint64_t argc, char *argv[]){
-    //return new_process();
-    //rip??? priority???
-}
-extern int64_t syscall_my_nice_handler(uint64_t pid, uint64_t new_prio){
-    return nice(pid, new_prio);
-}
-extern int64_t syscall_my_kill_handler(uint64_t pid){
-    return kill_process(pid); //hay q implementar
+static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
+    return new_process((void(*))rip, priority, argv, argc);
 }
 
-//a ambas funciones les falta el manejo de la cola para el scheduler
-extern int64_t syscall_my_block_handler(uint64_t pid){
-    return block_process(pid);
+static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t new_prio){
+    return nice(pid, new_prio);
 }
-extern int64_t syscall_my_unblock_handler(uint64_t pid){
-        return ready_process(pid);
+
+static int64_t syscall_my_kill_handler(uint64_t pid){
+    return kill_process(pid); 
 }
-extern int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue){
+
+static void syscall_my_block_handler(uint64_t pid){
+    block(get_pcb(pid));
+}
+
+static void syscall_my_unblock_handler(uint64_t pid){
+    ready(get_pcb(pid));
+}
+
+//falta implementar correctamente sem funciones
+static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue){
     return my_sem_open(sem_id[0], initialValue, 0);
 }
-extern int64_t syscall_my_sem_wait_handler(char *sem_id){
+static int64_t syscall_my_sem_wait_handler(char *sem_id){
     return my_sem_wait(sem_id[0], 0);
 }
-extern int64_t syscall_my_sem_post(char *sem_id){
+static int64_t syscall_my_sem_post(char *sem_id){
     return my_sem_post(sem_id[0], 0);
 }
-extern int64_t syscall_my_sem_close(char *sem_id){
+static int64_t syscall_my_sem_close(char *sem_id){
     return my_sem_close(sem_id[0], 0);
 }
-extern int64_t syscall_my_yield_handler(){
-    
+
+static void syscall_my_yield_handler(){
+    yield();
 }
-extern int64_t syscall_my_wait_handler(int64_t pid){
+
+static int64_t syscall_my_wait_handler(int64_t pid){
 
 }
 

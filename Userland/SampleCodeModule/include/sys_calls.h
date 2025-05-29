@@ -25,7 +25,7 @@ extern uint64_t syscall_regs();
 
 
 extern int64_t syscall_my_getpid();
-extern int64_t syscall_my_create_process(char *name, uint64_t argc, char *argv[]);
+extern int64_t syscall_my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 extern int64_t syscall_my_nice(uint64_t pid, uint64_t newPrio);
 extern int64_t syscall_my_kill(uint64_t pid);
 extern int64_t syscall_my_block(uint64_t pid);

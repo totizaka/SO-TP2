@@ -222,3 +222,23 @@ void my_free(uint64_t ptr){
 int64_t my_getpid(){
     return syscall_my_getpid();
 }
+
+int64_t my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
+    return syscall_my_create_process(rip, priority, argv, argc);
+}
+
+int64_t my_nice(uint64_t pid, uint64_t new_prio){
+    return syscall_my_nice(pid, new_prio);
+}
+
+int64_t my_kill(uint64_t pid){
+    return syscall_my_kill(pid);
+}
+
+int64_t my_block(uint64_t pid){
+    return syscall_my_block(pid);
+}
+
+int64_t my_unblock(uint64_t pid){
+    return syscall_my_unblock(pid);
+}

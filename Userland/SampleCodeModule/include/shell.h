@@ -5,8 +5,7 @@
 #include <stdlib_user.h>
 #include <snake.h>
 
-#define menuDIM 8
-#define MAXBUFF 100
+#define menuDIM 10
 #define BLACK 0x000000
 
 typedef struct module {
@@ -27,6 +26,8 @@ extern void opcode();
 void command_wait();
 void shell();
 void mm_test_shell();
+void prio_test_shell();
+void proc_test_shell();
 
 
 #endif

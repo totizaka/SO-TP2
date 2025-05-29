@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <sys_calls.h>
 
+#define MAXBUFF 100
+
 void print(const char* buf, uint64_t count);
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
@@ -38,6 +40,11 @@ void make_beep(int secs, int freq);
 uint64_t register_snapshot(uint64_t * regs);
 
 int64_t my_getpid();
+int64_t my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+int64_t my_nice(uint64_t pid, uint64_t new_prio);
+int64_t my_kill(uint64_t pid);
+int64_t my_block(uint64_t pid);
+int64_t my_unblock(uint64_t pid);
 void* my_malloc(uint64_t size);
 void my_free(uint64_t ptr);
 
