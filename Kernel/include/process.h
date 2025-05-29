@@ -31,7 +31,7 @@ int64_t ready_process(uint64_t pid);
 int64_t kill_process(uint64_t pid);
 int64_t get_pid();
 int64_t nice(int64_t pid, uint8_t new_prio);
-uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc);
+uint64_t load_stack(uint64_t rip, uint64_t rsp,  char ** argv, uint64_t argc, uint64_t pid);
 PCB* get_pcb(uint64_t pid);
 PCB* list_processes();//quiza sea mejor directamente printear desde kernel¿?
 void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);

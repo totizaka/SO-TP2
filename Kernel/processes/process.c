@@ -8,14 +8,14 @@
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
  }stack_regs;
 
+
  typedef struct{
-    uint64_t align;
-    uint64_t ss;
-    uint64_t cs;
-    uint64_t rsp;
-    uint64_t rip;
-    uint64_t rflags;
     stack_regs stack_regs;
+	uint64_t rip;
+	uint64_t cs;
+	uint64_t rflags;
+	uint64_t rsp;
+	uint64_t ss;
  }stack;
  
 void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
@@ -164,7 +164,7 @@ int64_t nice(int64_t pid, uint8_t new_prio){
     return 1;
 }
 
-uint64_t load_stack(uint64_t rip, uint64_t rsp, uint64_t pid, char ** argv, uint64_t argc){
+uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
 
     stack* to_ret=(stack*)(rsp - STACK_SIZE);
     to_ret->stack_regs.rdi = rip;
@@ -200,7 +200,7 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     if(argc > 0 && args_cpy == NULL){
         my_free(get_memory_manager(),(void *)rsp_malloc); 
         pcb_table[pid].state = FREE;
-        return -1;
+        return ;
     }
 
     PCB *current = &pcb_table[pid];
@@ -210,7 +210,7 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     current->state = READY;
     current->rsp = rsp_malloc + STACK_SIZE; //HAY QUE PASARLE EL MEMORY MANAGER Q USAMOS EN KERNEL.C???? <-- a resolver
     if(current->rsp == 0){
-        return -1;
+        return ;
     }
     current->rsp = load_stack(rip, current->rsp, pid, argv, argc);//  inciializar el stack
     current->args = args_cpy; 

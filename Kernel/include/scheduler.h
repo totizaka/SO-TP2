@@ -26,6 +26,7 @@ PCB* get_running();
 uint64_t scheduler(uint64_t current_rsp);
 void yield();
 void remove_from_scheduler(PCB* process);
+uint64_t itoa(uint64_t number, char* s);
 //PCB* set_idle();
 
 #endif

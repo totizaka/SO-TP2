@@ -33,7 +33,6 @@ void initialize_scheduler(){
         return;
     }
     initialized = 1;
-    to_begin(readys);
 }
 
 
@@ -43,7 +42,7 @@ void ready(PCB* process){
     }   
     process->state=READY;
     add_list(readys, (list_elem_t)process);
-    remove_list(blockeds, (list_elem_t)process); //Checkear q pasa si no lo encuentra
+    //remove_list(blockeds, (list_elem_t)process); //Checkear q pasa si no lo encuentra
 }
 
 void block(PCB* process){
@@ -90,7 +89,8 @@ uint64_t itoa(uint64_t number, char* s) {
     return digits;
 }
 
-uint64_t scheduler(uint64_t current_rsp){
+
+/*uint64_t scheduler(uint64_t current_rsp){
     draw_word(0xFFFFFF, "adentro!!\n");
     if(!initialized){
         //Caso donde no se inicializo el scheduler
@@ -102,8 +102,10 @@ uint64_t scheduler(uint64_t current_rsp){
         running=NULL;
         return idle->rsp;
     }
+    //Si no hay processo corriendo/ se acabo el tiepo => paso al siguiente
+
     if(running==NULL||running->time==0){
-        //Si no hay processo corriendo/ se acabo el tiepo 
+        //Si se acabo la lista=>vuelvo a arrancar
         if(!has_next(readys)){
             to_begin(readys);
         }
@@ -116,6 +118,22 @@ uint64_t scheduler(uint64_t current_rsp){
         return running->rsp;
     }
      
+     return current_rsp;
+}*/
+uint64_t scheduler(uint64_t current_rsp){
+    draw_word(0xFFFFFF, "adentro!!\n");
+    if(!initialized){
+        //Caso donde no se inicializo el scheduler
+        return current_rsp;
+    }
+    if(is_empty(readys)){
+        //Si no existen procesos para correr => corre el idle 
+        idle=get_idle();
+        running=NULL;
+        return idle->rsp;
+    }
+    //Si no hay processo corriendo/ se acabo el tiepo => paso al siguiente
+
      return current_rsp;
 }
 
