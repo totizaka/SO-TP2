@@ -155,26 +155,17 @@ int main()
 	char * argv_shell[] = {"sh"};
 
 	memory_manager = createMemoryManager(memory_address);
-	set_idle((void(*))t_b,5, NULL, 0);
+	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler();
 
-	new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
-	new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);
-	new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
+	// new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);
+	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+	// new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
+
 	timer_tick();
+
 	draw_word(0xFFFFFF, "No deberia llegar aca \n");
-
-	/*while (1){
-		draw_word(0xFFFFFF, "No deberia llegar aca \n");
-	}*/
-	
-
-	// new_process((main_function)sample_code_module_address, HIGH_PRIORITY, argv_shell, 1);
-
-	// new_process((main_function) t_b, MEDIUM_PRIORITY, NULL, 0);
-	// new_process((main_function) t_c, LOW_PRIORITY, NULL, 0);
-
-	// timer_tick();
 
 	return 0;
 }
