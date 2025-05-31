@@ -1,6 +1,6 @@
 #include <semaphores.h>
 
-#define MAX_SEMS 50
+
 typedef struct sem{
 
     uint64_t id;
@@ -13,7 +13,7 @@ typedef struct sem{
 
 }sem_t;
 
-sem_t sem_array[MAX_SEMS]={0};
+sem_t sem_array[MAX_SEM]={0};
 
 int comp(list_elem_t e1, list_elem_t e2){
     // return ((PCB*)e1)->pid - ((PCB*)e2)->pid;
@@ -21,13 +21,17 @@ int comp(list_elem_t e1, list_elem_t e2){
 }
 
 
-int invalid_ID(int64_t sem_id){
-    return (sem_id < 0 || sem_id >= MAX_SEMS);
+int invalid_ID(uint64_t sem_id, int max){
+    return (sem_id < 0 || sem_id >= max);
+}
+
+int invalid_ID_sem(int64_t sem_id){
+    return invalid_ID(sem_id, MAX_SEM);
 }
 
 
 int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
-     if (invalid_ID(sem_id)) {//ID invalido
+     if (invalid_ID_sem(sem_id)) {//ID invalido
         return -1;
     }
 
@@ -49,7 +53,7 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
 
     release(&sem_array[sem_id].lock);
 
-    return 1;
+    return 0;
 }
 
 
@@ -67,7 +71,7 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
 
 
 int64_t my_sem_post ( int64_t sem_id){
-if (invalid_ID(sem_id))
+if (invalid_ID_sem(sem_id))
              return -1;
 
     acquire(&sem_array[sem_id].lock);
@@ -88,7 +92,7 @@ if (invalid_ID(sem_id))
     }
 
     release(&sem_array[sem_id].lock);
-    return 1;
+    return 0;
 
 }
 
@@ -113,7 +117,7 @@ if (invalid_ID(sem_id))
 
 
 int64_t my_sem_wait ( int64_t sem_id){
-    if (invalid_ID(sem_id)) {//ID invalido
+    if (invalid_ID_sem(sem_id)) {//ID invalido
         return -1;
     }
     acquire(&sem_array[sem_id].lock);
@@ -127,7 +131,7 @@ int64_t my_sem_wait ( int64_t sem_id){
     if (sem_array[sem_id].value > 0) {
         sem_array[sem_id].value--;//decrementa el valor del semaforo
         release(&sem_array[sem_id].lock);
-        return 1;
+        return 0;
     }
 
     //Caso2: no tengo para disminuir, me bloqueo
@@ -143,7 +147,7 @@ int64_t my_sem_wait ( int64_t sem_id){
         return -1;
     }
     release(&sem_array[sem_id].lock);//libera el semaforo
-    return 1; //
+    return 0;
 }
 
 
@@ -168,7 +172,7 @@ int64_t my_sem_wait ( int64_t sem_id){
 // }
 
 int64_t my_sem_close ( int64_t sem_id){
-    if (invalid_ID(sem_id)) {//ID invalido
+    if (invalid_ID_sem(sem_id)) {//ID invalido
         return -1;
     }
 
