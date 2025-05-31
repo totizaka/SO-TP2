@@ -1,100 +1,101 @@
-#include <stdint.h>
-#include <stdio.h>
-#include "syscall.h"
+// #include <stdint.h>
+// #include <stdio.h>
+// #include "syscall.h"
 
-// Random
-static uint32_t m_z = 362436069;
-static uint32_t m_w = 521288629;
+// // Random
+// static uint32_t m_z = 362436069;
+// static uint32_t m_w = 521288629;
 
-uint32_t GetUint() {
-  m_z = 36969 * (m_z & 65535) + (m_z >> 16);
-  m_w = 18000 * (m_w & 65535) + (m_w >> 16);
-  return (m_z << 16) + m_w;
-}
+// uint32_t GetUint() {
+//   m_z = 36969 * (m_z & 65535) + (m_z >> 16);
+//   m_w = 18000 * (m_w & 65535) + (m_w >> 16);
+//   return (m_z << 16) + m_w;
+// }
 
-uint32_t GetUniform(uint32_t max) {
-  uint32_t u = GetUint();
-  return (u + 1.0) * 2.328306435454494e-10 * max;
-}
+// uint32_t GetUniform(uint32_t max) {
+//   uint32_t u = GetUint();
+//   return (u + 1.0) * 2.328306435454494e-10 * max;
+// }
 
-// Memory
-uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
-  uint8_t *p = (uint8_t *)start;
-  uint32_t i;
+// // Memory
+// uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
+//   uint8_t *p = (uint8_t *)start;
+//   uint32_t i;
 
-  for (i = 0; i < size; i++, p++)
-    if (*p != value)
-      return 0;
+//   for (i = 0; i < size; i++, p++)
+//     if (*p != value)
+//       return 0;
 
-  return 1;
-}
+//   return 1;
+// }
 
-// Parameters
-int64_t satoi(char *str) {
-  uint64_t i = 0;
-  int64_t res = 0;
-  int8_t sign = 1;
+// // Parameters
+// int64_t satoi(char *str) {
+//   uint64_t i = 0;
+//   int64_t res = 0;
+//   int8_t sign = 1;
 
-  if (!str)
-    return 0;
+//   if (!str)
+//     return 0;
 
-  if (str[i] == '-') {
-    i++;
-    sign = -1;
-  }
+//   if (str[i] == '-') {
+//     i++;
+//     sign = -1;
+//   }
 
-  for (; str[i] != '\0'; ++i) {
-    if (str[i] < '0' || str[i] > '9')
-      return 0;
-    res = res * 10 + str[i] - '0';
-  }
+//   for (; str[i] != '\0'; ++i) {
+//     if (str[i] < '0' || str[i] > '9')
+//       return 0;
+//     res = res * 10 + str[i] - '0';
+//   }
 
-  return res * sign;
-}
+//   return res * sign;
+// }
 
-// Dummies
-void bussy_wait(uint64_t n) {
-  uint64_t i;
-  for (i = 0; i < n; i++)
-    ;
-}
+// // Dummies
+// void bussy_wait(uint64_t n) {
+//   uint64_t i;
+//   for (i = 0; i < n; i++)
+//     ;
+// }
 
-void endless_loop() {
-  while (1)
-    ;
-}
+// void endless_loop() {
+//   while (1)
+//     ;
+// }
 
-uint64_t itoa(uint64_t number, char* s) {
-    int digits = 0;
+// uint64_t itoa(uint64_t number, char* s) {
+//     int digits = 0;
 
-    // Contar los dígitos
-    for (uint64_t n = number; n != 0; digits++, n /= 10);
+//     // Contar los dígitos
+//     for (uint64_t n = number; n != 0; digits++, n /= 10);
 
-    // Manejo del caso donde number es 0
-    if (digits == 0) {
-        s[0] = '0';
-        s[1] = '\0';
-        return 1;
-    }
+//     // Manejo del caso donde number es 0
+//     if (digits == 0) {
+//         s[0] = '0';
+//         s[1] = '\0';
+//         return 1;
+//     }
 
-    // Terminar la cadena con un carácter nulo
-    s[digits] = '\0';
+//     // Terminar la cadena con un carácter nulo
+//     s[digits] = '\0';
 
-    // Convertir los dígitos en orden inverso
-    for (int i = digits - 1; i >= 0; i--) {
-        s[i] = (number % 10) + '0';
-        number /= 10;
-    }
+//     // Convertir los dígitos en orden inverso
+//     for (int i = digits - 1; i >= 0; i--) {
+//         s[i] = (number % 10) + '0';
+//         number /= 10;
+//     }
 
-    return digits;
-}
+//     return digits;
+// }
 
-void endless_loop_print(uint64_t wait) {
-  int64_t pid = get_pid();
-  char str[4];
-    while (1) {
-      itoa(pid, str);
-      draw_word(0xFFFFFF ,str);
-      bussy_wait(wait);
-    }
-}
+// // void endless_loop_print(uint64_t wait) {
+// //   draw_word(0xFFFFFF, "Endless loop print\n");
+// //   int64_t pid = get_pid();
+// //   char str[4];
+// //     while (1) {
+// //       itoa(pid, str);
+// //       draw_word(0xFFFFFF ,str);
+// //       bussy_wait(wait);
+// //     }
+// // }

@@ -79,9 +79,9 @@ uint64_t scheduler(uint64_t current_rsp){
 
     if (--running->time == 0) {
         // Se acabó su quantum, lo re-encolamos si no terminó
-        if (running->state == RUNNING) {
-            ready(running);  // volver a ponerlo en cola
-        }
+        // if (running->state == RUNNING) {
+        //     ready(running);  // volver a ponerlo en cola
+        // }
         running = next(readys);
         running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
