@@ -5,7 +5,6 @@
 #include <defs.h>
 #include <stddef.h>
 #include <mm_dummy.h>
-#include <kernel.h>
 #include <pcb.h>
 
 

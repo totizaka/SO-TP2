@@ -173,13 +173,13 @@ static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue){
     return my_sem_open(sem_id[0], initialValue, 0);
 }
 static int64_t syscall_my_sem_wait_handler(char *sem_id){
-    return my_sem_wait(sem_id[0], 0);
+    return my_sem_wait(sem_id[0]);
 }
 static int64_t syscall_my_sem_post(char *sem_id){
-    return my_sem_post(sem_id[0], 0);
+    return my_sem_post(sem_id[0]);
 }
 static int64_t syscall_my_sem_close(char *sem_id){
-    return my_sem_close(sem_id[0], 0);
+    return my_sem_close(sem_id[0]);
 }
 
 static void syscall_my_yield_handler(){
