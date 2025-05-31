@@ -71,6 +71,6 @@ void endless_loop_print(uint64_t wait) {
     while (1) {
       itoa(pid, str);
       print(str, MAXBUFF);
-      bussy_wait(wait);
+      bussy_wait(10000000);
     }
 }

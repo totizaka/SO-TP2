@@ -97,13 +97,25 @@ void yield(){
 }
 
 void remove_from_scheduler(PCB* process){
+    draw_word(0xFFFFFF, "entre a remove\n");
     if (process == NULL){
+        draw_word(0xFF0000, "Error: Attempted to remove a NULL process from scheduler\n");
         return;
     }
+
+    //asi funciona
+
+    remove_list(blockeds, (list_elem_t)process);
+    remove_list(readys, (list_elem_t)process);
+
+    //fijarse porque esto de abajo no funciona, debuggear, no se cargan bien los estados? anda mal block?
+
     if (process->state == READY){
+        draw_word(0xFFFFFF, "Removing process from ready list\n");
         remove_list(readys, (list_elem_t)process);
     }
     else if (process->state == BLOCKED){
+        draw_word(0xFFFFFF, "Removing process from blocked list\n");
         remove_list(blockeds, (list_elem_t)process);
     }
 }

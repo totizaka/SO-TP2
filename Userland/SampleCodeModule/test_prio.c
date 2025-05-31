@@ -1,4 +1,5 @@
 #include <test_prio.h>
+#include <stdlib_user.h>
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
@@ -15,7 +16,7 @@ void test_prio() {
   print("\nCHANGING PRIORITIES...\n", MAXBUFF);
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], prio[i]);
+    my_nice(pids[i], prio[i]*3);
 
   bussy_wait(WAIT);
   print("\nBLOCKING...\n", MAXBUFF);

@@ -133,6 +133,7 @@ int64_t kill_process(uint64_t pid){
     if (pid < 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
+    draw_word(0xFFFFFF, "vpy a matar\n");
     remove_from_scheduler(&pcb_table[pid]);
     set_free_pcb(pid);
 
