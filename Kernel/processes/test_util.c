@@ -89,13 +89,13 @@ uint64_t itoa(uint64_t number, char* s) {
     return digits;
 }
 
-// void endless_loop_print() {
-//   draw_word(0xFFFFFF, "Endless loop print\n");
-//   int64_t pid = get_pid();
-//   char str[4];
-//     while (1) {
-//       itoa(pid, str);
-//       draw_word(0xFFFFFF ,str);
-//       bussy_wait(10000000);
-//     }
-// }
+ /*void endless_loop_print() {
+   draw_word(0xFFFFFF, "Endless loop print\n");
+   int64_t pid = get_pid();
+   char str[4];
+     while (1) {
+       itoa(pid, str);
+      draw_word(0xFFFFFF ,str);
+      bussy_wait(10000000);
+    }
+ }*/

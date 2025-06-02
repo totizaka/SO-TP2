@@ -95,9 +95,12 @@ memory_manager_ADT get_memory_manager(){
 }
 
 void idle_process(){
-	while (1){
-		_hlt();
+	while(1){
+	draw_word ( 0xFFFFFF, "idle\n");
 	}
+	/*while (1){
+		_hlt();
+	}*/
 }
 
 void test_process(){
@@ -180,7 +183,7 @@ void t_c(){
 //     return digits;
 // }
 
-int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
+/*int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
 void endless_loop_print() {
   draw_word(0xFFFFFF, "Endless loop print\n");
@@ -230,7 +233,7 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     kill_process(pids[i]);
-}
+}*/
 
 
 int main()
@@ -248,17 +251,17 @@ int main()
 
 	memory_manager = createMemoryManager(memory_address);
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
-	initialize_scheduler();
-
+	initialize_scheduler((void(*))test_processes);
+	//new_process(, LOW_PRIORITY, NULL, 0);
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
 	// new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);
 	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
 
-	new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
+	//new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
 
-	// new_process((void(*))test_prio, LOW_PRIORITY, NULL, 0);
+	 //new_process((void(*))test_prio, LOW_PRIORITY, NULL, 0);
 
-	// new_process((void(*))test_processes, LOW_PRIORITY, NULL, 0);
+	 
 
 	
 

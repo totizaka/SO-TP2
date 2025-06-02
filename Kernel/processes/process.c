@@ -95,7 +95,6 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->stack_base = rsp_malloc;
     current->priority = priority;
     current->rip = rip;
-    current->state = READY;
     current->time = QUANTUM * (10 - priority);
     // El stack crece hacia abajo, por eso rsp apunta al final del bloque reservado
     current->rsp = rsp_malloc + STACK_SIZE;
@@ -114,16 +113,23 @@ int64_t block_process(uint64_t pid){
     if(pid < 1 || pid >= MAX_PID){
          return -1;
     }
+    if(pcb_table[pid].state==BLOCKED){
+        return 0;
+    }
     pcb_table[pid].state = BLOCKED;
-    return 0; 
+    return 1; 
 }
 
+//devuelve -1 si pid no esta en rango, 0 si "no hizo nada", 1 si cambio
 int64_t ready_process(uint64_t pid){
     if(pid < 1 || pid >= MAX_PID){
         return -1;
     }
+    if(pcb_table[pid].state==READY){
+        return 0;
+    }
     pcb_table[pid].state = READY;
-    return 0;
+    return 1;
     
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
@@ -133,7 +139,7 @@ int64_t kill_process(uint64_t pid){
     if (pid < 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
-    draw_word(0xFFFFFF, "vpy a matar\n");
+    //draw_word(0xFFFFFF, "vpy a matar\n");
     remove_from_scheduler(&pcb_table[pid]);
     set_free_pcb(pid);
 

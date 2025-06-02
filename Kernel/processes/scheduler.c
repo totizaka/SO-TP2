@@ -18,7 +18,7 @@ int compare_elem(list_elem_t e1, list_elem_t e2){
 
 //tiene q hacer las dos listas y dsp llamar a set_idle() => en el pcb table en la posicision 0 tenmos el idle 
 
-void initialize_scheduler(){
+void initialize_scheduler(void * shell){
     draw_word(0xFFFFFF, "Initializing scheduler\n");
     t_cmp cmp = compare_elem;
     readys = new_list(cmp);
@@ -27,21 +27,39 @@ void initialize_scheduler(){
     if (readys == NULL || blockeds == NULL) {
         return;
     }
+    new_process((void(*))shell, 1, NULL, 0);
+    //habria q ver si podemos decir q ya sabemos q la shell no va a tener args y ademas q elegimos nosotras la prioridad¿?
     initialized = 1;
 }
 
 int64_t ready(PCB* process){
-    if (process == NULL || ready_process(process->pid) == -1){
+    int res;
+    if (process != NULL){
+        res=ready_process(process->pid);
+        if(res==-1){
+            return -1;
+        }else if(res==0){
+            return 0;
+        }
+    } else{
         return -1;
-    }   
+    }  
     add_list(readys, (list_elem_t)process);
     remove_list(blockeds, (list_elem_t)process); 
     return 0;
 }
 int64_t block(PCB* process){
-    if (process == NULL || block_process(process->pid) == -1){
+    int res;
+    if (process != NULL){
+        res=block_process(process->pid);
+        if(res==-1){
+            return -1;
+        }else if(res==0){
+            return 0;
+        }
+    } else{
         return -1;
-    }
+    } 
     remove_list(readys, (list_elem_t)process);
     add_list(blockeds, (list_elem_t)process);
     if (running == process) {
@@ -58,8 +76,11 @@ uint64_t scheduler(uint64_t current_rsp){
     if (!initialized){
         return current_rsp;
     }
-    if (running != NULL){
+   
+    if (running != NULL && running->state!=FREE){
         running->rsp = current_rsp;
+    }else {
+        running==NULL;
     }
     if (is_empty(readys)){
         //Si no existen procesos para correr => corre el idle 
@@ -70,6 +91,7 @@ uint64_t scheduler(uint64_t current_rsp){
         current_rsp = running->rsp;
     }else{
     if (running == NULL || running->state != RUNNING || running == idle){ 
+        running->state = READY;
         running = next(readys);
         running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
@@ -82,6 +104,7 @@ uint64_t scheduler(uint64_t current_rsp){
         // if (running->state == RUNNING) {
         //     ready(running);  // volver a ponerlo en cola
         // }
+        running->state = READY;
         running = next(readys);
         running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
@@ -97,7 +120,7 @@ void yield(){
 }
 
 void remove_from_scheduler(PCB* process){
-    draw_word(0xFFFFFF, "entre a remove\n");
+    //draw_word(0xFFFFFF, "entre a remove\n");
     if (process == NULL){
         draw_word(0xFF0000, "Error: Attempted to remove a NULL process from scheduler\n");
         return;
@@ -105,17 +128,17 @@ void remove_from_scheduler(PCB* process){
 
     //asi funciona
 
-    remove_list(blockeds, (list_elem_t)process);
-    remove_list(readys, (list_elem_t)process);
+    //remove_list(blockeds, (list_elem_t)process);
+    //remove_list(readys, (list_elem_t)process);
 
     //fijarse porque esto de abajo no funciona, debuggear, no se cargan bien los estados? anda mal block?
 
     if (process->state == READY){
-        draw_word(0xFFFFFF, "Removing process from ready list\n");
+        //draw_word(0xFFFFFF, "Removing process from ready list\n");
         remove_list(readys, (list_elem_t)process);
     }
     else if (process->state == BLOCKED){
-        draw_word(0xFFFFFF, "Removing process from blocked list\n");
+        //draw_word(0xFFFFFF, "Removing process from blocked list\n");
         remove_list(blockeds, (list_elem_t)process);
     }
 }
