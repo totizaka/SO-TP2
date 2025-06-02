@@ -251,7 +251,7 @@ int main()
 
 	memory_manager = createMemoryManager(memory_address);
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
-	initialize_scheduler((void(*))test_processes);
+	initialize_scheduler((void(*))sample_code_module_address);
 	//new_process(, LOW_PRIORITY, NULL, 0);
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
 	// new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);

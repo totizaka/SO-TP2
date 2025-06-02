@@ -30,7 +30,7 @@ void mm_test_shell(){
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    test_processes(1, "10");
+    test_processes();
 }
 
 void prio_test_shell(){
