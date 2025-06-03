@@ -23,19 +23,23 @@ void help(){
     return;
 }
 
+//VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
+
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    test_mm(1, "100000");
+    // test_mm(1, "100000");
+    // char args[1][6] = {"100000"};
+    my_create_process((void(*))test_mm, 1, NULL, 0);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    test_processes();
+    my_create_process((void(*))test_processes, 1, NULL, 0);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
-    test_prio();
+    my_create_process((void(*))test_prio, 1, NULL, 0);
 }
 
 void opcode_exc(){

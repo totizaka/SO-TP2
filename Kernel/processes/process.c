@@ -1,7 +1,7 @@
 #include <process.h>
 #define STACK_SIZE (4 * 1024)
 
- PCB pcb_table[MAX_PID]={0};
+PCB pcb_table[MAX_PID]={0};
 
  
  typedef struct {
@@ -66,8 +66,36 @@ static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
     return ans;
 }
  
-void set_free_pcb(pid_t pid){
-    pcb_table[pid].state=FREE;
+int set_free_pcb(pid_t pid) {
+    if (pid < 1 || pid >= MAX_PID) {
+        return -1;
+    }
+    PCB *process = get_pcb(pid);
+    if (process == NULL || process->state == FREE) {
+        return -1; 
+    }
+    // Liberar args
+    if (process->args != NULL) {
+        for (uint64_t i = 0; process->args[i] != NULL; i++) {
+            my_free(get_memory_manager(), process->args[i]);
+        }
+        my_free(get_memory_manager(), process->args);
+        process->args = NULL;
+    }
+    // Liberar stack
+    my_free(get_memory_manager(), (void *)process->stack_base);
+    process->pid = 0;
+    process->ppid = 0;
+    process->rip = 0;
+    process->rsp = 0;
+    process->stack_base = 0;
+    process->priority = 0;
+    process->time = 0;
+    process->ret = 0;
+    process->waiting_me = NULL;
+    process->waiting_for = NULL;
+    process->state = FREE;
+    return 0;
 }
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
@@ -92,6 +120,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
 
     PCB *current = &pcb_table[pid];
     current->pid = pid;
+    current->ppid = get_pid(); // Set parent PID to the running process
     current->stack_base = rsp_malloc;
     current->priority = priority;
     current->rip = rip;
@@ -126,7 +155,7 @@ int64_t ready_process(uint64_t pid){
     if(pid < 1 || pid >= MAX_PID){
         return -1;
     }
-    if(pcb_table[pid].state==READY){
+    if(pcb_table[pid].state == READY){
         return 0;
     }
     pcb_table[pid].state = READY;
@@ -140,21 +169,17 @@ int64_t kill_process(uint64_t pid){
     if (pid < 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
-    //draw_word(0xFFFFFF, "vpy a matar\n");
     remove_from_scheduler(&pcb_table[pid]);
- 
+    unblock_waiting_proc(&pcb_table[pid]);
 
-    // Liberar args
-    if(pcb_table[pid].args != NULL){
-        for(uint64_t i=0; pcb_table[pid].args[i] != NULL; i++){
-            my_free(get_memory_manager(), pcb_table[pid].args[i]);
-        }
-        my_free(get_memory_manager(), pcb_table[pid].args);
-        pcb_table[pid].args = NULL;
+    if (pcb_table[pid].waiting_for != NULL && pcb_table[pid].waiting_for->waiting_me != NULL){
+        pcb_table[pid].waiting_for->waiting_me = NULL; // El proceso que estaba esperando a este se desbloquea
     }
-
-    my_free(get_memory_manager(), (void *)pcb_table[pid].stack_base);
     set_free_pcb(pid);
+    if(&pcb_table[pid] == get_running()){
+        // Si el proceso que se está matando es el que está corriendo, hacemos yield
+        yield();
+    }
     return 0;
 }
 
@@ -177,7 +202,7 @@ int64_t get_pid(){
 
 
 PCB* get_pcb(uint64_t pid){
-    if(pid < 0 || pid > MAX_PID){
+    if(pid < 0 || pid >= MAX_PID){
         return NULL;
     }
     return &pcb_table[pid];
@@ -219,14 +244,29 @@ uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uin
 
 
 void process_wrapper(main_function rip, char **argv, uint64_t argc, uint64_t pid) {
-    int ret = rip ( argv, argc );
-	_cli();
-	PCB * pcb = get_pcb ( pid );
-	if ( pcb == NULL ) {
-		return;
-	}
-    //zombie(ret);
-	timer_tick();
+    int ret = rip(argv, argc);
+    _cli();
+    PCB * pcb= get_pcb(pid);
+    if(pcb == NULL){
+        return;
+    }
+    zombie(ret);
+    timer_tick();
+}
+
+
+int zombie(int ret){
+    PCB *process = get_running();
+    if (process == NULL || process->state == FREE) {
+        return -1; // No hay proceso corriendo o el proceso ya está libre
+    }
+    process->ret = ret;
+    remove_from_scheduler(process); // Eliminar de la lista de procesos listos
+    unblock_waiting_proc(process); // Desbloquear procesos que estaban esperando a este
+    process->state = ZOMBIE;
+    process->waiting_me = NULL; // El proceso no espera a nadie
+    process->waiting_for = NULL; // El proceso no está esperando a nadie
+    return 0;
 }
 
 
@@ -244,6 +284,7 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     }
 
     PCB *current = &pcb_table[pid];
+    current->stack_base = rsp_malloc;
     current->pid = pid;
     current->priority = priority;
     current->rip = rip;
@@ -327,4 +368,29 @@ void list_processes() {
             draw_word(s);
         }
     }
+}
+
+pid_t wait(pid_t pid, int64_t *ret) {
+    PCB *pcb_to_wait = get_pcb(pid);
+    PCB *running = get_running();
+
+    if (pcb_to_wait == NULL || pcb_to_wait->state == FREE || pcb_to_wait->waiting_me != NULL || pid == get_pid()) {
+        return -1;
+    }
+    // Si el hijo no terminó, bloqueamos al padre
+    if (pcb_to_wait->state != ZOMBIE) {
+        pcb_to_wait->waiting_me = running;
+        running->waiting_for = pcb_to_wait;
+        block(running);  // Bloquea al proceso running
+        // running->waiting_for = NULL;
+    }
+    // Si el hijo fue eliminado antes de terminar
+    if (pcb_to_wait->state != ZOMBIE) {
+        return -1;
+    }
+    if (ret != NULL) {
+        *ret = pcb_to_wait->ret;
+    }
+    set_free_pcb(pid);
+    return pid;
 }

@@ -1,6 +1,5 @@
 #include <semaphores.h>
 
-
 typedef struct sem{
 
     uint64_t id;
@@ -16,10 +15,8 @@ typedef struct sem{
 sem_t sem_array[MAX_SEM]={0};
 
 int comp(list_elem_t e1, list_elem_t e2){
-    // return ((PCB*)e1)->pid - ((PCB*)e2)->pid;
-    return 0; //Falta implementacion
+    return (e1 - e2); 
 }
-
 
 int invalid_ID(uint64_t sem_id, int max){
     return (sem_id < 0 || sem_id >= max);
@@ -35,9 +32,9 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
         return -1;
     }
 
-    acquire(&sem_array[sem_id].lock);//lockea el semaforo
+    acquire(&sem_array[sem_id].lock); //lockea el semaforo
 
-    if (sem_array[sem_id].ocupied) {//si el semaforo ya esta ocupado
+    if (sem_array[sem_id].ocupied) { //si el semaforo ya esta ocupado
         release(&sem_array[sem_id].lock);
         return -1;
     }
@@ -55,20 +52,6 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
 
     return 0;
 }
-
-
-// int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
-//     // if(!sem_array[sem_id].ocupied || sem_id<0 || sem_id>MAX_SEMS){
-//     //     return -1;
-//     // }
-//     // acquire(&sem_array[sem_id].lock);
-//     // sem_array[sem_id].ocupied=1;
-//     // sem_array[sem_id].value=value;
-//     // sem_array[sem_id].is_kernel=is_kernel;
-//     // release(&sem_array[sem_id].lock);
-
-// }
-
 
 int64_t my_sem_post ( int64_t sem_id){
 if (invalid_ID_sem(sem_id))
@@ -96,35 +79,15 @@ if (invalid_ID_sem(sem_id))
 
 }
 
-
-//int64_t my_sem_post ( int64_t sem_id, uint8_t is_kernel ){
-    // if(sem_id>MAX_SEMS || sem_id<0){
-    //     return -1;
-    // }
-    // acquire(&sem_array[sem_id].lock);
-    // if(sem_array[sem_id].my_blockeds==NULL||is_empty(sem_array[sem_id].my_blockeds)){
-    //     sem_array[sem_id].value++;
-    // }else{
-    //     list_elem_t unblock=remove_first(sem_array[sem_id].my_blockeds);
-    //     ready(unblock);
-    // }
-    
-
-    // release(&sem_array[sem_id].lock);
-    // return 1;//por ahi hacer void??
-
-// }
-
-
 int64_t my_sem_wait ( int64_t sem_id){
     if (invalid_ID_sem(sem_id)) {//ID invalido
-        return -1;
+        return 1;
     }
     acquire(&sem_array[sem_id].lock);
 
     if (!sem_array[sem_id].ocupied) {//si el semaforo no esta ocupado
         release(&sem_array[sem_id].lock);
-        return -1;
+        return 2;
     }
 
     //Caso1: tengo para disminuir
@@ -144,32 +107,11 @@ int64_t my_sem_wait ( int64_t sem_id){
 
     if(add_list(sem_array[sem_id].my_blockeds, running)==-1){//agrega el proceso a la lista de bloqueados (Si no se pudo agregar, devuelve -1)
         release(&sem_array[sem_id].lock);
-        return -1;
+        return 3;
     }
     release(&sem_array[sem_id].lock);//libera el semaforo
     return 0;
 }
-
-
-// int64_t my_sem_wait ( int64_t sem_id, uint8_t is_kernel ){
-//     // if(sem_id>MAX_SEMS || sem_id<0){
-//     //     return -1;
-//     // }
-//     // acquire(&sem_array[sem_id].lock);
-//     // if(sem_array[sem_id].value>0){
-//     //     sem_array[sem_id].value--;
-//     //     release(&sem_array[sem_id].lock);
-//     //     return 1;
-//     // }
-//     // PCB* running= get_running();
-//     // block(running);
-//     // if(sem_array[sem_id].my_blockeds==NULL){
-//     //     sem_array[sem_id].my_blockeds=new_list(comp);
-//     // }
-//     // add_list(sem_array[sem_id].my_blockeds, running);
-//     // release(&sem_array[sem_id].lock);
-//     // return 1;//hacer void??
-// }
 
 int64_t my_sem_close ( int64_t sem_id){
     if (invalid_ID_sem(sem_id)) {//ID invalido
@@ -194,27 +136,3 @@ int64_t my_sem_close ( int64_t sem_id){
     release(&sem_array[sem_id].lock);
     return 0;
 }
-
-
-
-
-
-//int64_t my_sem_close ( int64_t sem_id, uint8_t is_kernel){
-    // if(sem_id<0 || sem_id>MAX_SEMS || !sem_array[sem_id].ocupied){
-    //     return -1;
-    // }
-    // acquire(&sem_array[sem_id].lock);
-    // //me parece q esta mal esto
-    // if(sem_array[sem_id].my_blockeds!=NULL){
-    // list_elem_t PCB;
-    // while(!is_empty(sem_array[sem_id].my_blockeds)){
-    //    PCB= remove_first(sem_array[sem_id].my_blockeds);
-    //    ready(PCB);
-    // }
-    // free_list(sem_array[sem_id].my_blockeds);
-    // }
-    
-    // release(&sem_array[sem_id].lock);
-
-    // return 0;
-//}

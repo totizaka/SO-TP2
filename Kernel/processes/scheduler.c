@@ -48,6 +48,7 @@ int64_t ready(PCB* process){
     remove_list(blockeds, (list_elem_t)process); 
     return 0;
 }
+
 int64_t block(PCB* process){
     int res;
     if (process != NULL){
@@ -66,6 +67,21 @@ int64_t block(PCB* process){
         yield();
     }
     return 0;
+}
+
+void unblock_waiting_proc(PCB *child) {
+    if (child == NULL || child->waiting_me == NULL)
+        return;
+
+    PCB *parent = child->waiting_me;
+
+    // Asegurarse de que el padre está esperando al hijo correcto
+    if (parent->waiting_for == child && parent->state == BLOCKED) {
+        parent->state = READY;
+        parent->waiting_for = NULL;
+        ready(parent); // Tu función para meterlo al scheduler
+    }
+    child->waiting_me = NULL; // Limpieza del hijo
 }
 
 PCB* get_running(){
@@ -99,7 +115,7 @@ uint64_t scheduler(uint64_t current_rsp){
         return running->rsp;
     }
 
-    if (--running->time == 0) {
+    if (--running->time == 0 || running->state == ZOMBIE) {
         // Se acabó su quantum, lo re-encolamos si no terminó
         // if (running->state == RUNNING) {
         //     ready(running);  // volver a ponerlo en cola
@@ -120,25 +136,13 @@ void yield(){
 }
 
 void remove_from_scheduler(PCB* process){
-    //draw_word(0xFFFFFF, "entre a remove\n");
     if (process == NULL){
-        draw_word(0xFF0000, "Error: Attempted to remove a NULL process from scheduler\n");
         return;
     }
-
-    //asi funciona
-
-    //remove_list(blockeds, (list_elem_t)process);
-    //remove_list(readys, (list_elem_t)process);
-
-    //fijarse porque esto de abajo no funciona, debuggear, no se cargan bien los estados? anda mal block?
-
     if (process->state == READY){
-        //draw_word(0xFFFFFF, "Removing process from ready list\n");
         remove_list(readys, (list_elem_t)process);
     }
     else if (process->state == BLOCKED){
-        //draw_word(0xFFFFFF, "Removing process from blocked list\n");
         remove_list(blockeds, (list_elem_t)process);
     }
 }

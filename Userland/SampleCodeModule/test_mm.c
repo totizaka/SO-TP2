@@ -20,20 +20,22 @@ uint64_t test_mm(uint64_t argc, char *argv) {
   uint32_t total;
   uint64_t max_memory;
 
-  print("entre", MAXBUFF);
-  if (argc != 1)
-    return -1;
+  // print("entre", MAXBUFF);
+  // if (argc != 1)
+  //   return -1;
 
-  print("entre", MAXBUFF);
+  // print("entre", MAXBUFF);
 
-  if ((max_memory = satoi(argv)) <= 0)
-    return -1;
+  // if ((max_memory = satoi(argv)) <= 0)
+  //   return -1;
+
+  max_memory = 1000000;
 
   print("test_mm pase \n", MAXBUFF);
   /*while (1) {*/
     rq = 0;
     total = 0;
-int count = 0;
+    int count = 0;
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
       count++;
