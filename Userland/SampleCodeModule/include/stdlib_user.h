@@ -47,4 +47,8 @@ int64_t my_block(uint64_t pid);
 int64_t my_unblock(uint64_t pid);
 void* my_malloc(uint64_t size);
 void my_free(uint64_t ptr);
-
+int64_t sem_open ( int64_t sem_id, int value);
+int64_t sem_open_get_id(int value);
+int64_t sem_post ( int64_t sem_id );
+int64_t sem_wait ( int64_t sem_id);
+int64_t sem_close ( int64_t sem_id);

@@ -11,7 +11,7 @@
 
  typedef struct{
     stack_regs stack_regs;
-	uint64_t rip;
+    uint64_t rip;
 	uint64_t cs;
 	uint64_t rflags;
 	uint64_t rsp;
@@ -101,9 +101,10 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     if(current->rsp == 0){
         return -1;
     }
-    current->rsp = load_stack(rip, current->rsp, argv, argc, pid);//  inciializar el stack
+    current->rsp = load_stack(rip, current->rsp, args_cpy, argc, pid);//  inciializar el stack
     current->args = args_cpy;
     ready(current);
+    
     return pid;
 }
 
@@ -141,7 +142,7 @@ int64_t kill_process(uint64_t pid){
     }
     //draw_word(0xFFFFFF, "vpy a matar\n");
     remove_from_scheduler(&pcb_table[pid]);
-    set_free_pcb(pid);
+ 
 
     // Liberar args
     if(pcb_table[pid].args != NULL){
@@ -153,6 +154,7 @@ int64_t kill_process(uint64_t pid){
     }
 
     my_free(get_memory_manager(), (void *)pcb_table[pid].stack_base);
+    set_free_pcb(pid);
     return 0;
 }
 
@@ -197,31 +199,37 @@ int64_t nice(int64_t pid, uint8_t new_prio){
 
 
 uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
-
+     if(argv!=NULL){
+    draw_word(0xFFFFFF, argv[0]);
+    }
     stack* to_ret=(stack*)(rsp - sizeof(stack));
-    to_ret->stack_regs.rdi = rip;
-    to_ret->stack_regs.rsi = argv;
+    to_ret->stack_regs.rdi = (uint64_t) rip;
+    to_ret->stack_regs.rsi = (uint64_t) argv;
     to_ret->stack_regs.rdx = argc;
     to_ret->stack_regs.rcx = pid;
-    to_ret->rip = rip;
+    to_ret->rip = (uint64_t) process_wrapper;
     to_ret->cs = 0x8;
     to_ret->rflags = 0x202;
-    to_ret->rsp = (uint64_t) to_ret;
+    to_ret->rsp = rsp;
     to_ret->ss = 0x0;
 
    return (uint64_t) to_ret;
 }
 
 
+
 void process_wrapper(main_function rip, char **argv, uint64_t argc, uint64_t pid) {
-     int ret = rip(argv, argc);
-    PCB * pcb= get_pcb(pid);
-    if(pcb == NULL){
-        return;
-    }
-    pcb->ret = ret;  //@TODO esto podria estar en kill_process
-    kill_process(pid);
+    int ret = rip ( argv, argc );
+	_cli();
+	PCB * pcb = get_pcb ( pid );
+	if ( pcb == NULL ) {
+		return;
+	}
+    //zombie(ret);
+	timer_tick();
 }
+
+
 
 
 void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
@@ -244,7 +252,7 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     if(current->rsp == 0){
         return ;
     }
-    current->rsp = load_stack(rip, current->rsp, argv, argc, pid);//  inciializar el stack
+    current->rsp = load_stack(rip, current->rsp, args_cpy, argc, pid);//  inciializar el stack
     current->args = args_cpy; 
 }
 
@@ -252,4 +260,71 @@ PCB * get_idle(){
     return &pcb_table[0];
 }
 
-    
+void list_processes() {
+    char s[64];  // Espacio suficiente para el PID + texto del estado + terminador
+
+    for (int i = 1; i < MAX_PID; i++) {
+        if (pcb_table[i].state != FREE) {
+            int len = 0;
+
+            // Convertir PID a string
+            itoa(pcb_table[i].pid, s);
+
+            // Buscar fin del string
+            while (s[len] != '\0') len++;
+
+            // Agregar '-'
+            s[len++] = '-';
+
+            // Agregar palabra según el estado
+            switch (pcb_table[i].state) {
+                case FREE:
+                    s[len++] = 'F';
+                    s[len++] = 'R';
+                    s[len++] = 'E';
+                    s[len++] = 'E';
+                    break;
+                case BLOCKED:
+                    s[len++] = 'B';
+                    s[len++] = 'L';
+                    s[len++] = 'O';
+                    s[len++] = 'C';
+                    s[len++] = 'K';
+                    s[len++] = 'E';
+                    s[len++] = 'D';
+                    break;
+                case READY:
+                    s[len++] = 'R';
+                    s[len++] = 'E';
+                    s[len++] = 'A';
+                    s[len++] = 'D';
+                    s[len++] = 'Y';
+                    break;
+                case ZOMBIE:
+                    s[len++] = 'Z';
+                    s[len++] = 'O';
+                    s[len++] = 'M';
+                    s[len++] = 'B';
+                    s[len++] = 'I';
+                    s[len++] = 'E';
+                    break;
+                case RUNNING:
+                    s[len++] = 'R';
+                    s[len++] = 'U';
+                    s[len++] = 'N';
+                    s[len++] = 'N';
+                    s[len++] = 'I';
+                    s[len++] = 'N';
+                    s[len++] = 'G';
+                    break;
+            }
+
+            // Agregar salto de línea y terminador nulo
+            s[len++] = '\n';
+            s[len] = '\0';
+
+            // Dibujar la línea
+            draw_word(s);
+        }
+    }
+}

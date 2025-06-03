@@ -38,5 +38,10 @@ extern int64_t syscall_my_yield();
 extern int64_t syscall_my_wait(int64_t pid);
 extern int64_t syscall_my_malloc(uint64_t size);
 extern int64_t syscall_my_free(uint64_t ptr);
+extern int64_t syscall_sem_open ( int64_t sem_id, int value);
+extern int64_t syscall_sem_open_get_id(int value);
+extern int64_t syscall_sem_post ( int64_t sem_id );
+extern int64_t syscall_sem_wait ( int64_t sem_id);
+extern int64_t syscall_sem_close ( int64_t sem_id);
 
 #endif

@@ -126,10 +126,10 @@ void t_a(){
 }}
 
 
-void t_b(){
+void t_b(char**argv, int argc){
 	int x;
 		while(1){
-		draw_word ( 0xFFFFFF, "b");
+		draw_word ( 0xFFFFFF, argv[0]);
 		for(int i=0; i<10000000;i++){
 			i--;
 			i++;
@@ -147,6 +147,7 @@ void t_c(){
 			x = i;
 		}
 }}
+
 
 // void bussy_wait(uint64_t n) {
 //   	uint64_t i;
@@ -245,17 +246,19 @@ int main()
 	// ncPrintHex(((EntryPoint)sample_code_module_address)());
 
 	draw_word(0xFFFFFF,"hola\n");
-
+	//char a[2]="a";
+	char *b[] = {"b", NULL};
+	char* c[2]={"c"};
 	char * argv_idle[] = {"idle"};
 	char * argv_shell[] = {"sh"};
 
 	memory_manager = createMemoryManager(memory_address);
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
-	initialize_scheduler((void(*))sample_code_module_address);
+	initialize_scheduler((void(*))t_a);
 	//new_process(, LOW_PRIORITY, NULL, 0);
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
-	// new_process((void(*))t_b, MEDIUM_PRIORITY, NULL, 0);
-	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+	new_process((void(*))t_b, LOW_PRIORITY, b, 1);
+	new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
 
 	//new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
 

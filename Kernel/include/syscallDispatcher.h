@@ -44,6 +44,6 @@ static int64_t syscall_my_sem_post(char *sem_id);
 static int64_t syscall_my_sem_close(char *sem_id);
 static void syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid);
-static void* syscall_list_processes();
+static void syscall_list_processes();
 
 #endif  

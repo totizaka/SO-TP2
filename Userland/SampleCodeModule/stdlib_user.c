@@ -242,3 +242,8 @@ int64_t my_block(uint64_t pid){
 int64_t my_unblock(uint64_t pid){
     return syscall_my_unblock(pid);
 }
+
+int64_t exit(uint64_t res){//para q usaria la res en kernel??
+    //buscar la forma de volver al proceso en el que estaba antes despues con el scheduler (al padre??)
+    return my_kill(my_getpid());
+}

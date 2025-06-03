@@ -53,6 +53,8 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
             }
         }
 
+        draw_word(0xFFFFF, "test_processes: Killing process %d\n");
+
         // Randomly kills, blocks or unblocks processes until every one has been killed
         while (alive > 0) {
 

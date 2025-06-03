@@ -197,3 +197,6 @@ static void* syscall_malloc_handler(uint64_t size) {
 static void syscall_free_handler(uint64_t ptr) {
     my_free(get_memory_manager(), (void *)ptr);
 }
+static void syscall_list_processes(){
+    list_processes();
+}
