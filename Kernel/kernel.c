@@ -95,12 +95,12 @@ memory_manager_ADT get_memory_manager(){
 }
 
 void idle_process(){
-	while(1){
-	draw_word ( 0xFFFFFF, "idle\n");
-	}
-	/*while (1){
-		_hlt();
+	/*while(1){
+	//draw_word ( 0xFFFFFF, "idle\n");
 	}*/
+	while (1){
+		_hlt();
+	}
 }
 
 void test_process(){
@@ -257,8 +257,8 @@ int main()
 	initialize_scheduler((void(*))test_sync);
 	//new_process(, LOW_PRIORITY, NULL, 0);
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
-	new_process((void(*))t_b, LOW_PRIORITY, b, 1);
-	new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+	//new_process((void(*))t_b, LOW_PRIORITY, b, 1);
+	//new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
 
 	//new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
 

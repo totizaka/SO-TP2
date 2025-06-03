@@ -30,9 +30,9 @@ uint64_t my_process_inc1() {
   // if ((use_sem = satoi(argv[2])) < 0)
   //   return -1;
   
-  n = 100000;
+  n = 10;
   inc = 1;
-  use_sem = 0;
+  use_sem = 1;
 
   if (use_sem)
     if (!my_sem_open(SEM_ID, 1, 1)) {
@@ -52,6 +52,7 @@ uint64_t my_process_inc1() {
   if (use_sem)
     my_sem_close(SEM_ID);
 
+        draw_word(0xFFFFFF ,"termino1\n");
   return 0;
 }
 
@@ -73,9 +74,9 @@ uint64_t my_process_inc2() {
   // if ((use_sem = satoi(argv[2])) < 0)
   //   return -1;
   
-  n = 100000;
+  n = 10;
   inc = -1;
-  use_sem = 0;
+  use_sem = 1;
 
   if (use_sem)
     if (!my_sem_open(SEM_ID, 1, 1)) {
@@ -95,6 +96,7 @@ uint64_t my_process_inc2() {
   if (use_sem)
     my_sem_close(SEM_ID);
 
+    draw_word(0xFFFFFF ,"termino2\n");
   return 0;
 }
 
@@ -122,6 +124,11 @@ uint64_t test_sync() { //{n, use_sem, 0}
 
   char str[20];
   itoa(global, str);
+  for(int i=0; i<1000000;i++){
+    i+1;
+    i-2;
+    int x=i;
+  }
 
   draw_word(0xFFFFFF ,"Final value:");
   draw_word(0xFFFFFF ,str);

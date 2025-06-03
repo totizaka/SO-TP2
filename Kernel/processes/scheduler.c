@@ -76,8 +76,7 @@ void unblock_waiting_proc(PCB *child) {
     PCB *parent = child->waiting_me;
 
     // Asegurarse de que el padre está esperando al hijo correcto
-    if (parent->waiting_for == child && parent->state == BLOCKED) {
-        parent->state = READY;
+    if ( parent->state == BLOCKED) {
         parent->waiting_for = NULL;
         ready(parent); // Tu función para meterlo al scheduler
     }
@@ -107,7 +106,6 @@ uint64_t scheduler(uint64_t current_rsp){
         current_rsp = running->rsp;
     }else{
     if (running == NULL || running->state != RUNNING || running == idle){ 
-        running->state = READY;
         running = next(readys);
         running->time = QUANTUM * (1 + running->priority);
         running->state = RUNNING; // Aseguramos que el nuevo proceso esté en estado RUNNING
@@ -115,7 +113,7 @@ uint64_t scheduler(uint64_t current_rsp){
         return running->rsp;
     }
 
-    if (--running->time == 0 || running->state == ZOMBIE) {
+    if (--running->time == 0) {
         // Se acabó su quantum, lo re-encolamos si no terminó
         // if (running->state == RUNNING) {
         //     ready(running);  // volver a ponerlo en cola
@@ -139,7 +137,7 @@ void remove_from_scheduler(PCB* process){
     if (process == NULL){
         return;
     }
-    if (process->state == READY){
+    if (process->state == READY || process->state==RUNNING){
         remove_list(readys, (list_elem_t)process);
     }
     else if (process->state == BLOCKED){
