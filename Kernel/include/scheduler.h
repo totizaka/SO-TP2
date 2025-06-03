@@ -28,6 +28,7 @@ void yield();
 void remove_from_scheduler(PCB* process);
 uint64_t itoa(uint64_t number, char* s);
 PCB *get_idle();
+int64_t block_no_yield(PCB*process);
 //PCB* set_idle();
 
 #endif

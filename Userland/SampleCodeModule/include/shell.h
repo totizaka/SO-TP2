@@ -5,7 +5,7 @@
 #include <stdlib_user.h>
 #include <snake.h>
 
-#define menuDIM 10
+#define menuDIM 11
 #define BLACK 0x000000
 
 typedef struct module {
@@ -28,6 +28,6 @@ void shell();
 void mm_test_shell();
 void prio_test_shell();
 void proc_test_shell();
-
+void sync_test_shell();
 
 #endif

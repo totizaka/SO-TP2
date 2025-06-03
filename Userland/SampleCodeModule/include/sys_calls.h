@@ -30,18 +30,13 @@ extern int64_t syscall_my_nice(uint64_t pid, uint64_t newPrio);
 extern int64_t syscall_my_kill(uint64_t pid);
 extern int64_t syscall_my_block(uint64_t pid);
 extern int64_t syscall_my_unblock(uint64_t pid);
-extern int64_t syscall_my_sem_open(char *sem_id, uint64_t initialValue);
-extern int64_t syscall_my_sem_wait(char *sem_id);
-extern int64_t syscall_my_sem_post(char *sem_id);
-extern int64_t syscall_my_sem_close(char *sem_id);
 extern int64_t syscall_my_yield();
-extern int64_t syscall_my_wait(int64_t pid);
+extern int64_t syscall_my_wait(int64_t pid,int64_t* ret );
 extern int64_t syscall_my_malloc(uint64_t size);
 extern int64_t syscall_my_free(uint64_t ptr);
-extern int64_t syscall_sem_open ( int64_t sem_id, int value);
-extern int64_t syscall_sem_open_get_id(int value);
-extern int64_t syscall_sem_post ( int64_t sem_id );
-extern int64_t syscall_sem_wait ( int64_t sem_id);
-extern int64_t syscall_sem_close ( int64_t sem_id);
+extern int64_t syscall_my_sem_open ( int64_t sem_id, int value);
+extern int64_t syscall_my_sem_post ( int64_t sem_id );
+extern int64_t syscall_my_sem_wait ( int64_t sem_id);
+extern int64_t syscall_my_sem_close ( int64_t sem_id);
 
 #endif

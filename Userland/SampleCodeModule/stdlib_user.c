@@ -239,11 +239,39 @@ int64_t my_block(uint64_t pid){
     return syscall_my_block(pid);
 }
 
+int64_t my_wait(uint64_t pid, int64_t *ret){
+    return syscall_my_wait(pid, ret);
+}
+
 int64_t my_unblock(uint64_t pid){
     return syscall_my_unblock(pid);
+}
+int64_t my_yield(){
+    return  syscall_my_yield();
 }
 
 int64_t exit(uint64_t res){//para q usaria la res en kernel??
     //buscar la forma de volver al proceso en el que estaba antes despues con el scheduler (al padre??)
     return my_kill(my_getpid());
+}
+char *my_strcpy(char *dest, const char *src) {
+    char *original = dest;
+
+    while ((*dest++ = *src++) != '\0');
+
+    return original;
+}
+
+int64_t sem_open ( int64_t sem_id, int value){
+    return syscall_my_sem_open(sem_id, value);
+}
+
+int64_t sem_post ( int64_t sem_id ){
+    return syscall_my_sem_post(sem_id);
+}
+int64_t sem_wait ( int64_t sem_id){
+    return syscall_my_sem_wait(sem_id);
+}
+int64_t sem_close ( int64_t sem_id){
+    return syscall_my_sem_close(sem_id);
 }

@@ -79,7 +79,7 @@ uint64_t my_process_inc2() {
   use_sem = 1;
 
   if (use_sem)
-    if (!my_sem_open(SEM_ID, 1, 1)) {
+    if (my_sem_open(SEM_ID, 1, 1)==-1) {
       draw_word(0xFFFFFF ,"test_sync: ERROR opening semaphore\n");
       return -1;
     }

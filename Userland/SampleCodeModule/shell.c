@@ -2,11 +2,12 @@
 #include <test_mm.h>
 #include <test_prio.h>
 #include <test_processes.h>
+#include <test_sync.h>
 
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}};
+{"testprocesses", proc_test_shell},{"testsync", sync_test_shell} };
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -40,6 +41,27 @@ void proc_test_shell(){
 void prio_test_shell(){
     paint_all_vd(BLACK);
     my_create_process((void(*))test_prio, 1, NULL, 0);
+}
+void sync_test_shell(){
+    paint_all_vd(BLACK);
+    char **argv = my_malloc(sizeof(char *) * 3);
+
+    // Reservamos y copiamos "5"
+    argv[0] = my_malloc(sizeof(char)*2); // "5" + '\0'
+    if (argv[0] == NULL) return NULL;
+    my_strcpy(argv[0], "5");
+
+    // Reservamos y copiamos "1"
+    argv[1] = my_malloc(sizeof(char)*2); // "1" + '\0'
+    if (argv[1] == NULL) return NULL;
+    my_strcpy(argv[1], "1");
+
+    argv[2] = NULL;
+    my_create_process((void(*))test_sync, 1, argv, 2);
+    my_free(argv[0]);
+    my_free(argv[1]);
+    my_free(argv);
+
 }
 
 void opcode_exc(){

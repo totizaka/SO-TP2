@@ -30,11 +30,6 @@ GLOBAL syscall_my_yield
 GLOBAL syscall_my_wait
 GLOBAL syscall_my_malloc
 GLOBAL syscall_my_free
-GLOBAL syscall_sem_open 
-GLOBAL syscall_sem_open_get_id
-GLOBAL syscall_sem_post 
-GLOBAL syscall_sem_wait
-GLOBAL syscall_sem_close 
 
 section .text
 
@@ -194,26 +189,5 @@ syscall_my_free:
     int 80h
     ret
 
-syscall_sem_open:
-    mov rax, 0x1F
-    int 80h
-    ret
 
-syscall_sem_open_get_id:
-    mov rax, 0x20
-    int 80h
-    ret
-
-syscall_sem_post:
-    mov rax, 0x21
-    int 80h
-    ret
-
-syscall_sem_wait:
-mov rax, 0x22
-    int 80h
-    ret
-syscall_sem_close:
-mov rax, 0x23
-    int 80h
-    ret
+    

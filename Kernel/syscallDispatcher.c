@@ -45,8 +45,8 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_unblock_handler, 
     (void*)syscall_my_sem_open_handler, 
     (void*)syscall_my_sem_wait_handler, 
-    (void*)syscall_my_sem_post, 
-    (void*)syscall_my_sem_close, 
+    (void*)syscall_my_sem_post_handler, 
+    (void*)syscall_my_sem_close_handler, 
     (void*)syscall_my_yield_handler, 
     (void*)syscall_my_wait_handler,
     (void*)syscall_malloc_handler, 
@@ -169,25 +169,25 @@ static void syscall_my_unblock_handler(uint64_t pid){
 }
 
 //falta implementar correctamente sem funciones
-static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue){
-    return my_sem_open(sem_id[0], initialValue, 0);
+static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue){
+    return my_sem_open(sem_id, initialValue, 0);
 }
-static int64_t syscall_my_sem_wait_handler(char *sem_id){
-    return my_sem_wait(sem_id[0]);
+static int64_t syscall_my_sem_wait_handler(char sem_id){
+    return my_sem_wait(sem_id);
 }
-static int64_t syscall_my_sem_post(char *sem_id){
-    return my_sem_post(sem_id[0]);
+static int64_t syscall_my_sem_post_handler(char sem_id){
+    return my_sem_post(sem_id);
 }
-static int64_t syscall_my_sem_close(char *sem_id){
-    return my_sem_close(sem_id[0]);
+static int64_t syscall_my_sem_close_handler(char sem_id){
+    return my_sem_close(sem_id);
 }
 
 static void syscall_my_yield_handler(){
     yield();
 }
 
-static int64_t syscall_my_wait_handler(int64_t pid){
-
+static int64_t syscall_my_wait_handler(int64_t pid, int64_t *ret){
+    return wait(pid, ret);
 }
 
 static void* syscall_malloc_handler(uint64_t size) {
