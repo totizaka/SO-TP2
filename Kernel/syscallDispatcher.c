@@ -148,8 +148,8 @@ static int64_t syscall_my_getpid_handler(){
     return get_pid();
 }
 
-static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
-    return new_process((void(*))rip, priority, argv, argc);
+static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[FD_MAX]){
+    return new_process((void(*))rip, priority, argv, argc, fds);
 }
 
 static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t new_prio){
@@ -199,4 +199,47 @@ static void syscall_free_handler(uint64_t ptr) {
 }
 static void syscall_list_processes(){
     list_processes();
+}
+
+
+
+
+
+int64_t syscall_read (int64_t fd, char* buffer, int numBytes){
+    PCB* running = get_running();
+    if (fd!=STDIN) {
+        return -1; // Invalid file descriptor
+    }
+
+    target_t target = running->fd[fd]; 
+    if (target == STDIN) {
+        return 0;//Hay que implemntar read_terminal, esto es para q compile
+       //return read_terminal(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION 
+    } 
+    else {
+        if (target == STDOUT || target == STDERR) {
+            return -1; // No se puede leer desde ahi 
+        }
+        return pipe_read(target-FD_MAX, buffer, numBytes); //IMPLEMENTAR ESTA FUNCION en Pipe
+    }
+}
+
+int64_t syscall_write (int64_t fd, char* buffer, int numBytes){
+    PCB* running = get_running();
+    if (fd!=STDOUT && fd!=STDERR) {
+        return -1; // Invalid file descriptor
+    }
+
+    target_t target = running->fd[fd]; // Get the target from the file descriptor
+
+    if (target == STDOUT || target == STDERR) {
+        return 0;//Hay que implemntar print_stdout, esto es para q compile
+       //return print_stdout(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION
+    } 
+    else {
+            if (target == STDIN) {
+             return -1; // No se puede leer desde ahi 
+        }
+       return pipe_write(target-FD_MAX, buffer, numBytes); // IMPLEMENTAR ESTA FUNCION en Pipe
+    }
 }

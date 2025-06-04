@@ -198,14 +198,17 @@ void endless_loop_print() {
 }
 
 
+//Volver a probar con fd(corregir test)
 
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
   char *argv[] = {0};
   uint64_t i;
+  int64_t fd2[3] = {0, 1, 2};
+
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = new_process((void(*))endless_loop_print, LOW_PRIORITY, NULL, 0);
+		pids[i] = new_process((void(*))endless_loop_print, LOW_PRIORITY, NULL, 0, fd2);
 
   bussy_wait(WAIT);
   draw_word(0xFFFFFF, "\nCHANGING PRIORITIES...\n");

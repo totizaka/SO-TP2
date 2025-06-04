@@ -7,6 +7,7 @@
 #include <pcb.h>
 #include <kernel.h>
 #include <interrupts.h>
+#include <pipe.h>
 
 
 // #define zombie 3
@@ -25,7 +26,7 @@ typedef int ( *main_function ) ( char ** argv, uint64_t argc );
 
 
 int64_t find_free_pcb();
-uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[3]);
 int64_t block_process(uint64_t pid);
 int64_t ready_process(uint64_t pid);
 int64_t kill_process(uint64_t pid);

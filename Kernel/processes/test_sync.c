@@ -112,9 +112,11 @@ uint64_t test_sync() { //{n, use_sem, 0}
   global = 0;
 
   uint64_t i;
+  int64_t fd[3] = {0, 1, 2};
+
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = new_process((void(*))my_process_inc1, 1, NULL, 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = new_process((void(*))my_process_inc2, 1, NULL, 0);
+    pids[i] = new_process((void(*))my_process_inc1, 1, NULL, 0,fd);
+    pids[i + TOTAL_PAIR_PROCESSES] = new_process((void(*))my_process_inc2, 1, NULL, 0,fd);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
