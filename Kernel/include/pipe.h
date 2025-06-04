@@ -8,7 +8,8 @@
 
 
 
-
+int pipe_write( int64_t id, char* buffer, uint64_t numBytes );
+int pipe_read(int64_t id, char* buffer, int numBytes);
 
 
 
