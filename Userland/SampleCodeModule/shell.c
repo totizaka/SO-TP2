@@ -57,11 +57,13 @@ void sync_test_shell(){
     my_strcpy(argv[1], "1");
 
     argv[2] = NULL;
-    my_create_process((void(*))test_sync, 1, argv, 2);
+    int ret;
+    int pid= my_create_process((void(*))test_sync, 1, argv, 2);
+    my_wait(pid, &ret);
     my_free(argv[0]);
     my_free(argv[1]);
     my_free(argv);
-
+    //ver si tiro msjito dependiendo valor ret??
 }
 
 void opcode_exc(){

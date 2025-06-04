@@ -6,7 +6,7 @@
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-  uint64_t aux = *p;
+  int64_t aux = *p;
   my_yield(); // This makes the race condition highly probable
   aux += inc;
   *p = aux;
@@ -14,6 +14,7 @@ void slowInc(int64_t *p, int64_t inc) {
 
 
 uint64_t my_process_inc( char *argv[], uint64_t argc) {
+  print("test_sync: process-inc\n", 50);
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
@@ -50,6 +51,7 @@ uint64_t my_process_inc( char *argv[], uint64_t argc) {
 }
 
 uint64_t test_sync(char *argv[], uint64_t argc) { //{n, use_sem, 0}
+    print("test_sync: empece\n", 50);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 2)
@@ -65,6 +67,7 @@ uint64_t test_sync(char *argv[], uint64_t argc) { //{n, use_sem, 0}
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
     pids[i] = my_create_process((void(*))my_process_inc,1, argvDec, 3);
     pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc,1, argvInc, 3);
+    print("test_sync: enloqueciendo\n", 50);
   }
 
   int64_t* res= my_malloc(4);
@@ -76,9 +79,9 @@ uint64_t test_sync(char *argv[], uint64_t argc) { //{n, use_sem, 0}
   my_free(res);
   my_free(res2);
 
-  print("Final value: ", 20);
+  print("Final value: ", 15);
   char s[4];
-  itoa(s, global);
+  itoa( global, s);
   print(s, 4);
   return 0;
 }
