@@ -120,19 +120,21 @@ int64_t my_sem_close ( int64_t sem_id){
     }
 
     acquire(&sem_array[sem_id].lock);
-
-    if (sem_array[sem_id].processes != NULL) {
+    if(sem_array[sem_id].ocupied==0){
+        release(&sem_array[sem_id].lock);
+        return 0;
+    }
+    --sem_array[sem_id].ocupied;
+    if (sem_array[sem_id].processes != NULL && sem_array[sem_id].ocupied==0) {
         while (!is_empty(sem_array[sem_id].processes)) {
             list_elem_t pcb = next(sem_array[sem_id].processes);
             remove_list(sem_array[sem_id].processes, pcb);
             ready(pcb);
         }
 
-        
         free_list(sem_array[sem_id].processes);
         sem_array[sem_id].processes = NULL;
     }
-    sem_array[sem_id].ocupied = 0;
     sem_array[sem_id].value = 0;
     release(&sem_array[sem_id].lock);
     return 0;
