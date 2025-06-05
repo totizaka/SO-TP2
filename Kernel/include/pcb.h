@@ -19,7 +19,7 @@ typedef struct PCB{
     uint64_t rip; //desp ver si va a estar en el stack - ver desp si es un void*
     process_state_t state; //ready, blocked o free
     uint8_t priority; //no c si esta ok el tipo de dato, q escala de prioridades vamos a tener????
-    char name[32]; //nombre del proceso
+    char* name; //nombre del proceso
     char** args;
     struct PCB* waiting_me; //Proceso que espera a este proceso
     struct PCB* waiting_for; //Proceso que este proceso espera

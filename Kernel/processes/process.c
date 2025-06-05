@@ -99,6 +99,8 @@ int set_free_pcb(pid_t pid) {
     return 0;
 }
 
+//primer arg va a ser el nombre por convencion argv[0] = nombre del proceso
+
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[3]) {
     int64_t pid = find_free_pcb();
     if (pid == -1){
@@ -122,6 +124,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     PCB *current = &pcb_table[pid];
     current->pid = pid;
     current->ppid = get_pid(); // Set parent PID to the running process
+    current->name = argv != NULL && argv[0] != NULL ? argv[0] : "Unnamed Process"; // Set name to first arg or default
     current->stack_base = rsp_malloc;
     current->priority = priority;
     current->rip = rip;
@@ -298,9 +301,12 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
         return ;
     }
 
+    char* argv_idle[] = {"idle_process", NULL};
+
     PCB *current = &pcb_table[pid];
     current->stack_base = rsp_malloc;
     current->pid = pid;
+    current->name = argv != NULL && argv[0] != NULL ? argv[0] : "Idle Process"; // Set name to first arg or default
     current->priority = priority;
     current->rip = rip;
     current->state = READY;

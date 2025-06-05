@@ -2,11 +2,12 @@
 #include <test_mm.h>
 #include <test_prio.h>
 #include <test_processes.h>
+#include <test_sync.h>
 
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}, {"testsyncro", syncro_test_shell}, {"ps", ps}};
+{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -32,19 +33,44 @@ void ps(){
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    // test_mm(1, "100000");
-    // char args[1][6] = {"100000"};
-    my_create_process((void(*))test_mm, 1, NULL, 0);
+    uint64_t pid = my_create_process((void(*))test_mm, 1, NULL, 0);
+    my_wait(pid, NULL);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    my_create_process((void(*))test_processes, 1, NULL, 0);
+    uint64_t pid = my_create_process((void(*))test_processes, 1, NULL, 0);
+    my_wait(pid, NULL);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
-    my_create_process((void(*))test_prio, 1, NULL, 0);
+    char* argv[] = {"prio_test", NULL};
+    uint64_t pid = my_create_process((void(*))test_prio, 1, argv, 1);
+    my_wait(pid, NULL);
+}
+
+void sync_test_shell(){
+    paint_all_vd(BLACK);
+    char **argv = my_malloc(sizeof(char *) * 3);
+
+    // Reservamos y copiamos "5"
+    argv[0] = my_malloc(sizeof(char)*2); // "5" + '\0'
+    if (argv[0] == NULL) return NULL;
+    my_strcpy(argv[0], "5");
+
+    // Reservamos y copiamos "1"
+    argv[1] = my_malloc(sizeof(char)*2); // "1" + '\0'
+    if (argv[1] == NULL) return NULL;
+    my_strcpy(argv[1], "1");
+
+    argv[2] = NULL;
+    uint64_t pid = my_create_process((void(*))test_sync, 1, argv, 2);
+    my_wait(pid, NULL);
+    my_free(argv[0]);
+    my_free(argv[1]);
+    my_free(argv);
+    my_wait(pid, NULL);
 }
 
 void opcode_exc(){

@@ -56,3 +56,4 @@ int64_t sem_close ( int64_t sem_id);
 void my_ps();
 void my_free_ps();
 char *my_strcpy(char *dest, const char *src);
+int64_t exit_proc(uint64_t res, uint64_t pid);

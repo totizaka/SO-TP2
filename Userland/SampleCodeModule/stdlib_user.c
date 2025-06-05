@@ -250,9 +250,9 @@ int64_t my_yield(){
     return  syscall_my_yield();
 }
 
-int64_t exit(uint64_t res){//para q usaria la res en kernel??
+int64_t exit_proc(uint64_t res, uint64_t pid){//para q usaria la res en kernel??
     //buscar la forma de volver al proceso en el que estaba antes despues con el scheduler (al padre??)
-    return my_kill(my_getpid());
+    return my_kill(pid);
 }
 
 void my_ps(){
@@ -342,4 +342,14 @@ int64_t sem_wait ( int64_t sem_id){
 }
 int64_t sem_close ( int64_t sem_id){
     return syscall_my_sem_close(sem_id);
+}
+
+void my_strcat(char *dest, const char *src) {
+    while (*dest) {
+        dest++; // Move to the end of the destination string
+    }
+    while (*src) {
+        *dest++ = *src++; // Copy the source string to the destination
+    }
+    *dest = '\0'; // Null-terminate the resulting string
 }
