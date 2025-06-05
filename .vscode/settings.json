@@ -3,6 +3,7 @@
         "test_util.h": "c",
         "process.h": "c",
         "string.h": "c",
-        "kernel.h": "c"
+        "kernel.h": "c",
+        "typeinfo": "c"
     }
 }

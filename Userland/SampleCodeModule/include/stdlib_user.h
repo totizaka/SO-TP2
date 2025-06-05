@@ -53,6 +53,6 @@ int64_t sem_open ( int64_t sem_id, int value);
 int64_t sem_post ( int64_t sem_id );
 int64_t sem_wait ( int64_t sem_id);
 int64_t sem_close ( int64_t sem_id);
-
-
+void my_ps();
+void my_free_ps();
 char *my_strcpy(char *dest, const char *src);

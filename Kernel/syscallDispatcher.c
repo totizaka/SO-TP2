@@ -51,6 +51,8 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_wait_handler,
     (void*)syscall_malloc_handler, 
     (void*)syscall_free_handler, 
+    (void*)syscall_get_processes_handler,
+    (void*)syscall_free_processses_handler
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
@@ -200,13 +202,14 @@ static void* syscall_malloc_handler(uint64_t size) {
 static void syscall_free_handler(uint64_t ptr) {
     my_free(get_memory_manager(), (void *)ptr);
 }
-static void syscall_list_processes(){
-    list_processes();
+
+static process_info_list* syscall_get_processes_handler() {
+    return get_all_processes();
 }
 
-
-
-
+static void syscall_free_processses_handler(process_info_list *processes) {
+    free_process_list(processes);
+}
 
 int64_t syscall_read (int64_t fd, char* buffer, int numBytes){
     PCB* running = get_running();

@@ -2,16 +2,15 @@
 #define PCB_H_
 
 #include <stdint.h>
+#include <process_info.h>
 
-typedef uint64_t pid_t;
-
-typedef enum{
-    FREE,
-    READY,
-    BLOCKED,
-    RUNNING,
-    ZOMBIE
-}process_state_t;
+// typedef enum{
+//     FREE,
+//     READY,
+//     BLOCKED,
+//     RUNNING,
+//     ZOMBIE
+// }process_state_t;
 
 typedef struct PCB{
     pid_t pid, ppid; //si se puede usar libreria sys/type ponemos pid_t directo

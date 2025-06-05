@@ -3,6 +3,7 @@
 
 PCB pcb_table[MAX_PID]={0};
 
+uint64_t amount_of_processes = 0;
  
  typedef struct {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
@@ -145,7 +146,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
 
 
     ready(current);
-    
+    amount_of_processes++;
     return pid;
 }
 
@@ -188,10 +189,12 @@ int64_t kill_process(uint64_t pid){
     if (pcb_table[pid].waiting_for != NULL && pcb_table[pid].waiting_for->waiting_me != NULL){
         pcb_table[pid].waiting_for->waiting_me = NULL; // El proceso que estaba esperando a este se desbloquea
     }
-    set_free_pcb(pid);
+    if(set_free_pcb(pid) != -1){
+        amount_of_processes--;
+    }
     if(&pcb_table[pid] == get_running()){
         // Si el proceso que se está matando es el que está corriendo, hacemos yield
-        yield();
+        timer_tick();
     }
     return 0;
 }
@@ -312,73 +315,162 @@ PCB * get_idle(){
     return &pcb_table[0];
 }
 
-void list_processes() {
-    char s[64];  // Espacio suficiente para el PID + texto del estado + terminador
+// void list_processes() {
+//     char s[64];  // Espacio suficiente para el PID + texto del estado + terminador
 
-    for (int i = 1; i < MAX_PID; i++) {
-        if (pcb_table[i].state != FREE) {
-            int len = 0;
+//     for (int i = 1; i < MAX_PID; i++) {
+//         if (pcb_table[i].state != FREE) {
+//             int len = 0;
 
-            // Convertir PID a string
-            itoa(pcb_table[i].pid, s);
+//             // Convertir PID a string
+//             itoa(pcb_table[i].pid, s);
 
-            // Buscar fin del string
-            while (s[len] != '\0') len++;
+//             // Buscar fin del string
+//             while (s[len] != '\0') len++;
 
-            // Agregar '-'
-            s[len++] = '-';
+//             // Agregar '-'
+//             s[len++] = '-';
 
-            // Agregar palabra según el estado
-            switch (pcb_table[i].state) {
-                case FREE:
-                    s[len++] = 'F';
-                    s[len++] = 'R';
-                    s[len++] = 'E';
-                    s[len++] = 'E';
-                    break;
-                case BLOCKED:
-                    s[len++] = 'B';
-                    s[len++] = 'L';
-                    s[len++] = 'O';
-                    s[len++] = 'C';
-                    s[len++] = 'K';
-                    s[len++] = 'E';
-                    s[len++] = 'D';
-                    break;
-                case READY:
-                    s[len++] = 'R';
-                    s[len++] = 'E';
-                    s[len++] = 'A';
-                    s[len++] = 'D';
-                    s[len++] = 'Y';
-                    break;
-                case ZOMBIE:
-                    s[len++] = 'Z';
-                    s[len++] = 'O';
-                    s[len++] = 'M';
-                    s[len++] = 'B';
-                    s[len++] = 'I';
-                    s[len++] = 'E';
-                    break;
-                case RUNNING:
-                    s[len++] = 'R';
-                    s[len++] = 'U';
-                    s[len++] = 'N';
-                    s[len++] = 'N';
-                    s[len++] = 'I';
-                    s[len++] = 'N';
-                    s[len++] = 'G';
-                    break;
-            }
+//             // Agregar palabra según el estado
+//             switch (pcb_table[i].state) {
+//                 case FREE:
+//                     s[len++] = 'F';
+//                     s[len++] = 'R';
+//                     s[len++] = 'E';
+//                     s[len++] = 'E';
+//                     break;
+//                 case BLOCKED:
+//                     s[len++] = 'B';
+//                     s[len++] = 'L';
+//                     s[len++] = 'O';
+//                     s[len++] = 'C';
+//                     s[len++] = 'K';
+//                     s[len++] = 'E';
+//                     s[len++] = 'D';
+//                     break;
+//                 case READY:
+//                     s[len++] = 'R';
+//                     s[len++] = 'E';
+//                     s[len++] = 'A';
+//                     s[len++] = 'D';
+//                     s[len++] = 'Y';
+//                     break;
+//                 case ZOMBIE:
+//                     s[len++] = 'Z';
+//                     s[len++] = 'O';
+//                     s[len++] = 'M';
+//                     s[len++] = 'B';
+//                     s[len++] = 'I';
+//                     s[len++] = 'E';
+//                     break;
+//                 case RUNNING:
+//                     s[len++] = 'R';
+//                     s[len++] = 'U';
+//                     s[len++] = 'N';
+//                     s[len++] = 'N';
+//                     s[len++] = 'I';
+//                     s[len++] = 'N';
+//                     s[len++] = 'G';
+//                     break;
+//             }
 
-            // Agregar salto de línea y terminador nulo
-            s[len++] = '\n';
-            s[len] = '\0';
+//             // Agregar salto de línea y terminador nulo
+//             s[len++] = '\n';
+//             s[len] = '\0';
 
-            // Dibujar la línea
-            draw_word(s);
+//             // Dibujar la línea
+//             draw_word(s);
+//         }
+//     }
+// }
+
+char *my_strcpy(char *dest, const char *src) {
+    char *original = dest;
+
+    while ((*dest++ = *src++) != '\0');
+
+    return original;
+}
+
+// Extrae la info relevante de un PCB a una estructura process_info para userland.
+void fill_process_info(const PCB *pcb, process_info *pinfo) {
+    pinfo->pid = pcb->pid;
+    pinfo->priority = pcb->priority;
+    pinfo->stack_pointer = pcb->rsp;
+    pinfo->stack_base = pcb->stack_base;
+    pinfo->status = pcb->state;
+
+    const char *src_name = pcb->name;
+    uint64_t len = my_strlen(src_name);
+
+    char *copied_name = my_malloc(get_memory_manager(), len + 1);
+    if (copied_name == NULL) {
+        pinfo->name = NULL;
+        return;
+    }
+
+    my_strcpy(copied_name, src_name);
+    pinfo->name = copied_name;
+}
+
+uint64_t count_live_processes() {
+    uint64_t count = 0;
+    for (int i = 0; i < MAX_PID; i++) {
+        if (pcb_table[i].state == RUNNING || pcb_table[i].state == READY || pcb_table[i].state == BLOCKED || pcb_table[i].state == ZOMBIE) {
+            count++;
         }
     }
+    return count;
+}
+
+
+// Recolecta todos los procesos activos y devuelve una lista con su info.
+process_info_list * get_all_processes() {
+    process_info_list *plist = my_malloc(get_memory_manager(), sizeof(process_info_list));
+    if (plist == NULL) {
+        return NULL;
+    }
+
+    uint64_t live_processes = count_live_processes();
+    plist->amount_of_processes = live_processes;
+
+    if (live_processes == 0) {
+        plist->processes = NULL;
+        return plist;
+    }
+
+    process_info * pinfos = my_malloc(get_memory_manager(), live_processes * sizeof(process_info));
+    if (pinfos == NULL) {
+        my_free(get_memory_manager(), plist);
+        return NULL;
+    }
+    int found = 0;
+    for (int i = 0; i < MAX_PID && found < live_processes; i++) {
+        if (pcb_table[i].state == RUNNING || pcb_table[i].state == READY || pcb_table[i].state == BLOCKED || pcb_table[i].state == ZOMBIE) {
+            fill_process_info(&pcb_table[i], &pinfos[found]);
+            found++;
+        }
+    }
+    plist->processes = pinfos;
+    return plist;
+}
+
+// Libera la lista y todos los nombres dinámicos de procesos
+void free_process_list(process_info_list *plist) {
+    if (plist == NULL) {
+        return;
+    }
+    if (plist->processes == NULL) {
+        my_free(get_memory_manager(), plist);
+        return;
+    }
+    for (uint64_t i = 0; i < plist->amount_of_processes; i++) {
+        if (plist->processes[i].name) {
+            my_free(get_memory_manager(), plist->processes[i].name);
+        }
+    }
+    my_free(get_memory_manager(), plist->processes);
+    my_free(get_memory_manager(), plist);
 }
 
 pid_t wait(pid_t pid, int64_t *ret) {
@@ -402,6 +494,8 @@ pid_t wait(pid_t pid, int64_t *ret) {
     if (ret != NULL) {
         *ret = pcb_to_wait->ret;
     }
-    set_free_pcb(pid);
+    if (set_free_pcb(pid) != -1){
+        amount_of_processes--;
+    }
     return pid;
 }

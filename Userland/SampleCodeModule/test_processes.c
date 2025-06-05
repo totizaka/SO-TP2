@@ -1,8 +1,8 @@
 #include <test_processes.h>
 
-enum State { RUNNING,
-             BLOCKED,
-             KILLED };
+enum State { RUNNING1,
+             BLOCKED1,
+             KILLED1 };
 
 typedef struct P_rq {
   int32_t pid;
@@ -34,7 +34,7 @@ int64_t test_processes(char *argv[], uint64_t argc) {
         print("test_processes: ERROR creating process\n", MAXBUFF);
         return -1;
       } else {
-        p_rqs[rq].state = RUNNING;
+        p_rqs[rq].state = RUNNING1;
         alive++;
       }
     }
@@ -47,23 +47,23 @@ int64_t test_processes(char *argv[], uint64_t argc) {
 
         switch (action) {
           case 0:
-            if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == BLOCKED) {
+            if (p_rqs[rq].state == RUNNING1 || p_rqs[rq].state == BLOCKED1) {
               if (my_kill(p_rqs[rq].pid) == -1) {
                 print("test_processes: ERROR killing process\n", MAXBUFF);
                 return -1;
               }
-              p_rqs[rq].state = KILLED;
+              p_rqs[rq].state = KILLED1;
               alive--;
             }
             break;
 
           case 1:
-            if (p_rqs[rq].state == RUNNING) {
+            if (p_rqs[rq].state == RUNNING1) {
               if (my_block(p_rqs[rq].pid) == -1) {
                 print("test_processes: ERROR blocking process\n", MAXBUFF);
                 return -1;
               }
-              p_rqs[rq].state = BLOCKED;
+              p_rqs[rq].state = BLOCKED1;
             }
             break;
         }
@@ -71,12 +71,12 @@ int64_t test_processes(char *argv[], uint64_t argc) {
 
       // Randomly unblocks processes
       for (rq = 0; rq < max_processes; rq++)
-        if (p_rqs[rq].state == BLOCKED && GetUniform(100) % 2) {
+        if (p_rqs[rq].state == BLOCKED1 && GetUniform(100) % 2) {
           if (my_unblock(p_rqs[rq].pid) == -1) {
             print("test_processes: ERROR unblocking process\n", MAXBUFF);
             return -1;
           }
-          p_rqs[rq].state = RUNNING;
+          p_rqs[rq].state = RUNNING1;
         }
     }
   }

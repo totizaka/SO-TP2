@@ -21,7 +21,7 @@ $(MODULE): $(OBJECTS_C) $(OBJECTS_ASM) $(OBJDIR)/_loader.o
 
 # Regla para compilar archivos .c a .o
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../../Shared -c $< -o $@
 
 # Regla para compilar archivos .asm a .o
 $(OBJDIR)/%.o: %.asm | $(OBJDIR)
