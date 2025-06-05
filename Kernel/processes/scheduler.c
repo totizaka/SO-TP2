@@ -30,7 +30,7 @@ void initialize_scheduler(void * shell){
 
     char* argv_shell[] = {"shell", NULL};
 
-    new_process((void(*))shell, 1, argv_shell, 1);
+    new_process((void(*))shell, 1, argv_shell, 1, 0);
     //habria q ver si podemos decir q ya sabemos q la shell no va a tener args y ademas q elegimos nosotras la prioridad¿?
     initialized = 1;
 }

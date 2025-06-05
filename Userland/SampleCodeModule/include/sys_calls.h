@@ -26,7 +26,7 @@ extern uint64_t syscall_regs();
 
 
 extern int64_t syscall_my_getpid();
-extern int64_t syscall_my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+extern int64_t syscall_my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background);
 extern int64_t syscall_my_nice(uint64_t pid, uint64_t newPrio);
 extern int64_t syscall_my_kill(uint64_t pid);
 extern int64_t syscall_my_block(uint64_t pid);
@@ -42,5 +42,5 @@ extern int64_t syscall_my_sem_close ( int64_t sem_id);
 extern int64_t syscall_my_sem_open_get_id ( int value);
 extern process_info_list * syscall_my_get_processes();
 extern int64_t syscall_my_free_processes(process_info_list *processes);
-
+extern void syscall_my_sleep(uint64_t ticks);
 #endif

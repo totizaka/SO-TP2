@@ -11,7 +11,7 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++){
     char* argv[] = {"endless_loop_print", NULL};
-    pids[i] = my_create_process((void(*))endless_loop_print, 1, argv, 1);
+    pids[i] = my_create_process((void(*))endless_loop_print, argv, 1, 0);
   }
 
   bussy_wait(WAIT);

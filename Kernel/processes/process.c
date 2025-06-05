@@ -30,39 +30,40 @@ static uint64_t my_strlen ( const char *str )
 }
 
 static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
-   
-    if( (argc == 0 && argv != NULL) || (argc>0 && argv==NULL)){ 
+
+    if ((argc == 1 && argv[1] != NULL) || (argc > 1 && argv[1] == NULL)){
         return NULL;
     }
 
    /// pcb_array[pid].argc = argc;
     
-    if(argc == 0){
+    if(argc == 1){
        // pcb_array[pid].argv == NULL;
         return NULL;
     }
     
-    char ** ans = my_malloc(get_memory_manager() ,sizeof(char *) * (argc+1));
+    uint64_t real_argc = argc - 1;
+    char ** ans = my_malloc(get_memory_manager(), sizeof(char *) * (real_argc + 1)); // +1 para NULL
 
     if(ans == NULL){
         return NULL;
     }
 
-    for(uint64_t i=0; i<argc;i++){
+    for(uint64_t i=1; i<argc;i++){
         uint64_t len = my_strlen(argv[i])+1;
         char * p = my_malloc(get_memory_manager() ,len);
         if(p == NULL){ 
-            for(uint64_t j=0; j<i;j++){
+            for(uint64_t j=1; j<i;j++){
                 my_free(get_memory_manager() ,ans[j]);
             }
             my_free(get_memory_manager() ,ans);
             return NULL;
         }
         memcpy(p, argv[i], len);
-        ans[i] = p;
+        ans[i-1] = p;
     }
 
-    ans[argc] = NULL; // Terminar el array de args con NULL
+    ans[real_argc] = NULL;
 
     return ans;
 }
@@ -101,7 +102,7 @@ int set_free_pcb(pid_t pid) {
 
 //primer arg va a ser el nombre por convencion argv[0] = nombre del proceso
 
-uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[3]) {
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, int64_t fds[3]) {
     int64_t pid = find_free_pcb();
     if (pid == -1){
         return -1; 
@@ -115,7 +116,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     }
 
     char ** args_cpy = copy_argv(pid, argv, argc);
-    if(argc > 0 && args_cpy == NULL){
+    if(argc > 1 && args_cpy == NULL){
         my_free(get_memory_manager(),(void *)rsp_malloc); 
         pcb_table[pid].state = FREE;
         return -1;
@@ -128,14 +129,15 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->stack_base = rsp_malloc;
     current->priority = priority;
     current->rip = rip;
-    current->time = QUANTUM * (10 - priority);
+    current->background=background;
     // El stack crece hacia abajo, por eso rsp apunta al final del bloque reservado
     current->rsp = rsp_malloc + STACK_SIZE;
     if(current->rsp == 0){
         return -1;
     }
-    current->rsp = load_stack(rip, current->rsp, args_cpy, argc, pid);//  inciializar el stack
+    current->rsp = load_stack(rip, current->rsp, args_cpy, argc-1, pid);//  inciializar el stack
     current->args = args_cpy;
+    current->argc = argc - 1; // argc sin el nombre del proceso
 
     for (int i = 0; i < 3; i++)
     {
@@ -321,75 +323,6 @@ PCB * get_idle(){
     return &pcb_table[0];
 }
 
-// void list_processes() {
-//     char s[64];  // Espacio suficiente para el PID + texto del estado + terminador
-
-//     for (int i = 1; i < MAX_PID; i++) {
-//         if (pcb_table[i].state != FREE) {
-//             int len = 0;
-
-//             // Convertir PID a string
-//             itoa(pcb_table[i].pid, s);
-
-//             // Buscar fin del string
-//             while (s[len] != '\0') len++;
-
-//             // Agregar '-'
-//             s[len++] = '-';
-
-//             // Agregar palabra según el estado
-//             switch (pcb_table[i].state) {
-//                 case FREE:
-//                     s[len++] = 'F';
-//                     s[len++] = 'R';
-//                     s[len++] = 'E';
-//                     s[len++] = 'E';
-//                     break;
-//                 case BLOCKED:
-//                     s[len++] = 'B';
-//                     s[len++] = 'L';
-//                     s[len++] = 'O';
-//                     s[len++] = 'C';
-//                     s[len++] = 'K';
-//                     s[len++] = 'E';
-//                     s[len++] = 'D';
-//                     break;
-//                 case READY:
-//                     s[len++] = 'R';
-//                     s[len++] = 'E';
-//                     s[len++] = 'A';
-//                     s[len++] = 'D';
-//                     s[len++] = 'Y';
-//                     break;
-//                 case ZOMBIE:
-//                     s[len++] = 'Z';
-//                     s[len++] = 'O';
-//                     s[len++] = 'M';
-//                     s[len++] = 'B';
-//                     s[len++] = 'I';
-//                     s[len++] = 'E';
-//                     break;
-//                 case RUNNING:
-//                     s[len++] = 'R';
-//                     s[len++] = 'U';
-//                     s[len++] = 'N';
-//                     s[len++] = 'N';
-//                     s[len++] = 'I';
-//                     s[len++] = 'N';
-//                     s[len++] = 'G';
-//                     break;
-//             }
-
-//             // Agregar salto de línea y terminador nulo
-//             s[len++] = '\n';
-//             s[len] = '\0';
-
-//             // Dibujar la línea
-//             draw_word(s);
-//         }
-//     }
-// }
-
 char *my_strcpy(char *dest, const char *src) {
     char *original = dest;
 
@@ -401,10 +334,12 @@ char *my_strcpy(char *dest, const char *src) {
 // Extrae la info relevante de un PCB a una estructura process_info para userland.
 void fill_process_info(const PCB *pcb, process_info *pinfo) {
     pinfo->pid = pcb->pid;
+    pinfo->name = pcb->name ? pcb->name : "NoName"; // Si no tiene nombre, asigna un valor por defecto
     pinfo->priority = pcb->priority;
     pinfo->stack_pointer = pcb->rsp;
     pinfo->stack_base = pcb->stack_base;
     pinfo->status = pcb->state;
+    pinfo->background = pcb->background;
 
     const char *src_name = pcb->name;
     uint64_t len = my_strlen(src_name);
@@ -504,4 +439,21 @@ pid_t wait(pid_t pid, int64_t *ret) {
         amount_of_processes--;
     }
     return pid;
+}
+
+
+void ctrl_c_handler(){
+    pid_t current_pid = get_pid(); 
+    if (current_pid != 0 && current_pid != 1) { // No permitir CTRL+C en el proceso kernel o init
+        for (int i = 2; i < MAX_PID; i++) {
+            if (pcb_table[i].state == RUNNING || pcb_table[i].state == READY) {
+                // Si el proceso está en ejecución o listo, lo matamos
+                kill_process(i);
+            }
+        }
+        if (pcb_table[1].state != READY) {
+            pcb_table[1].state = READY;
+        }
+        timer_tick(); // Forzar un cambio de contexto para que el scheduler pueda elegir un nuevo proceso
+    }
 }

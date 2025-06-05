@@ -1,4 +1,6 @@
-/*#define ADD 'a'
+#include <stdlib_user.h>
+/*
+#define ADD 'a'
 #define REMOVE 'r'
 #define MAX_PHILOS 10
 #define MIN_PHILOS 5
@@ -87,26 +89,32 @@ void print_state(){
 }
 
 void add_philo(){
+    sem_wait(num_mutex);
     if(num_philos==MAX_PHILOS){
         err_print("Error: No podes agregar mas filosofos el maximo es:10 \n");
+        sem_post(num_mutex);
+        return;
     }
-    philos[num_philos++].pid= my_create_process((void*)philosopher, 1, argv, argc);
+    philos[num_philos++].pid= my_create_process((void*)philosopher, argv, argc);
     //ver q onda argv y argc ?? el index de philo??
+    sem_post(num_mutex);
 }
 void remove_philo(){
+    sem_wait(num_mutex);
     if(num_philos==MIN_PHILOS){
         err_print("Error: no podes eliminar mas filosofos el minimo es:5 \n");
+        sem_post(num_mutex);
         return;
     }
     my_kill(philos[num_philos].pid); //el indice puede estar mal
     philos[num_philos--].pid=0;
+    sem_post(num_mutex);
     //falta cerrar sems de este filosof
 }
 
 //por ahi meterle argv, argc si quiero pasarle i
 void philosopher(int i){
     while(1){
-       
         think();
         take_forks(i);
         eat(i);
@@ -130,7 +138,7 @@ void open_mutexes(){
 }
 int64_t init_philos(){
     for(int i=0; i<MIN_PHILOS; i++){
-        philos[i].pid=my_create_process((void*)philosopher, 1, argv, argc);
+        philos[i].pid=my_create_process((void*)philosopher, argv, argc);
         //ver q onda argv y argc ?? el index de philo??
         if(philos[i].pid==-1){
              err_print("ERROR: error creando proceso de filosofo\n", 35);
@@ -177,7 +185,8 @@ void keyboard_handler(){
 }
 
 uint64_t philos(char *argv[], uint64_t argc){
-num_philos= MIN_PHILOS;
+
+    num_philos= MIN_PHILOS;
 
 print("Toca la tecla 'a' para agregar un filosofo y la tecla 'r' para borrar uno. \n", 50);
 print("El minimo de filosofos es 5 y el maximo 10", 50);
@@ -203,4 +212,5 @@ clean_resources();
 
 }
 */
+
 

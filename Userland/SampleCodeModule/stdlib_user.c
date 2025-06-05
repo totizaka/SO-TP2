@@ -223,8 +223,17 @@ int64_t my_getpid(){
     return syscall_my_getpid();
 }
 
-int64_t my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
-    return syscall_my_create_process(rip, priority, argv, argc);
+int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background){
+    return syscall_my_create_process(rip, argv, argc, background);
+}
+
+int64_t my_create_process_shell(uint64_t rip, char ** argv, uint64_t argc, int8_t background){
+    uint64_t pid = syscall_my_create_process(rip, argv, argc, background);
+    if (!background){
+        int64_t ret;
+        my_wait(pid, &ret);
+    }
+    return pid;
 }
 
 int64_t my_nice(uint64_t pid, uint64_t new_prio){
@@ -255,6 +264,29 @@ int64_t exit_proc(uint64_t res, uint64_t pid){//para q usaria la res en kernel??
     return my_kill(pid);
 }
 
+int utoa_hex(uint64_t value, char *str) {
+    const char *hex = "0123456789ABCDEF";
+    char tmp[17]; // 16 dígitos + \0
+    int i = 0;
+
+    if (value == 0) {
+        str[0] = '0';
+        return 1;
+    }
+
+    while (value > 0) {
+        tmp[i++] = hex[value % 16];
+        value /= 16;
+    }
+
+    // invertimos
+    for (int j = 0; j < i; j++) {
+        str[j] = tmp[i - j - 1];
+    }
+
+    return i; // cantidad de caracteres escritos
+}
+
 void my_ps(){
     print("Iniciando my_ps\n", MAXBUFF);
 
@@ -272,10 +304,10 @@ void my_ps(){
     print(tmp, len);
     print("\n", 1);
 
-    print("PID   PRIORITY   STATE    NAME\n", MAXBUFF);
-    print("----------------------------------\n", MAXBUFF);
+    print("  PID   PRIORITY   STATE     NAME           STACK_BASE   STACK_PTR   BACKGROUND\n", MAXBUFF);
+    print("-------------------------------------------------------------------------------\n", MAXBUFF);
 
-    char buffer[64];
+    char buffer[128];  // ampliamos para más información
     char numbuf[21];
 
     for (uint64_t i = 0; i < plist->amount_of_processes; i++) {
@@ -283,51 +315,82 @@ void my_ps(){
 
         int pos = 0;
 
+        // PID
         len = itoa(p->pid, numbuf);
-        for (int j = 0; j < 5 - len; j++) buffer[pos++] = ' ';
+        for (int j = 0; j < 4 - len; j++) buffer[pos++] = ' ';
         for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
         buffer[pos++] = ' ';
 
+        // PRIORITY
         len = itoa(p->priority, numbuf);
-        for (int j = 0; j < 9 - len; j++) buffer[pos++] = ' ';
+        for (int j = 0; j < 7 - len; j++) buffer[pos++] = ' ';
         for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
         buffer[pos++] = ' ';
 
+        for (int j = 0; j < 6; j++) buffer[pos++] = ' '; // espacio para el estado
+
+        // STATE
         const char *state_str;
         switch (p->status) {
-            case READY: state_str = "READY"; break;
-            case BLOCKED: state_str = "BLOCKED"; break;
-            case FREE: state_str = "FREE"; break;
-            case RUNNING: state_str = "RUNNING"; break;
-            default: state_str = "UNKNOWN"; break;
+            case READY: state_str = "READY\0"; break;
+            case BLOCKED: state_str = "BLOCKE\0"; break;
+            case FREE: state_str = "FREE\0"; break;
+            case RUNNING: state_str = "RUNNING\0"; break;
+            case ZOMBIE: state_str = "ZOMBIE\0"; break;
+            default: state_str = "UNKNOWN\0"; break;
         }
-        int st_len = 0;
-        while (state_str[st_len] != '\0') st_len++;
-        for (int j = 0; j < st_len; j++) buffer[pos++] = state_str[j];
-        for (int j = st_len; j < 8; j++) buffer[pos++] = ' ';
+
+        int st_len= my_strcpy(buffer+pos, state_str);
+        pos+=st_len;
+        for (int j = st_len; j < 9; j++) buffer[pos++] = ' ';
         buffer[pos++] = ' ';
 
+        // NAME
         const char *name = p->name ? p->name : "NoName";
         int n = 0;
         while (name[n] != '\0' && pos < (int)sizeof(buffer) - 1) {
             buffer[pos++] = name[n++];
         }
-        // No pongo '\0' porque print no lo necesita (si fuera necesario, pruebalo)
+        for (int j = n; j < 14; j++) buffer[pos++] = ' ';
+
+        // STACK_BASE (hex)
+        char * prefix=" 0x\0";
+        pos+=my_strcpy(buffer+pos, prefix);
+        pos += utoa_hex(p->stack_base, buffer + pos);
+
+        for (int i = 0; i < 4; i++){
+            buffer[pos++] = ' ';
+        }
+
+        // STACK_POINTER (hex)
+        pos+=my_strcpy(buffer+pos, prefix);
+        pos += utoa_hex(p->stack_pointer, buffer + pos);
+
+        for (int i = 0; i < 5; i++){
+            buffer[pos++] = ' ';
+        }
+
+        // BACKGROUND 
+        pos+=my_strcpy(buffer+pos, p->background ? "YES\0":"NO\0");
+
         print(buffer, pos);
         print("\n", 1);
+        print("-------------------------------------------------------------------------------\n", MAXBUFF);
     }
+
     my_free_ps(plist);
 }
 
 void my_free_ps(process_info_list *plist) {
     syscall_my_free_processes(plist);
 }
-char *my_strcpy(char *dest, const char *src) {
+
+int my_strcpy(char *dest, const char *src) {
     char *original = dest;
+    int i=0;
+    while ((*original++ = *src++) != '\0') i++;
 
-    while ((*dest++ = *src++) != '\0');
-
-    return original;
+    return i;
 }
 
 int64_t sem_open ( int64_t sem_id, int value){
@@ -354,4 +417,8 @@ void my_strcat(char *dest, const char *src) {
         *dest++ = *src++; // Copy the source string to the destination
     }
     *dest = '\0'; // Null-terminate the resulting string
+}
+
+void sleep(uint64_t s){
+    syscall_my_sleep(s*18);
 }

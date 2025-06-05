@@ -33,45 +33,25 @@ void ps(){
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    // test_mm(1, "100000");
-    // char args[1][6] = {"100000"};
-    int64_t ret;
-    int pid  = my_create_process((void(*))test_mm, 1, NULL, 0);
-    my_wait(pid, &ret);
+    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    int64_t ret;
     char *argv[] = {"test_processes", "30", NULL};  
-    int64_t pid = my_create_process((void(*))test_processes, 1, argv, 1);
-    my_wait(pid, &ret);
+    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
-    int64_t ret;
-    int64_t pid= my_create_process((void(*))test_prio, 1, NULL, 0);
-    my_wait(pid, &ret);
+    char *argv[] = {"test_prio", NULL};
+    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0);
 }
 
 void sync_tests(char* use_sem){
     //ver si me armo mini funcion para armarme los argv con malloc??
-    char **argv = my_malloc(sizeof(char *) * 3);
-    argv[0] = my_malloc(sizeof(char)*2); 
-    if (argv[0] == NULL) return NULL;
-    my_strcpy(argv[0], "5");
-    argv[1] = my_malloc(sizeof(char)*2);
-    if (argv[1] == NULL) return NULL;
-    my_strcpy(argv[1], use_sem);
-
-    argv[2] = NULL;
-    int64_t ret;
-    int64_t pid= my_create_process((void(*))test_sync, 1, argv, 2);
-    my_wait(pid, &ret);
-    my_free(argv[0]);
-    my_free(argv[1]);
-    my_free(argv);
+    char * argv[]={"sync_test","5", use_sem, NULL };
+    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0);
 }
 
 void sync_test_shell(){

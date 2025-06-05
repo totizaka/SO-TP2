@@ -33,6 +33,7 @@ GLOBAL syscall_my_free
 GLOBAL syscall_my_sem_open_get_id
 GLOBAL syscall_my_get_processes
 GLOBAL syscall_my_free_processes
+GLOBAL syscall_my_sleep
 
 section .text
 
@@ -202,7 +203,13 @@ syscall_my_free_processes:
     mov rax, 0x20
     int 80h
     ret
+    
 syscall_my_sem_open_get_id:
-    mov rax, 0x20
+    mov rax, 0x21
+    int 80h
+    ret
+
+syscall_my_sleep:
+    mov rax, 0x22
     int 80h
     ret

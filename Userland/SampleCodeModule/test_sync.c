@@ -57,16 +57,16 @@ uint64_t test_sync(char *argv[], uint64_t argc) {
   if (argc != 2)
     return -1;
 
-  char *argvDec[] = {argv[0], "-1", argv[1], NULL};
-  char *argvInc[] = {argv[0], "1", argv[1], NULL};
+  char *argvDec[] = {"process_inc" ,argv[0], "-1", argv[1], NULL};
+  char *argvInc[] = {"process_inc" ,argv[0], "1", argv[1], NULL};
 
   global = 0;
 
   uint64_t i;
   
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = my_create_process((void(*))my_process_inc,1, argvDec, 3);
-    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc,1, argvInc, 3);
+    pids[i] = my_create_process((void(*))my_process_inc, argvDec, 4, 0);
+    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc, argvInc, 4, 0);
     print("test_sync: enloqueciendo\n", 50);
   }
 

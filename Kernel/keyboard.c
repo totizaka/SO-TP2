@@ -1,5 +1,6 @@
 #include <keyboard.h>
 #include <naiveConsole.h> 
+#include <process.h>
 
 extern int key_pressed();
 
@@ -26,6 +27,18 @@ void keyboard_handler() {
         return;
     }
 
+    // Detectar CTRL+C
+    static int ctrl_pressed = 0;
+    if (scan_code == 0x1D) { // Scan code de CTRL
+        ctrl_pressed = 1;
+    } else if (scan_code == 0x2E && ctrl_pressed) { // Scan code de C
+        ctrl_c_handler(); // Llamar al manejador en process.c
+        ctrl_pressed = 0; // Resetear el estado de CTRL
+    } else {
+        ctrl_pressed = 0; // Resetear si no es CTRL+C
+    }
+
+    // Agregar el carácter al buffer
     for(int i = 0; i < 10; i++){
         if (char_to_ret[i] == 0)
         {
@@ -33,7 +46,6 @@ void keyboard_handler() {
             break;
         }
     }
-    //char_to_ret[0] = scan_codes[scan_code];
 }
 
 int get_regs(){

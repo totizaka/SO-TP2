@@ -40,7 +40,7 @@ void make_beep(int secs, int freq);
 uint64_t register_snapshot(uint64_t * regs);
 
 int64_t my_getpid();
-int64_t my_create_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background);
 int64_t my_nice(uint64_t pid, uint64_t new_prio);
 int64_t my_kill(uint64_t pid);
 int64_t my_yield();
@@ -55,5 +55,6 @@ int64_t sem_wait ( int64_t sem_id);
 int64_t sem_close ( int64_t sem_id);
 void my_ps();
 void my_free_ps();
-char *my_strcpy(char *dest, const char *src);
+int my_strcpy(char *dest, const char *src);
 int64_t exit_proc(uint64_t res, uint64_t pid);
+void sleep(uint64_t s);

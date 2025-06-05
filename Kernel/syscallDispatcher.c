@@ -150,8 +150,8 @@ static int64_t syscall_my_getpid_handler(){
     return get_pid();
 }
 
-static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[FD_MAX]){
-    return new_process((void(*))rip, priority, argv, argc, fds);
+static int64_t syscall_my_create_process_handler(uint64_t rip,  char ** argv, uint64_t argc, int8_t background, int64_t fds[FD_MAX]){
+    return new_process((void(*))rip, 1, argv, argc, background, fds);
 }
 
 static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t new_prio){

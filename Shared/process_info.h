@@ -20,6 +20,7 @@ typedef struct process_info {
 	uint64_t stack_pointer;
 	process_state_t status;
 	char * name;
+	uint8_t background;
 } process_info;
 
 typedef struct process_info_list {
