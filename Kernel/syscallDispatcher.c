@@ -45,8 +45,8 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_unblock_handler, 
     (void*)syscall_my_sem_open_handler, 
     (void*)syscall_my_sem_wait_handler, 
-    (void*)syscall_my_sem_post, 
-    (void*)syscall_my_sem_close, 
+    (void*)syscall_my_sem_post_handler, 
+    (void*)syscall_my_sem_close_handler, 
     (void*)syscall_my_yield_handler, 
     (void*)syscall_my_wait_handler,
     (void*)syscall_malloc_handler, 
@@ -150,8 +150,8 @@ static int64_t syscall_my_getpid_handler(){
     return get_pid();
 }
 
-static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
-    return new_process((void(*))rip, priority, argv, argc);
+static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[FD_MAX]){
+    return new_process((void(*))rip, priority, argv, argc, fds);
 }
 
 static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t new_prio){
@@ -171,25 +171,25 @@ static void syscall_my_unblock_handler(uint64_t pid){
 }
 
 //falta implementar correctamente sem funciones
-static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue){
-    return my_sem_open(sem_id[0], initialValue, 0);
+static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue){
+    return my_sem_open(sem_id, initialValue, 0);
 }
-static int64_t syscall_my_sem_wait_handler(char *sem_id){
-    return my_sem_wait(sem_id[0]);
+static int64_t syscall_my_sem_wait_handler(char sem_id){
+    return my_sem_wait(sem_id);
 }
-static int64_t syscall_my_sem_post(char *sem_id){
-    return my_sem_post(sem_id[0]);
+static int64_t syscall_my_sem_post_handler(char sem_id){
+    return my_sem_post(sem_id);
 }
-static int64_t syscall_my_sem_close(char *sem_id){
-    return my_sem_close(sem_id[0]);
+static int64_t syscall_my_sem_close_handler(char sem_id){
+    return my_sem_close(sem_id);
 }
 
 static void syscall_my_yield_handler(){
     yield();
 }
 
-static int64_t syscall_my_wait_handler(int64_t pid){
-
+static int64_t syscall_my_wait_handler(int64_t pid, int64_t *ret){
+    return wait(pid, ret);
 }
 
 static void* syscall_malloc_handler(uint64_t size) {
@@ -206,4 +206,43 @@ static process_info_list* syscall_get_processes_handler() {
 
 static void syscall_free_processses_handler(process_info_list *processes) {
     free_process_list(processes);
+}
+
+int64_t syscall_read (int64_t fd, char* buffer, int numBytes){
+    PCB* running = get_running();
+    if (fd!=STDIN) {
+        return -1; // Invalid file descriptor
+    }
+
+    target_t target = running->fd[fd]; 
+    if (target == STDIN) {
+        return 0;//Hay que implemntar read_terminal, esto es para q compile
+       //return read_terminal(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION 
+    } 
+    else {
+        if (target == STDOUT || target == STDERR) {
+            return -1; // No se puede leer desde ahi 
+        }
+        return pipe_read(target-FD_MAX, buffer, numBytes); //IMPLEMENTAR ESTA FUNCION en Pipe
+    }
+}
+
+int64_t syscall_write (int64_t fd, char* buffer, int numBytes){
+    PCB* running = get_running();
+    if (fd!=STDOUT && fd!=STDERR) {
+        return -1; // Invalid file descriptor
+    }
+
+    target_t target = running->fd[fd]; // Get the target from the file descriptor
+
+    if (target == STDOUT || target == STDERR) {
+        return 0;//Hay que implemntar print_stdout, esto es para q compile
+       //return print_stdout(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION
+    } 
+    else {
+            if (target == STDIN) {
+             return -1; // No se puede leer desde ahi 
+        }
+       return pipe_write(target-FD_MAX, buffer, numBytes); // IMPLEMENTAR ESTA FUNCION en Pipe
+    }
 }

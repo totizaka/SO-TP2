@@ -30,11 +30,6 @@ GLOBAL syscall_my_yield
 GLOBAL syscall_my_wait
 GLOBAL syscall_my_malloc
 GLOBAL syscall_my_free
-GLOBAL syscall_sem_open 
-GLOBAL syscall_sem_open_get_id
-GLOBAL syscall_sem_post 
-GLOBAL syscall_sem_wait
-GLOBAL syscall_sem_close 
 GLOBAL syscall_my_get_processes
 GLOBAL syscall_my_free_processes
 
@@ -196,7 +191,6 @@ syscall_my_free:
     int 80h
     ret
 
-
 syscall_my_get_processes:
     mov rax, 0x1F
     int 80h
@@ -206,3 +200,4 @@ syscall_my_free_processes:
     mov rax, 0x20
     int 80h
     ret
+

@@ -50,6 +50,16 @@ int64_t ready(PCB* process){
 }
 
 int64_t block(PCB* process){
+    if(block_no_yield(process)==-1){
+        return -1;
+    }
+    if (running == process) {
+        yield();
+    }
+    return 0;
+}
+
+int64_t block_no_yield(PCB*process){
     int res;
     if (process != NULL){
         res=block_process(process->pid);
@@ -63,9 +73,6 @@ int64_t block(PCB* process){
     } 
     remove_list(readys, (list_elem_t)process);
     add_list(blockeds, (list_elem_t)process);
-    if (running == process) {
-        yield();
-    }
     return 0;
 }
 

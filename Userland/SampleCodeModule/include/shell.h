@@ -29,6 +29,6 @@ void mm_test_shell();
 void prio_test_shell();
 void proc_test_shell();
 void ps();
-
+void sync_test_shell();
 
 #endif

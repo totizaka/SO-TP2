@@ -9,6 +9,8 @@
 #include <process.h>
 #include <semaphores.h>
 #include <process_info.h>
+#include <fd.h>
+#include <pipe.h>
 
 static void syscall_write_handler(int fd, char *buffer, uint64_t length);
 static uint64_t syscall_read_handler(int fd, char *buffer);
@@ -34,15 +36,15 @@ static uint64_t syscall_regs_values(uint64_t *regs);
 static void* syscall_malloc_handler(size_t memoryToAllocate);
 static void syscall_free_handler(uint64_t ptr);
 static int64_t syscall_my_getpid_handler();
-static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+static int64_t syscall_my_create_process_handler(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[FD_MAX]);
 static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t newPrio);
 static int64_t syscall_my_kill_handler(uint64_t pid);
 static void syscall_my_block_handler(uint64_t pid);
 static void syscall_my_unblock_handler(uint64_t pid);
-static int64_t syscall_my_sem_open_handler(char *sem_id, uint64_t initialValue);
-static int64_t syscall_my_sem_wait_handler(char *sem_id);
-static int64_t syscall_my_sem_post(char *sem_id);
-static int64_t syscall_my_sem_close(char *sem_id);
+static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue);
+static int64_t syscall_my_sem_wait_handler(char sem_id);
+static int64_t syscall_my_sem_post_handler(char sem_id);
+static int64_t syscall_my_sem_close_handler(char sem_id);
 static void syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid);
 static process_info_list* syscall_get_processes_handler();

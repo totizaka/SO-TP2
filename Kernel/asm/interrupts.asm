@@ -203,7 +203,7 @@ pic_slave_mask:
 ;Syscall
 _int80Handler:
 
-	mov rcx, r10
+	;mov rcx, r10
 	mov r9, rax
 	call syscallDispatcher
 	iretq

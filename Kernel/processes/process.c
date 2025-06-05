@@ -99,7 +99,7 @@ int set_free_pcb(pid_t pid) {
     return 0;
 }
 
-uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int64_t fds[3]) {
     int64_t pid = find_free_pcb();
     if (pid == -1){
         return -1; 
@@ -133,6 +133,18 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     }
     current->rsp = load_stack(rip, current->rsp, args_cpy, argc, pid);//  inciializar el stack
     current->args = args_cpy;
+
+    for (int i = 0; i < 3; i++)
+    {
+        current->fd[i] = fds[i];
+
+        if (fds[i] < 0 || fds[i] >= MAX_PIPES) {  
+            current->fd[i] = -1; // por error (Chqear esto. Teninedo encuenta usar pipes y 0,-1,-2) 
+        }
+
+    }
+
+
     ready(current);
     amount_of_processes++;
     return pid;

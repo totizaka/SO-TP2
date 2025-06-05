@@ -1,21 +1,20 @@
-#include <stdint.h>
-#include <stdio.h>
-#include "syscall.h"
-#include "test_util.h"
+#include <test_sync.h>
 
-#define SEM_ID "sem"
+#define SEM_ID 1
 #define TOTAL_PAIR_PROCESSES 2
 
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-  uint64_t aux = *p;
+  int64_t aux = *p;
   my_yield(); // This makes the race condition highly probable
   aux += inc;
   *p = aux;
 }
 
-uint64_t my_process_inc(uint64_t argc, char *argv[]) {
+
+uint64_t my_process_inc( char *argv[], uint64_t argc) {
+  print("test_sync: process-inc\n", 50);
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
@@ -31,27 +30,28 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     return -1;
 
   if (use_sem)
-    if (!my_sem_open(SEM_ID, 1)) {
-      printf("test_sync: ERROR opening semaphore\n");
+    if (sem_open(SEM_ID, 1)==-1) {
+      print("test_sync: ERROR opening semaphore\n", 50);
       return -1;
     }
 
   uint64_t i;
   for (i = 0; i < n; i++) {
     if (use_sem)
-      my_sem_wait(SEM_ID);
+      sem_wait(SEM_ID);
     slowInc(&global, inc);
     if (use_sem)
-      my_sem_post(SEM_ID);
+      sem_post(SEM_ID);
   }
 
   if (use_sem)
-    my_sem_close(SEM_ID);
+    sem_close(SEM_ID);
 
   return 0;
 }
 
-uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
+uint64_t test_sync(char *argv[], uint64_t argc) { //{n, use_sem, 0}
+    print("test_sync: empece\n", 50);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 2)
@@ -63,17 +63,25 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
   global = 0;
 
   uint64_t i;
+  
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = my_create_process("my_process_inc", 3, argvDec);
-    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", 3, argvInc);
+    pids[i] = my_create_process((void(*))my_process_inc,1, argvDec, 3);
+    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc,1, argvInc, 3);
+    print("test_sync: enloqueciendo\n", 50);
   }
 
+  int64_t* res= my_malloc(4);
+  int64_t*res2=  my_malloc(4);
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    my_wait(pids[i]);
-    my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
+    my_wait(pids[i],res );
+    my_wait(pids[i + TOTAL_PAIR_PROCESSES],res2 );
   }
+  my_free(res);
+  my_free(res2);
 
-  printf("Final value: %d\n", global);
-
+  print("Final value: ", 15);
+  char s[4];
+  itoa( global, s);
+  print(s, 4);
   return 0;
 }
