@@ -33,45 +33,60 @@ void ps(){
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    uint64_t pid = my_create_process((void(*))test_mm, 1, NULL, 0);
-    my_wait(pid, NULL);
+    // test_mm(1, "100000");
+    // char args[1][6] = {"100000"};
+    int64_t ret;
+    int pid  = my_create_process((void(*))test_mm, 1, NULL, 0);
+    my_wait(pid, &ret);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    uint64_t pid = my_create_process((void(*))test_processes, 1, NULL, 0);
-    my_wait(pid, NULL);
+    int64_t ret;
+    char *argv[] = {"test_processes", "30", NULL};  
+    int64_t pid = my_create_process((void(*))test_processes, 1, argv, 1);
+    my_wait(pid, &ret);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
-    char* argv[] = {"prio_test", NULL};
-    uint64_t pid = my_create_process((void(*))test_prio, 1, argv, 1);
-    my_wait(pid, NULL);
+    int64_t ret;
+    int64_t pid= my_create_process((void(*))test_prio, 1, NULL, 0);
+    my_wait(pid, &ret);
+}
+
+void sync_tests(char* use_sem){
+    //ver si me armo mini funcion para armarme los argv con malloc??
+    char **argv = my_malloc(sizeof(char *) * 3);
+    argv[0] = my_malloc(sizeof(char)*2); 
+    if (argv[0] == NULL) return NULL;
+    my_strcpy(argv[0], "5");
+    argv[1] = my_malloc(sizeof(char)*2);
+    if (argv[1] == NULL) return NULL;
+    my_strcpy(argv[1], use_sem);
+
+    argv[2] = NULL;
+    int64_t ret;
+    int64_t pid= my_create_process((void(*))test_sync, 1, argv, 2);
+    my_wait(pid, &ret);
+    my_free(argv[0]);
+    my_free(argv[1]);
+    my_free(argv);
 }
 
 void sync_test_shell(){
     paint_all_vd(BLACK);
-    char **argv = my_malloc(sizeof(char *) * 3);
-
-    // Reservamos y copiamos "5"
-    argv[0] = my_malloc(sizeof(char)*2); // "5" + '\0'
-    if (argv[0] == NULL) return NULL;
-    my_strcpy(argv[0], "5");
-
-    // Reservamos y copiamos "1"
-    argv[1] = my_malloc(sizeof(char)*2); // "1" + '\0'
-    if (argv[1] == NULL) return NULL;
-    my_strcpy(argv[1], "1");
-
-    argv[2] = NULL;
-    uint64_t pid = my_create_process((void(*))test_sync, 1, argv, 2);
-    my_wait(pid, NULL);
-    my_free(argv[0]);
-    my_free(argv[1]);
-    my_free(argv);
-    my_wait(pid, NULL);
+    char* use_sem="1\0";
+    sync_tests(use_sem);
+    //ver si tiro msjito dependiendo valor ret??
 }
+
+void no_sync_test_shell(){
+    paint_all_vd(BLACK);
+    char* use_sem="0\0";
+    sync_tests(use_sem);
+}
+
 
 void opcode_exc(){
     paint_all_vd(BLACK);

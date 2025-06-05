@@ -50,7 +50,7 @@ uint64_t my_process_inc( char *argv[], uint64_t argc) {
   return 0;
 }
 
-uint64_t test_sync(char *argv[], uint64_t argc) { //{n, use_sem, 0}
+uint64_t test_sync(char *argv[], uint64_t argc) { 
     print("test_sync: empece\n", 50);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
