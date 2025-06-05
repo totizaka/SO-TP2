@@ -2,6 +2,7 @@
 #define _SYSCALLS_H_
 
 #include <stdint.h>
+#include <process_info.h>
 
 extern uint64_t syscall_read(uint64_t fd, char* buf);
 extern uint64_t syscall_write(uint64_t fd, const char *buf, uint64_t count);
@@ -43,5 +44,7 @@ extern int64_t syscall_sem_open_get_id(int value);
 extern int64_t syscall_sem_post ( int64_t sem_id );
 extern int64_t syscall_sem_wait ( int64_t sem_id);
 extern int64_t syscall_sem_close ( int64_t sem_id);
+extern process_info_list * syscall_my_get_processes();
+extern int64_t syscall_my_free_processes(process_info_list *processes);
 
 #endif

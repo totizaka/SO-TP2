@@ -8,6 +8,7 @@
 #include <scheduler.h>
 #include <process.h>
 #include <semaphores.h>
+#include <process_info.h>
 
 static void syscall_write_handler(int fd, char *buffer, uint64_t length);
 static uint64_t syscall_read_handler(int fd, char *buffer);
@@ -44,6 +45,7 @@ static int64_t syscall_my_sem_post(char *sem_id);
 static int64_t syscall_my_sem_close(char *sem_id);
 static void syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid);
-static void syscall_list_processes();
+static process_info_list* syscall_get_processes_handler();
+static void syscall_free_processses_handler();
 
 #endif  

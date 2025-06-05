@@ -7,6 +7,7 @@
 #include <pcb.h>
 #include <kernel.h>
 #include <interrupts.h>
+#include <process_info.h>
 
 
 // #define zombie 3
@@ -35,5 +36,6 @@ uint64_t load_stack(uint64_t rip, uint64_t rsp,  char ** argv, uint64_t argc, ui
 PCB* get_pcb(uint64_t pid);
 void list_processes();
 void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
+process_info_list * get_all_processes();
 
 #endif

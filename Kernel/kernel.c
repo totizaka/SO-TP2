@@ -254,13 +254,13 @@ int main()
 
 	memory_manager = createMemoryManager(memory_address);
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
-	initialize_scheduler((void(*))test_sync);
+	initialize_scheduler((void(*))sample_code_module_address);
 	//new_process(, LOW_PRIORITY, NULL, 0);
 	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
-	//new_process((void(*))t_b, LOW_PRIORITY, b, 1);
-	//new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
+	// new_process((void(*))t_b, LOW_PRIORITY, b, 1);
+	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
 
-	//new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
+	// new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
 
 	//new_process((void(*))test_prio, LOW_PRIORITY, NULL, 0);
 

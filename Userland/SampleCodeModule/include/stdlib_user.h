@@ -52,3 +52,5 @@ int64_t sem_open_get_id(int value);
 int64_t sem_post ( int64_t sem_id );
 int64_t sem_wait ( int64_t sem_id);
 int64_t sem_close ( int64_t sem_id);
+void my_ps();
+void my_free_ps();

@@ -247,3 +247,71 @@ int64_t exit(uint64_t res){//para q usaria la res en kernel??
     //buscar la forma de volver al proceso en el que estaba antes despues con el scheduler (al padre??)
     return my_kill(my_getpid());
 }
+
+void my_ps(){
+    print("Iniciando my_ps\n", MAXBUFF);
+
+    process_info_list *plist = syscall_my_get_processes();
+    if (plist == NULL) {
+        print("Error: no se pudo obtener la lista de procesos\n", MAXBUFF);
+        return;
+    }
+
+    char tmp[64];
+    int len = itoa(plist->amount_of_processes, tmp);
+    tmp[len] = '\0';
+
+    print("Procesos encontrados: ", MAXBUFF);
+    print(tmp, len);
+    print("\n", 1);
+
+    print("PID   PRIORITY   STATE    NAME\n", MAXBUFF);
+    print("----------------------------------\n", MAXBUFF);
+
+    char buffer[64];
+    char numbuf[21];
+
+    for (uint64_t i = 0; i < plist->amount_of_processes; i++) {
+        process_info *p = &plist->processes[i];
+
+        int pos = 0;
+
+        len = itoa(p->pid, numbuf);
+        for (int j = 0; j < 5 - len; j++) buffer[pos++] = ' ';
+        for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
+        buffer[pos++] = ' ';
+
+        len = itoa(p->priority, numbuf);
+        for (int j = 0; j < 9 - len; j++) buffer[pos++] = ' ';
+        for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
+        buffer[pos++] = ' ';
+
+        const char *state_str;
+        switch (p->status) {
+            case READY: state_str = "READY"; break;
+            case BLOCKED: state_str = "BLOCKED"; break;
+            case FREE: state_str = "FREE"; break;
+            case RUNNING: state_str = "RUNNING"; break;
+            default: state_str = "UNKNOWN"; break;
+        }
+        int st_len = 0;
+        while (state_str[st_len] != '\0') st_len++;
+        for (int j = 0; j < st_len; j++) buffer[pos++] = state_str[j];
+        for (int j = st_len; j < 8; j++) buffer[pos++] = ' ';
+        buffer[pos++] = ' ';
+
+        const char *name = p->name ? p->name : "NoName";
+        int n = 0;
+        while (name[n] != '\0' && pos < (int)sizeof(buffer) - 1) {
+            buffer[pos++] = name[n++];
+        }
+        // No pongo '\0' porque print no lo necesita (si fuera necesario, pruebalo)
+        print(buffer, pos);
+        print("\n", 1);
+    }
+    my_free_ps(plist);
+}
+
+void my_free_ps(process_info_list *plist) {
+    syscall_my_free_processes(plist);
+}
