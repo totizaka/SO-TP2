@@ -22,7 +22,7 @@ static void * const memory_address = (void*)0x600000;
 
 static const uint64_t page_size = 0x1000;
 
-static memory_manager_ADT memory_manager;    // puntero global para accederlo
+static memory_manager_adt memory_manager;    // puntero global para accederlo
 
 
 typedef int (*EntryPoint)();
@@ -90,7 +90,7 @@ void * initialize_kernel_binary()
 	return get_stack_base();
 }
 
-memory_manager_ADT get_memory_manager(){
+memory_manager_adt get_memory_manager(){
 	return memory_manager;
 }
 
@@ -255,7 +255,7 @@ int main()
 	char * argv_idle[] = {"idle"};
 	char * argv_shell[] = {"sh"};
 
-	memory_manager = createMemoryManager(memory_address);
+	memory_manager = create_memory_manager(memory_address);
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler((void(*))sample_code_module_address);
 	//new_process(, LOW_PRIORITY, NULL, 0);

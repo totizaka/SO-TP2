@@ -41,11 +41,13 @@ static int64_t syscall_my_kill_handler(uint64_t pid);
 static void syscall_my_block_handler(uint64_t pid);
 static void syscall_my_unblock_handler(uint64_t pid);
 static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue);
+static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue);
 static int64_t syscall_my_sem_wait_handler(char sem_id);
 static int64_t syscall_my_sem_post_handler(char sem_id);
 static int64_t syscall_my_sem_close_handler(char sem_id);
 static void syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid, int64_t * ret);
 static void syscall_list_processes();
+
 
 #endif  

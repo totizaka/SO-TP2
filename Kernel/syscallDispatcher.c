@@ -172,6 +172,9 @@ static void syscall_my_unblock_handler(uint64_t pid){
 static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue){
     return my_sem_open(sem_id, initialValue, 0);
 }
+static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue){
+    return my_sem_open_get_id(initialValue);
+}
 static int64_t syscall_my_sem_wait_handler(char sem_id){
     return my_sem_wait(sem_id);
 }

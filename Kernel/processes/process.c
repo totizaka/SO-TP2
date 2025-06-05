@@ -178,7 +178,8 @@ int64_t ready_process(uint64_t pid){
 
 //falta implementar
 int64_t kill_process(uint64_t pid){
-    if (pid < 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
+    if (pid <= 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
+        //no puedo matar ni idle ni shell
         return -1;
     }
     remove_from_scheduler(&pcb_table[pid]);
@@ -236,9 +237,6 @@ int64_t nice(int64_t pid, uint8_t new_prio){
 
 
 uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
-     if(argv!=NULL){
-    draw_word(0xFFFFFF, argv[0]);
-    }
     stack* to_ret=(stack*)(rsp - sizeof(stack));
     to_ret->stack_regs.rdi = (uint64_t) rip;
     to_ret->stack_regs.rsi = (uint64_t) argv;
@@ -296,6 +294,7 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
     }
 
     PCB *current = &pcb_table[pid];
+    //current->name="idle"; //despues cambiarlo a strcpy con malloc por ahi?
     current->stack_base = rsp_malloc;
     current->pid = pid;
     current->priority = priority;

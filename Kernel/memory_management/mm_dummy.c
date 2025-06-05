@@ -1,7 +1,7 @@
-#include "mm_dummy.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+//#ifdef DUMMY
+
+#include <mm_dummy.h>
+
 
 #define BLOCK_SIZE 32                        // Tamaño de cada bloque
 #define MAX_BLOCKS 1024                      // Máximo número de bloques
@@ -16,11 +16,19 @@ typedef struct {
     uint16_t magic;
 } block_header;
 
-typedef struct MemoryManagerCDT {
+typedef struct memory_manager_cdt {
     uint8_t *baseAddress;
     size_t totalBlocks;
     uint8_t bitmap[BITMAP_SIZE];
-} MemoryManagerCDT;
+} memory_manager_cdt;
+
+void *my_memset(void *ptr, int value, size_t num) {
+    unsigned char *p = (unsigned char *)ptr;
+    while (num--) {
+        *p++ = (unsigned char)value;
+    }
+    return ptr;
+}
 
 static void set_bit(uint8_t *bitmap, size_t i) {
     bitmap[i / BYTE_SIZE] |= (1 << (i % BYTE_SIZE));
@@ -34,10 +42,10 @@ static int is_bit_set(uint8_t *bitmap, size_t i) {
     return bitmap[i / BYTE_SIZE] & (1 << (i % BYTE_SIZE));
 }
 
-memory_manager_ADT createMemoryManager(void *memory) {
-    memory_manager_ADT manager = (memory_manager_ADT) memory;
+memory_manager_adt create_memory_manager(void *memory) {
+    memory_manager_adt manager = (memory_manager_adt) memory;
 
-    uintptr_t raw_base = (uintptr_t)memory + sizeof(MemoryManagerCDT);
+    uintptr_t raw_base = (uintptr_t)memory + sizeof(memory_manager_cdt);
     raw_base = (raw_base + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1);
 
     manager->baseAddress = (uint8_t *)raw_base;
@@ -45,11 +53,11 @@ memory_manager_ADT createMemoryManager(void *memory) {
     size_t usable_bytes = MEMORY_MANAGER_SIZE - (manager->baseAddress - (uint8_t *)memory);
     manager->totalBlocks = usable_bytes / BLOCK_SIZE;
 
-    memset(manager->bitmap, 0, BITMAP_SIZE);
+    my_memset(manager->bitmap, 0, BITMAP_SIZE);
     return manager;
 }
 
-void *my_malloc(memory_manager_ADT manager, size_t size) {
+void *my_malloc(memory_manager_adt manager, size_t size) {
     if (size == 0 || size > manager->totalBlocks * BLOCK_SIZE - HEADER_SIZE) {
         return NULL;
     }
@@ -84,7 +92,7 @@ void *my_malloc(memory_manager_ADT manager, size_t size) {
     return NULL;
 }
 
-void my_free(memory_manager_ADT manager, void *ptr) {
+void my_free(memory_manager_adt manager, void *ptr) {
     if (!ptr || !manager) return;
 
     uint8_t *start = (uint8_t *)ptr - HEADER_SIZE;
@@ -108,7 +116,7 @@ void my_free(memory_manager_ADT manager, void *ptr) {
     }
 }
 
-size_t my_get_available_memory(memory_manager_ADT manager) {
+size_t my_get_available_memory(memory_manager_adt manager) {
     if (!manager) return 0;
 
     size_t freeBlocks = 0;
@@ -118,3 +126,6 @@ size_t my_get_available_memory(memory_manager_ADT manager) {
     }
     return freeBlocks * BLOCK_SIZE;
 }
+
+
+//#endif 

@@ -26,6 +26,14 @@ int invalid_ID_sem(int64_t sem_id){
     return invalid_ID(sem_id, MAX_SEM);
 }
 
+int64_t find_free_sem(){
+    for(int i=0; i<MAX_SEM; i++){
+        if(sem_array[i].ocupied==0){
+            return i;
+        }
+    }
+    return -1;
+}
 
 int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
      if (invalid_ID_sem(sem_id)) {//ID invalido
@@ -55,6 +63,15 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
     release(&sem_array[sem_id].lock);
 
     return 1;
+}
+int64_t my_sem_open_get_id ( int value, uint8_t is_kernel ){
+    int64_t sem_id=  find_free_sem();
+    if( my_sem_open(sem_id, value, is_kernel)){
+        return sem_id;
+    }else{
+        return -1;
+    }
+
 }
 
 int64_t my_sem_post ( int64_t sem_id){
@@ -139,3 +156,4 @@ int64_t my_sem_close ( int64_t sem_id){
     release(&sem_array[sem_id].lock);
     return 0;
 }
+

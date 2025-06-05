@@ -9,18 +9,18 @@ typedef struct P_rq {
   enum State state;
 } p_rq;
 
-int64_t test_processes() {
+int64_t test_processes(char *argv[], uint64_t argc) {
   uint8_t rq;
   uint8_t alive = 0;
   uint8_t action;
-  uint64_t max_processes = 30;
+  uint64_t max_processes;
   char *argvAux[] = {0};
 
-  // if (argc != 1)
-  //   return -1;
+   if (argc != 1)
+     return -1;
 
-  // if ((max_processes = satoi(argv[0])) <= 0)
-  //   return -1;
+   if ((max_processes = satoi(argv[0])) <= 0)
+     return -1;
 
   p_rq p_rqs[max_processes];
 

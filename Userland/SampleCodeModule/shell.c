@@ -7,7 +7,7 @@
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell},{"testsync", sync_test_shell} };
+{"testprocesses", proc_test_shell},{"testsync", sync_test_shell}, {"testnosync", no_sync_test_shell} };
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -30,41 +30,64 @@ void mm_test_shell(){
     paint_all_vd(BLACK);
     // test_mm(1, "100000");
     // char args[1][6] = {"100000"};
-    my_create_process((void(*))test_mm, 1, NULL, 0);
+    int64_t ret;
+    int pid= my_create_process((void(*))test_mm, 1, NULL, 0);
+    my_wait(pid, &ret);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
-    my_create_process((void(*))test_processes, 1, NULL, 0);
+    int64_t ret;
+    char **argv = my_malloc(sizeof(char *) * 2);  
+    argv[0] = my_malloc(sizeof(char) * 3);  
+    if (argv[0] == NULL) return NULL;
+    my_strcpy(argv[0], "30");
+    argv[1] = NULL;
+
+    int64_t pid= my_create_process((void(*))test_processes, 1, argv, 1);
+    my_wait(pid, &ret);
+    my_free(argv[0]);
+    my_free(argv);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
-    my_create_process((void(*))test_prio, 1, NULL, 0);
+    int64_t ret;
+    int64_t pid= my_create_process((void(*))test_prio, 1, NULL, 0);
+    my_wait(pid, &ret);
 }
-void sync_test_shell(){
-    paint_all_vd(BLACK);
-    char **argv = my_malloc(sizeof(char *) * 3);
 
-    // Reservamos y copiamos "5"
-    argv[0] = my_malloc(sizeof(char)*2); // "5" + '\0'
+void sync_tests(char* use_sem){
+    //ver si me armo mini funcion para armarme los argv con malloc??
+    char **argv = my_malloc(sizeof(char *) * 3);
+    argv[0] = my_malloc(sizeof(char)*2); 
     if (argv[0] == NULL) return NULL;
     my_strcpy(argv[0], "5");
-
-    // Reservamos y copiamos "1"
-    argv[1] = my_malloc(sizeof(char)*2); // "1" + '\0'
+    argv[1] = my_malloc(sizeof(char)*2);
     if (argv[1] == NULL) return NULL;
-    my_strcpy(argv[1], "1");
+    my_strcpy(argv[1], use_sem);
 
     argv[2] = NULL;
-    int ret;
-    int pid= my_create_process((void(*))test_sync, 1, argv, 2);
+    int64_t ret;
+    int64_t pid= my_create_process((void(*))test_sync, 1, argv, 2);
     my_wait(pid, &ret);
     my_free(argv[0]);
     my_free(argv[1]);
     my_free(argv);
+}
+
+void sync_test_shell(){
+    paint_all_vd(BLACK);
+    char* use_sem="1\0";
+    sync_tests(use_sem);
     //ver si tiro msjito dependiendo valor ret??
 }
+void no_sync_test_shell(){
+    paint_all_vd(BLACK);
+    char* use_sem="0\0";
+    sync_tests(use_sem);
+}
+
 
 void opcode_exc(){
     paint_all_vd(BLACK);

@@ -265,7 +265,9 @@ char *my_strcpy(char *dest, const char *src) {
 int64_t sem_open ( int64_t sem_id, int value){
     return syscall_my_sem_open(sem_id, value);
 }
-
+int64_t sem_open_get_id(int value){
+    return syscall_my_sem_open_get_id(value);
+}
 int64_t sem_post ( int64_t sem_id ){
     return syscall_my_sem_post(sem_id);
 }
