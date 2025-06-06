@@ -29,7 +29,7 @@ uint64_t test_mm(uint64_t argc, char *argv) {
   // if ((max_memory = satoi(argv)) <= 0)
   //   return -1;
 
-  max_memory = 1000000;
+  max_memory = 0x50000;
 
   print("test_mm pase \n", MAXBUFF);
   /*while (1) {*/
@@ -75,4 +75,6 @@ uint64_t test_mm(uint64_t argc, char *argv) {
   itoa(count, itoa_buffer);
   print(itoa_buffer, MAXBUFF);
   print("todo OK!!!\n", MAXBUFF);
+
+  return 0;
 }

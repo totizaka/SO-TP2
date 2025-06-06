@@ -1,6 +1,8 @@
 #ifndef _SHELL_APPS_H_
 #define _SHELL_APPS_H_
 
+#include <stdint.h>
+
 void shell_mem();
 void shell_ps();
 void shell_loop();

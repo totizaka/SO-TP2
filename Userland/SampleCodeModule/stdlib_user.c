@@ -379,10 +379,42 @@ void my_ps(){
     }
 
     my_free_ps(plist);
+    return;
 }
 
 void my_free_ps(process_info_list *plist) {
     syscall_my_free_processes(plist);
+}
+
+void my_mem_state() {
+    memory_state* state = syscall_my_mem_state();
+
+    if (state == NULL) {
+        print("Error al obtener el estado de la memoria\n", MAXBUFF);
+        return;
+    }
+    char buffer[128];
+    int len = 0;
+    len += my_strcpy(buffer + len, "Estado de la memoria:\n");
+    len += my_strcpy(buffer + len, "Total Size: ");
+    len += itoa(state->total_size, buffer + len);
+    len += my_strcpy(buffer + len, " bytes\n");
+    len += my_strcpy(buffer + len, "Free Memory: ");
+    len += itoa(state->free, buffer + len);
+    len += my_strcpy(buffer + len, " bytes\n");
+    len += my_strcpy(buffer + len, "Occupied Memory: ");
+    len += itoa(state->occupied, buffer + len);
+    len += my_strcpy(buffer + len, " bytes\n");
+    buffer[len] = '\0';
+    print(buffer, len);
+    print("\n", 1);
+
+    my_free_mem_state(state);
+    return;
+}
+
+void my_free_mem_state(memory_state *state) {
+    syscall_my_free_mem_state(state);
 }
 
 int my_strcpy(char *dest, const char *src) {

@@ -7,7 +7,7 @@
 #include <pcb.h>
 #include <kernel.h>
 #include <interrupts.h>
-#include <process_info.h>
+#include <shared_defs.h>
 #include <pipe.h>
 
 

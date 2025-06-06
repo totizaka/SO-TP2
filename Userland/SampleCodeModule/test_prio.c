@@ -3,6 +3,7 @@
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
+void endless_loop_print(uint64_t wait);
 
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];

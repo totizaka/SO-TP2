@@ -52,7 +52,9 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_malloc_handler, 
     (void*)syscall_free_handler, 
     (void*)syscall_get_processes_handler,
-    (void*)syscall_free_processses_handler
+    (void*)syscall_free_processses_handler,
+    (void*)syscall_my_mem_state_handler,
+    (void*)syscall_my_free_mem_state,
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
@@ -213,8 +215,13 @@ static void syscall_free_processses_handler(process_info_list *processes) {
     free_process_list(processes);
 }
 
+static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager){
+    return my_mem_state(get_memory_manager());
+}
 
-
+void syscall_my_free_mem_state(memory_state *state) {
+    my_free(get_memory_manager(), state);
+}
 
 int8_t syscall_open_pipe(int64_t target, int role){
     return open_pipe( target-FD_MAX,  role);

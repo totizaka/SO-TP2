@@ -1,5 +1,5 @@
-#ifndef PROCESS_INFO_H
-#define PROCESS_INFO_H
+#ifndef SHARED_DEFS_H
+#define SHARED_DEFS_H
 
 #include <stdint.h>
 
@@ -27,5 +27,11 @@ typedef struct process_info_list {
 	uint64_t amount_of_processes;
 	process_info * processes;
 } process_info_list;
+
+typedef struct memory_state {
+	uint64_t total_size;
+	uint64_t free;
+	uint64_t occupied;
+} memory_state;
 
 #endif
