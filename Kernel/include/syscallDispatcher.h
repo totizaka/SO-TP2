@@ -41,7 +41,7 @@ static int64_t syscall_my_nice_handler(uint64_t pid, uint64_t newPrio);
 static int64_t syscall_my_kill_handler(uint64_t pid);
 static void syscall_my_block_handler(uint64_t pid);
 static void syscall_my_unblock_handler(uint64_t pid);
-static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue);
+static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue,int16_t id_by_hand);
 static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue);
 static int64_t syscall_my_sem_wait_handler(char sem_id);
 static int64_t syscall_my_sem_post_handler(char sem_id);
@@ -50,6 +50,11 @@ static void syscall_my_yield_handler();
 static int64_t syscall_my_wait_handler(int64_t pid, int64_t *ret);
 static process_info_list* syscall_get_processes_handler();
 static void syscall_free_processses_handler();
+
+int8_t syscall_open_pipe(int64_t target, int role);
+int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes);
+int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes);
+int8_t syscall_close_pipe(int64_t target);
 
 
 #endif  

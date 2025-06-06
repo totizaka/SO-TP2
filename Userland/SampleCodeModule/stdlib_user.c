@@ -409,6 +409,26 @@ int64_t sem_close ( int64_t sem_id){
     return syscall_my_sem_close(sem_id);
 }
 
+
+
+
+int8_t my_open_pipe(int64_t target, int role){
+    return syscall_my_open_pipe( target,  role);
+}
+
+int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
+    return syscall_my_write_pipe(target, buffer, num_bytes);
+}
+
+int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
+    return syscall_my_read_pipe(target, buffer, num_bytes);
+}
+
+int8_t my_close_pipe(int64_t target, int role){
+    return syscall_my_close_pipe(target);
+}
+
+
 void my_strcat(char *dest, const char *src) {
     while (*dest) {
         dest++; // Move to the end of the destination string

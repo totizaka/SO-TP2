@@ -171,11 +171,13 @@ static void syscall_my_unblock_handler(uint64_t pid){
 }
 
 //falta implementar correctamente sem funciones
-static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue){
-    return my_sem_open(sem_id, initialValue, 0);
+
+static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue,int16_t id_by_hand){
+    return my_sem_open(sem_id, initialValue, 0, id_by_hand);
 }
+
 static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue){
-    return my_sem_open_get_id(initialValue);
+    return my_sem_open_get_id(initialValue, 0);
 }
 static int64_t syscall_my_sem_wait_handler(char sem_id){
     return my_sem_wait(sem_id);
@@ -211,7 +213,26 @@ static void syscall_free_processses_handler(process_info_list *processes) {
     free_process_list(processes);
 }
 
-int64_t syscall_read (int64_t fd, char* buffer, int numBytes){
+
+
+
+int8_t syscall_open_pipe(int64_t target, int role){
+    return open_pipe( target-FD_MAX,  role);
+}
+int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes){
+    return write_pipe(target-FD_MAX, buffer, num_bytes);
+}
+int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes){
+    return read_pipe(target-FD_MAX, buffer, num_bytes);
+}
+
+int8_t syscall_close_pipe(int64_t target){
+    return close_pipe(target-FD_MAX);
+}
+
+
+
+int64_t syscall_read (int64_t fd, char* buffer, int num_bytes){
     PCB* running = get_running();
     if (fd!=STDIN) {
         return -1; // Invalid file descriptor
@@ -226,11 +247,11 @@ int64_t syscall_read (int64_t fd, char* buffer, int numBytes){
         if (target == STDOUT || target == STDERR) {
             return -1; // No se puede leer desde ahi 
         }
-        return pipe_read(target-FD_MAX, buffer, numBytes); //IMPLEMENTAR ESTA FUNCION en Pipe
+        return syscall_read_pipe(target, buffer, num_bytes); //IMPLEMENTAR ESTA FUNCION en Pipe
     }
 }
 
-int64_t syscall_write (int64_t fd, char* buffer, int numBytes){
+int64_t syscall_write (int64_t fd, char* buffer, int num_bytes){
     PCB* running = get_running();
     if (fd!=STDOUT && fd!=STDERR) {
         return -1; // Invalid file descriptor
@@ -246,6 +267,6 @@ int64_t syscall_write (int64_t fd, char* buffer, int numBytes){
             if (target == STDIN) {
              return -1; // No se puede leer desde ahi 
         }
-       return pipe_write(target-FD_MAX, buffer, numBytes); // IMPLEMENTAR ESTA FUNCION en Pipe
+       return syscall_write_pipe(target, buffer, num_bytes); // IMPLEMENTAR ESTA FUNCION en Pipe
     }
 }

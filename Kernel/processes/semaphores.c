@@ -26,22 +26,31 @@ int invalid_ID_sem(int64_t sem_id){
     return invalid_ID(sem_id, MAX_SEM);
 }
 
-int64_t find_free_sem(){
+
+//CHEQUEARLES A ESTOS DOS LA SYNCRO 
+int64_t find_free_sem(){ 
+    
     for(int i=0; i<MAX_SEM; i++){
+        acquire(&sem_array[i].lock);
         if(sem_array[i].ocupied==0){
             return i;
         }
+
+        release(&sem_array[i].lock); 
+
     }
     return -1;
 }
 
-int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
+int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel , int16_t id_by_hand){
      if (invalid_ID_sem(sem_id)) {//ID invalido
         return -1;
     }
 
+    if(id_by_hand){ //Singnifica que el id NO fue encontrado entre los libres 
+            acquire(&sem_array[sem_id].lock); //lockea el semaforo
 
-    acquire(&sem_array[sem_id].lock); //lockea el semaforo
+    }
 
     if (sem_array[sem_id].ocupied) { //si el semaforo ya esta ocupado
         sem_array[sem_id].ocupied++;
@@ -64,15 +73,20 @@ int64_t my_sem_open ( int64_t sem_id, int value, uint8_t is_kernel ){
 
     return 1;
 }
+
+
+
 int64_t my_sem_open_get_id ( int value, uint8_t is_kernel ){
-    int64_t sem_id=  find_free_sem();
-    if( my_sem_open(sem_id, value, is_kernel)){
+    int64_t sem_id =  find_free_sem();
+    if( my_sem_open(sem_id, value, is_kernel, 0)==1){
         return sem_id;
     }else{
         return -1;
     }
 
 }
+
+
 
 int64_t my_sem_post ( int64_t sem_id){
 if (invalid_ID_sem(sem_id))
