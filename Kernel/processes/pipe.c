@@ -77,10 +77,7 @@ int64_t write_pipe( int64_t id, char* buffer, uint64_t num_bytes ){
 
 
     while (written< num_bytes){
-        if(pipe_array[id].pids[PIPE_READ]==-1){
-            //SIGPIPE : TENDRIA QUE MATAR AL PROCESO 
-            return -1;
-        }
+        //El pipe no tiene nada implementado por si escribo y nadie lo lee
 
         if(my_sem_wait(pipe_array[id].sem_write)==-1) //CONTROLO EL ESPACIO EN BUFFER 
             return written;

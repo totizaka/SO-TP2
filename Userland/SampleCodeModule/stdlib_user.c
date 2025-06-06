@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <stdlib_user.h>
 
+
+
+
 void print(const char* buf, uint64_t count) {
 	syscall_write(1, buf, count);
 }
@@ -57,6 +60,38 @@ int strcmp_user(char * s1, char * s2){
     }
     return 0;
 }
+
+
+comands_pipe get_comands_pipe(char* input){
+   comands_pipe comands;
+    int i=0;
+    int c1=0;
+    int c2=0;
+    comands.pipe=0;
+
+    while (input[i]!='\0'){
+        if(input[i]=='|' && comands.pipe==0){
+            comands.pipe=1;
+
+        }
+        else if (!comands.pipe)
+        {
+            comands.cm1[c1++]=input[i];
+        }
+        else {
+            comands.cm2[c2++]=input[i];
+        }
+        i++;
+    }
+        comands.cm1[c1]='\0';
+   
+        comands.cm2[c2]='\0';
+    
+}
+
+
+
+
 
 uint64_t itoa(uint64_t number, char* s) {
     int digits = 0;

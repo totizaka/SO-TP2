@@ -222,6 +222,10 @@ static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager){
 void syscall_my_free_mem_state(memory_state *state) {
     my_free(get_memory_manager(), state);
 }
+void syscall_create_pipe( int64_t id ){
+     create_pipe(  id );
+}
+
 
 int8_t syscall_open_pipe(int64_t target, int role){
     return open_pipe( target-FD_MAX,  role);
