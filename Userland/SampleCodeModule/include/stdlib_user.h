@@ -1,9 +1,20 @@
+#ifndef STD_LIB_USER_H
+#define STD_LIB_USER_H
 
 #include <stdio.h>
 #include <stdint.h>
 #include <sys_calls.h>
 
 #define MAXBUFF 100
+
+
+
+typedef struct comands_pipe {
+    char cm1[MAXBUFF];
+    char cm2[MAXBUFF];
+    int pipe; //flag si hay un pipe o no 
+}comands_pipe;
+
 
 void print(const char* buf, uint64_t count);
 uint64_t itoa(uint64_t number, char* s);
@@ -58,3 +69,7 @@ void my_free_ps();
 int my_strcpy(char *dest, const char *src);
 int64_t exit_proc(uint64_t res, uint64_t pid);
 void sleep(uint64_t s);
+comands_pipe get_comands_pipe(char* input);
+
+
+#endif

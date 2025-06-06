@@ -5,6 +5,7 @@
 #include <test_sync.h>
 
 
+
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
 {"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}};
@@ -138,7 +139,6 @@ void snake(){
 }
 
 
-
 void command_wait(){
     while (1){
         print("\n",1);
@@ -148,16 +148,31 @@ void command_wait(){
 
         get_string(buff, MAXBUFF);
 
-        if(strlen_user(buff)!=0){
-            for(int i=0; i<menuDIM+1; i++){
-                if(strcmp_user(buff,menu[i].name)==0){
-                    menu[i].function();
-                    return;
-                }
+
+        if (strlen_user(buff)!=0){
+           for(int i=0; i<menuDIM+1; i++){
+
+
+            comands_pipe comands =get_comands_pipe(buff);
+            if (comands.pipe){
+                //COMPLETAR 
+
             }
-            paint_all_vd(0x000000);
-            err_print("Invalid Command!! \n",18);
+            else {
+                for(int i=0; i<menuDIM+1; i++){
+                    if(strcmp_user(buff,menu[i].name)==0){
+                        menu[i].function();
+                        return;
+                    }
+                }
+                paint_all_vd(0x000000);
+                err_print("Invalid Command!! \n",18);
+                }
+            }     
         }
+
+
+
     }
     
 }
