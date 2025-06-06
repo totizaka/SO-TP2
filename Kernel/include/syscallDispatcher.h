@@ -55,6 +55,7 @@ int8_t syscall_open_pipe(int64_t target, int role);
 int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes);
 int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes);
 int8_t syscall_close_pipe(int64_t target);
+void syscall_create_pipe( int64_t id );
 
 
 #endif  

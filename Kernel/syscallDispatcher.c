@@ -214,6 +214,9 @@ static void syscall_free_processses_handler(process_info_list *processes) {
 }
 
 
+void syscall_create_pipe( int64_t id ){
+     create_pipe(  id );
+}
 
 
 int8_t syscall_open_pipe(int64_t target, int role){

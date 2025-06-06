@@ -139,6 +139,48 @@ void snake(){
 }
 
 
+
+void invalid_comand(){
+       paint_all_vd(0x000000);
+    err_print("Invalid Command!! \n",18);
+}
+
+void run_piped_program(char * comand1, char* comand2){
+    int c1=-1;
+    int c2=-1;
+    for(int i=0; i<menuDIM+1; i++){
+        if(strcmp_user(comand1,menu[i].name)==0){
+            c1=i;
+        }
+        if(strcmp_user(comand2,menu[i].name)==0){
+            c2=i;
+        }
+     }
+     if(c1==-1|| c2==-1){
+        invalid_comand();
+        return;
+     }
+
+//     if (pipe_id<0){
+// //completar 
+//     }
+// 
+    }
+
+
+
+void run_simple_program(char* comand){
+    for(int i=0; i<menuDIM+1; i++){
+                    if(strcmp_user(comand,menu[i].name)==0){
+                        menu[i].function();
+                        return;
+                    }
+                }
+                paint_all_vd(0x000000);
+                err_print("Invalid Command!! \n",18);
+
+}
+
 void command_wait(){
     while (1){
         print("\n",1);
@@ -150,32 +192,28 @@ void command_wait(){
 
 
         if (strlen_user(buff)!=0){
-           for(int i=0; i<menuDIM+1; i++){
-
 
             comands_pipe comands =get_comands_pipe(buff);
-            if (comands.pipe){
-                //COMPLETAR 
 
+            if (comands.pipe){
+                print("pipe$> ", MAXBUFF);
+
+                
             }
             else {
-                for(int i=0; i<menuDIM+1; i++){
-                    if(strcmp_user(buff,menu[i].name)==0){
-                        menu[i].function();
-                        return;
-                    }
-                }
-                paint_all_vd(0x000000);
-                err_print("Invalid Command!! \n",18);
+                
+                print("no_pipe$> ", MAXBUFF);
+
+                print("shell_TP_ARQUI$> ", MAXBUFF);
+
+                run_simple_program(buff);
                 }
             }     
         }
 
-
-
     }
     
-}
+
 
 void font_size(){
     
