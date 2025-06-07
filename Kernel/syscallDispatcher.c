@@ -59,9 +59,9 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_create_pipe,
     (void*)syscall_open_pipe,
     (void*)syscall_write_pipe ,
-    (void*)syscall_read_pipe,
-    (void*)syscall_close_pipe,//40
-    (void*)syscall_get_available_pipe_id,//41
+    (void*)syscall_read_pipe,//40
+    (void*)syscall_close_pipe,//41
+    (void*)syscall_get_available_pipe_id,
     (void*)syscall_read, 
     (void*)syscall_write,
 };
@@ -240,7 +240,7 @@ void syscall_create_pipe( int64_t id ){
 }
 
 int8_t syscall_open_pipe(int64_t target, int role){
-    return open_pipe( target-FD_MAX,  role);
+    return open_pipe( target-FD_MAX,  role, get_pid());
 }
 int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes){
     return write_pipe(target-FD_MAX, buffer, num_bytes);
@@ -257,8 +257,10 @@ int64_t syscall_get_available_pipe_id(){
     return get_available_pipe_id();
 }
 
+
 int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
+
     if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
      return -1;
 
@@ -285,6 +287,7 @@ int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
     if (target == STDOUT || target == STDERR) {
         draw_word(0xffffff, buffer);
         return num_bytes;
+
     } else if (target == STDIN) {
         return -1; // No se puede escribir en STDIN
     } else {

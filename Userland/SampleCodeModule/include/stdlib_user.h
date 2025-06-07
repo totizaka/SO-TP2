@@ -77,9 +77,13 @@ void my_create_pipe(int64_t id);
 int8_t my_open_pipe(int64_t target, int role);
 int8_t my_close_pipe(int64_t target);
 int64_t my_get_available_pipe_id();
-int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes);
-int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes);
+// int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes);
+// int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes);
 comands_pipe get_comands_pipe(char* input);
+
+// my_read/write functions
+int64_t my_read(int64_t fd, char* buffer, int num_bytes);
+int64_t my_write(int64_t fd, char* buffer, int num_bytes);
 
 //my_str functions
 int my_strlen(char * str);

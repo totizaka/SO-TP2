@@ -139,7 +139,6 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->rsp = load_stack(rip, current->rsp, args_cpy, argc-1, pid);//  inciializar el stack
     current->args = args_cpy;
     current->argc = argc - 1; // argc sin el nombre del proceso
-
     for (int i = 0; i < FD_MAX; i++)
     {
         current->fd[i] = fds[i];
@@ -148,10 +147,11 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
             current->fd[i] = -1; // por error (Chqear esto) 
         }
 
-        if (piping(current->pid, current->fd)==-1){
+    }
+    
+    if (piping(current->pid, current->fd)==-1){
             return -1;
 
-        }
     }
     ready(current);
     amount_of_processes++;
@@ -174,7 +174,7 @@ int64_t piping(pid_t pid, fd_t fds[]){
                role= PIPE_WRITE;
             }
 
-            if (open_pipe(fds[i]-FD_MAX, role)==-1){
+            if (open_pipe(fds[i]-FD_MAX, role, pid)==-1){
                 return -1;
             }
             

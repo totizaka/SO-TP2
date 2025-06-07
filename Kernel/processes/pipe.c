@@ -59,7 +59,7 @@ int64_t get_available_pipe_id() {
 
 
 
-int8_t open_pipe( int64_t id , int role ){
+int8_t open_pipe( int64_t id , int role , pid_t pid){
 
     if (invalid_ID_pipe(id) || invalid_role(role)) {
         return -1; 
@@ -76,8 +76,8 @@ int8_t open_pipe( int64_t id , int role ){
 
     }
 
-    pid_t current_pid = get_running()->pid; 
-    pipe_array[id].pids[role] = current_pid; 
+ 
+    pipe_array[id].pids[role] = pid; 
 
     return 0; 
 }
