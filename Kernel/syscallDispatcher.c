@@ -55,6 +55,14 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_free_processses_handler,
     (void*)syscall_my_mem_state_handler,
     (void*)syscall_my_free_mem_state,
+    (void*)syscall_create_pipe,
+    (void*)syscall_open_pipe,
+    (void*)syscall_write_pipe ,
+    (void*)syscall_read_pipe,
+    (void*)syscall_close_pipe,
+    (void*)syscall_get_available_pipe_id,
+    (void*)syscall_read, 
+    (void*)syscall_write,
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
@@ -226,7 +234,6 @@ void syscall_create_pipe( int64_t id ){
      create_pipe(  id );
 }
 
-
 int8_t syscall_open_pipe(int64_t target, int role){
     return open_pipe( target-FD_MAX,  role);
 }
@@ -241,43 +248,38 @@ int8_t syscall_close_pipe(int64_t target){
     return close_pipe(target-FD_MAX);
 }
 
+int64_t syscall_get_available_pipe_id(){
+    return get_available_pipe_id();
+}
 
-
-int64_t syscall_read (int64_t fd, char* buffer, int num_bytes){
+int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
-    if (fd!=STDIN) {
-        return -1; // Invalid file descriptor
-    }
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) return -1;
 
     target_t target = running->fd[fd]; 
     if (target == STDIN) {
-        return 0;//Hay que implemntar read_terminal, esto es para q compile
-       //return read_terminal(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION 
-    } 
-    else {
-        if (target == STDOUT || target == STDERR) {
-            return -1; // No se puede leer desde ahi 
+        for (int i = 0; i < num_bytes; i++) {
+            buffer[i] = get_char_pressed(); // read_terminal(...) cuando lo implementemos
         }
-        return syscall_read_pipe(target, buffer, num_bytes); //IMPLEMENTAR ESTA FUNCION en Pipe
+        return num_bytes;
+    } else if (target == STDOUT || target == STDERR) {
+        return -1;
+    } else {
+        return syscall_read_pipe(target, buffer, num_bytes);
     }
 }
 
-int64_t syscall_write (int64_t fd, char* buffer, int num_bytes){
+int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
-    if (fd!=STDOUT && fd!=STDERR) {
-        return -1; // Invalid file descriptor
-    }
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) return -1;
 
-    target_t target = running->fd[fd]; // Get the target from the file descriptor
-
+    target_t target = running->fd[fd];
     if (target == STDOUT || target == STDERR) {
-        return 0;//Hay que implemntar print_stdout, esto es para q compile
-       //return print_stdout(buffer, numBytes); //IMPLEMENTAR ESTA FUNCION
-    } 
-    else {
-            if (target == STDIN) {
-             return -1; // No se puede leer desde ahi 
-        }
-       return syscall_write_pipe(target, buffer, num_bytes); // IMPLEMENTAR ESTA FUNCION en Pipe
+        draw_word(0xffffff, buffer);
+        return num_bytes;
+    } else if (target == STDIN) {
+        return -1; // No se puede escribir en STDIN
+    } else {
+        return syscall_write_pipe(target, buffer, num_bytes);
     }
 }

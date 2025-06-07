@@ -35,11 +35,14 @@ GLOBAL syscall_my_get_processes
 GLOBAL syscall_my_free_processes
 GLOBAL syscall_my_mem_state
 GLOBAL syscall_my_free_mem_state
-GLOBAL syscall_my_sleep
+GLOBAL syscall_my_create_pipe
 GLOBAL syscall_my_open_pipe:
 GLOBAL syscall_my_write_pipe
 GLOBAL syscall_my_read_pipe
 GLOBAL syscall_my_close_pipe
+GLOBAL syscall_my_get_available_pipe_id
+GLOBAL syscall_my_read
+GLOBAL syscall_my_write
 
 section .text
 
@@ -199,7 +202,6 @@ syscall_my_free:
     int 80h
     ret
 
-
 syscall_my_get_processes:
     mov rax, 0x1F
     int 80h
@@ -225,20 +227,21 @@ syscall_my_sem_open_get_id:
     int 80h
     ret
 
-syscall_my_sleep:
+syscall_my_create_pipe:
     mov rax, 0x24
     int 80h
     ret
-
 
 syscall_my_open_pipe:
     mov rax, 0x25
     int 80h
     ret
+
 syscall_my_write_pipe:
     mov rax, 0x26
     int 80h
     ret
+
 syscall_my_read_pipe:
     mov rax, 0x27
     int 80h
@@ -246,5 +249,20 @@ syscall_my_read_pipe:
 
 syscall_my_close_pipe:
     mov rax, 0x28
+    int 80h
+    ret
+
+syscall_my_get_available_pipe_id:
+    mov rax, 0x29
+    int 80h
+    ret
+
+syscall_my_read:
+    mov rax, 0x2A
+    int 80h
+    ret
+
+syscall_my_write:
+    mov rax, 0x2B
     int 80h
     ret

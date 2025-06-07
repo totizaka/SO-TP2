@@ -26,7 +26,7 @@ extern uint64_t syscall_regs();
 
 
 extern int64_t syscall_my_getpid();
-extern int64_t syscall_my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background);
+extern int64_t syscall_my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
 extern int64_t syscall_my_nice(uint64_t pid, uint64_t newPrio);
 extern int64_t syscall_my_kill(uint64_t pid);
 extern int64_t syscall_my_block(uint64_t pid);
@@ -44,11 +44,15 @@ extern process_info_list * syscall_my_get_processes();
 extern int64_t syscall_my_free_processes(process_info_list *processes);
 extern memory_state* syscall_my_mem_state();
 extern void syscall_my_free_mem_state(memory_state *state);
-extern void syscall_my_sleep(uint64_t ticks);
 
+extern void syscall_my_create_pipe(int64_t id);
 extern int8_t syscall_my_open_pipe(int64_t target, int role);
 extern int64_t syscall_my_write_pipe(int64_t target, char * buffer,int num_bytes);
 extern int64_t syscall_my_read_pipe(int64_t target, char * buffer,  int num_bytes);
 extern int8_t syscall_my_close_pipe(int64_t target);
+extern uint64_t syscall_my_get_available_pipe_id();
+extern int64_t syscall_my_read (int64_t fd, char* buffer, int num_bytes);
+extern int64_t syscall_my_write (int64_t fd, char* buffer, int num_bytes);
+
 
 #endif

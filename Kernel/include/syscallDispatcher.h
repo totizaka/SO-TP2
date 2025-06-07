@@ -53,11 +53,15 @@ static void syscall_free_processses_handler(process_info_list *processes);
 static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager);
 static void syscall_my_free_mem_state(memory_state *state);
 
+void syscall_create_pipe( int64_t id );
 int8_t syscall_open_pipe(int64_t target, int role);
 int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes);
 int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes);
 int8_t syscall_close_pipe(int64_t target);
-void syscall_create_pipe( int64_t id );
+int64_t syscall_get_available_pipe_id();
+
+int64_t syscall_read (int64_t fd, char* buffer, int num_bytes);
+int64_t syscall_write (int64_t fd, char* buffer, int num_bytes);
 
 
 #endif  

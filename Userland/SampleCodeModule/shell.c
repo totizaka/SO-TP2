@@ -41,25 +41,25 @@ void show_mem_state(){
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0);
+    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fds_standard);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
     char *argv[] = {"test_processes", "30", NULL};  
-    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0);
+    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fds_standard);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
     char *argv[] = {"test_prio", NULL};
-    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0);
+    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fds_standard);
 }
 
 void sync_tests(char* use_sem){
     //ver si me armo mini funcion para armarme los argv con malloc??
     char * argv[]={"sync_test","5", use_sem, NULL };
-    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0);
+    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fds_standard);
 }
 
 void sync_test_shell(){
@@ -162,16 +162,31 @@ void run_piped_program(char * comand1, char* comand2){
         if(strcmp_user(comand2,menu[i].name)==0){
             c2=i;
         }
-     }
-     if(c1==-1|| c2==-1){
+    }
+    if(c1==-1|| c2==-1){
         invalid_comand();
         return;
-     }
+    }
 
-//     if (pipe_id<0){
-// //completar 
-//     }
-// 
+    int id_pipe = my_get_available_pipe_id();
+    if (id_pipe==-1){
+        err_print("No hay pipes disponibles\n",24);
+        return;
+    }
+
+    //COMANDO 1= WRITER 
+    //COMANDO 2= READER
+    
+    fd_t com1_fds[FD_MAX]={STDIN,id_pipe,STDERR}; //pongo la salida al pipe 
+    fd_t com2_fds[FD_MAX]={id_pipe,STDOUT,STDERR};//pongo la entrada al pipe
+
+    char *argv[] = {"", NULL};
+    
+    my_create_process_shell((void(*))menu[c1].function, 0, 0, 0, com1_fds);
+    my_create_process_shell((void(*))menu[c2].function, 0, 0, 0,com2_fds);
+
+    my_close_pipe(id_pipe);
+
     }
 
 
@@ -200,19 +215,12 @@ void command_wait(){
 
         if (strlen_user(buff)!=0){
 
-            comands_pipe comands =get_comands_pipe(buff);
+            comands_pipe comands = get_comands_pipe(buff);
 
             if (comands.pipe){
-                print("pipe$> ", MAXBUFF);
-
-                
+                print("pipe$> ", MAXBUFF);                
             }
             else {
-                
-                print("no_pipe$> ", MAXBUFF);
-
-                print("shell_TP_ARQUI$> ", MAXBUFF);
-
                 run_simple_program(buff);
                 }
             }     

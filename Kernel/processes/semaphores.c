@@ -18,8 +18,8 @@ int comp(list_elem_t e1, list_elem_t e2){
     return (e1 - e2); 
 }
 
-int invalid_ID(uint64_t sem_id, int max){
-    return (sem_id < 0 || sem_id >= max);
+int invalid_ID(uint64_t num, int max){
+    return (num < 0 || num >= max);
 }
 
 int invalid_ID_sem(int64_t sem_id){

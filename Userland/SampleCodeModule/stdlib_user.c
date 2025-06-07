@@ -72,7 +72,6 @@ comands_pipe get_comands_pipe(char* input){
     while (input[i]!='\0'){
         if(input[i]=='|' && comands.pipe==0){
             comands.pipe=1;
-
         }
         else if (!comands.pipe)
         {
@@ -86,6 +85,7 @@ comands_pipe get_comands_pipe(char* input){
         comands.cm1[c1]='\0';
    
         comands.cm2[c2]='\0';
+        return comands;
     
 }
 
@@ -258,12 +258,12 @@ int64_t my_getpid(){
     return syscall_my_getpid();
 }
 
-int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background){
-    return syscall_my_create_process(rip, argv, argc, background);
+int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
+    return syscall_my_create_process(rip, argv, argc, background, fds);
 }
 
-int64_t my_create_process_shell(uint64_t rip, char ** argv, uint64_t argc, int8_t background){
-    uint64_t pid = syscall_my_create_process(rip, argv, argc, background);
+int64_t my_create_process_shell(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
+    uint64_t pid = syscall_my_create_process(rip, argv, argc, background, fds);
     if (!background){
         int64_t ret;
         my_wait(pid, &ret);
@@ -476,11 +476,20 @@ int64_t sem_close ( int64_t sem_id){
     return syscall_my_sem_close(sem_id);
 }
 
-
-
+void my_create_pipe(int64_t id){
+    return syscall_my_create_pipe(id);
+}
 
 int8_t my_open_pipe(int64_t target, int role){
     return syscall_my_open_pipe( target,  role);
+}
+
+int8_t my_close_pipe(int64_t target, int role){
+    return syscall_my_close_pipe(target);
+}
+
+int64_t my_get_available_pipe_id(){
+    return syscall_my_get_available_pipe_id();
 }
 
 int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
@@ -491,11 +500,6 @@ int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
     return syscall_my_read_pipe(target, buffer, num_bytes);
 }
 
-int8_t my_close_pipe(int64_t target, int role){
-    return syscall_my_close_pipe(target);
-}
-
-
 void my_strcat(char *dest, const char *src) {
     while (*dest) {
         dest++; // Move to the end of the destination string
@@ -504,8 +508,4 @@ void my_strcat(char *dest, const char *src) {
         *dest++ = *src++; // Copy the source string to the destination
     }
     *dest = '\0'; // Null-terminate the resulting string
-}
-
-void sleep(uint64_t s){
-    syscall_my_sleep(s*18);
 }

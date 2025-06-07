@@ -11,6 +11,7 @@
 
 #define FD_MAX 3 // CANT DE FILE DESCRIPTORS
 typedef int64_t target_t;
+typedef int64_t fd_t;
 
 
 

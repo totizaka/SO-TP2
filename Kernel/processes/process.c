@@ -102,7 +102,7 @@ int set_free_pcb(pid_t pid) {
 
 //primer arg va a ser el nombre por convencion argv[0] = nombre del proceso
 
-uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, int64_t fds[3]) {
+uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]) {
     int64_t pid = find_free_pcb();
     if (pid == -1){
         return -1; 
@@ -139,7 +139,7 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->args = args_cpy;
     current->argc = argc - 1; // argc sin el nombre del proceso
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < FD_MAX; i++)
     {
         current->fd[i] = fds[i];
 
@@ -150,10 +150,23 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     }
 
 
+
+
     ready(current);
     amount_of_processes++;
     return pid;
 }
+
+
+int64_t pipeing(pid_t pid, fd_t fds[]){
+    for (int i=0;i<FD_MAX;i++){
+        
+    }
+
+
+
+}
+
 
 
 //Implementado como si las listas NO estuvieran en shm

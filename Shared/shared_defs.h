@@ -2,6 +2,13 @@
 #define SHARED_DEFS_H
 
 #include <stdint.h>
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2 
+
+#define FD_MAX 3 // CANT DE FILE DESCRIPTORS
+typedef int64_t target_t;
+typedef int64_t fd_t;
 
 typedef enum {
     FREE = 0,
@@ -34,4 +41,6 @@ typedef struct memory_state {
 	uint64_t occupied;
 } memory_state;
 
+
+fd_t fds_standard[FD_MAX] = {STDIN, STDOUT, STDERR};
 #endif

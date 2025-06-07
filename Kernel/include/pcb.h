@@ -26,7 +26,7 @@ typedef struct PCB{
     struct PCB* waiting_for; //Proceso que este proceso espera
     int time;//Lo que queda para ejecutar
     int ret;
-    int64_t fd[3];// file descriptors  fd[0]=entrada, fd[1]=salida, fd[2]=error
+    fd_t fd[3];// file descriptors  fd[0]=entrada, fd[1]=salida, fd[2]=error
     int8_t background; // 1 si es un proceso en background, 0 si es foreground
 }PCB;
 
