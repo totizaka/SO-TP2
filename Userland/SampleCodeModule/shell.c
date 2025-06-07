@@ -37,6 +37,29 @@ void show_mem_state(){
     return;
 }
 
+//fijarnos como hacer para llamar a funcion con parametros
+void shell_kill(int64_t pid){
+    paint_all_vd(BLACK);
+    my_kill(pid);
+    return;
+}
+//ver si tenemos en userland un enum de prios??
+void shell_nice(int64_t pid, int64_t new_prio){
+    paint_all_vd(BLACK);
+    my_nice(pid, new_prio);
+    return;
+}
+void shell_block(int64_t pid){
+    paint_all_vd(BLACK);
+    my_block(pid);
+    return;
+}
+void shell_unblock(int64_t pid){
+    paint_all_vd(BLACK);
+    my_unblock(pid);
+    return;  
+}
+
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
 
 void mm_test_shell(){
@@ -301,5 +324,10 @@ void show_regs(){
         }
     }
     return;
+}
+//no esta terminado
+void philos_shell(){
+    paint_all_vd(BLACK);
+    int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
 }
 

@@ -263,7 +263,7 @@ int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t back
 }
 
 int64_t my_create_process_shell(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
-    uint64_t pid = syscall_my_create_process(rip, argv, argc, background, fds);
+    uint64_t pid = my_create_process(rip, argv, argc, background, fds);
     if (!background){
         int64_t ret;
         my_wait(pid, &ret);
