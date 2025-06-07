@@ -36,7 +36,7 @@ extern pipe_t pipe_array[MAX_PIPES];
 
 
 int initialize_pipes();
-int8_t open_pipe(int64_t id, int role);
+int8_t open_pipe(int64_t id, int role, pid_t pid);
 int8_t close_pipe(int64_t id);
 
 

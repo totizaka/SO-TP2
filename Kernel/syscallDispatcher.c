@@ -240,7 +240,7 @@ void syscall_create_pipe( int64_t id ){
 }
 
 int8_t syscall_open_pipe(int64_t target, int role){
-    return open_pipe( target-FD_MAX,  role);
+    return open_pipe( target-FD_MAX,  role, get_pid());
 }
 int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes){
     return write_pipe(target-FD_MAX, buffer, num_bytes);

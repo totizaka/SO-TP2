@@ -111,7 +111,7 @@ void shell_unblock(char ** argv, uint64_t argc){
 void write_process_test(){
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
     int num_byte=strlen_user(to_print);
-    if (my_write(STDOUT,to_print,num_byte)){
+    if (my_write(STDOUT,to_print,num_byte)!=-1){
         print("el write anda creo ", 16);
     }
 }
