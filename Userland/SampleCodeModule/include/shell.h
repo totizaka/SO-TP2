@@ -5,8 +5,9 @@
 #include <stdlib_user.h>
 #include <snake.h>
 #include <philos.h>
+#include <shell_apps.h>
 
-#define menuDIM 15
+#define menuDIM 17
 #define BLACK 0x000000
 
 typedef struct module {

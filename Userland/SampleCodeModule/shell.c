@@ -7,7 +7,7 @@
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
 {"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"memstate", show_mem_state}, {"testa", test_a}, 
-{"writer", write_process_test}, {"reader", read_process_test}};
+{"writer", write_process_test}, {"reader", read_process_test}, {"loop", shell_loop}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -154,7 +154,7 @@ void shell_unblock(char ** argv, uint64_t argc){
 
 void write_process_test(){
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
-    int num_byte=strlen_user(to_print);
+    int num_byte = my_strlen(to_print);
     if (my_write(STDOUT,to_print,num_byte)!=-1){
         print("el write anda creo ", 16);
     }
