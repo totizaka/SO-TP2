@@ -15,8 +15,9 @@
 
 typedef struct pipe {
 
-    pid_t pids[2] ;//0:reader, 1:writer
+    pid_t pids[2];//0:reader, 1:writer
     int64_t id; 
+    int64_t available;
 
     char buffer[BUFFER]; // Buffer del pipe
 
@@ -30,9 +31,11 @@ typedef struct pipe {
 
 } pipe_t;
 
+extern pipe_t pipe_array[MAX_PIPES];
 
 
-void initialize_pipes();
+
+int initialize_pipes();
 int8_t open_pipe(int64_t id, int role);
 int8_t close_pipe(int64_t id);
 
@@ -43,4 +46,5 @@ int64_t read_pipe(int64_t id, char* buffer, int num_bytes);
 void create_pipe( int64_t id );
 
 int64_t get_available_pipe_id() ;
+
 #endif

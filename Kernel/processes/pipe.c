@@ -24,24 +24,39 @@ pid_t get_pid_from_pipe(int64_t pipe_id, int role) {
 }
 
 void create_pipe( int64_t id ){
-        pipe_array[id].id = id;
-        pipe_array[id].pids[0] = -1; // Inicializa el lector como no asignado
-        pipe_array[id].pids[1] = -1; // Inicializa el escritor como no asignado
+    return;
+}
 
-        pipe_array[id].where_reading = 0;
-        pipe_array[id].where_writing = 0;
+
+int initialize_pipes(){ //inicializo todos? 
+    int i;
+    for ( i = 0; i < MAX_PIPES; i++) {
+        pipe_array[i].id = i;
+        pipe_array[i].pids[PIPE_READ] = -1; // Inicializa el lector como no asignado
+        pipe_array[i].pids[PIPE_WRITE] = -1; // Inicializa el escritor como no asignado
+        pipe_array[i].available=1;
+
+        pipe_array[i].where_reading = 0;
+        pipe_array[i].where_writing = 0;
        
-        pipe_array[id].sem_write = my_sem_open_get_id(BUFFER, 1); 
-        pipe_array[id].sem_read = my_sem_open_get_id(0, 1); 
-        pipe_array[id].mutex = my_sem_open_get_id(1, 1); // Inicializa el mutex como no bloqueado
-}
-
-
-void initialize_pipes(){ //inicializo todos? 
-    for (int i = 0; i < MAX_PIPES; i++) {
-        create_pipe(i);
+        pipe_array[i].sem_write =-1; 
+        pipe_array[i].sem_read = -1; 
+        pipe_array[i].mutex =-1; // Inicializa el mutex como no bloqueado
+        
     }
+    return i;
 }
+
+int64_t get_available_pipe_id() {
+    for (int i = 0; i < MAX_PIPES; i++) {
+        if (pipe_array[i].available && pipe_array[i].pids[PIPE_READ] == -1 && pipe_array[i].pids[PIPE_WRITE] == -1 ) {
+            pipe_array[i].available=0;
+            return i; // Retorna el primer ID de pipe disponible
+        }
+    }
+    return -1; // No hay pipes disponibles
+}
+
 
 
 int8_t open_pipe( int64_t id , int role ){
@@ -52,6 +67,13 @@ int8_t open_pipe( int64_t id , int role ){
 
     if (pipe_array[id].pids[role] != -1) {
         return -1; // el pipe ya esta abierto por este rol
+    }
+
+    if (pipe_array[id].pids[PIPE_READ]==-1 && pipe_array[id].pids[PIPE_WRITE]==-1){
+        pipe_array[id].sem_write = my_sem_open_get_id(BUFFER, 1); 
+        pipe_array[id].sem_read  = my_sem_open_get_id(0, 1); 
+        pipe_array[id].mutex     = my_sem_open_get_id(1, 1);
+
     }
 
     pid_t current_pid = get_running()->pid; 
@@ -173,18 +195,13 @@ int8_t close_pipe(int64_t id ){
         my_sem_close(pipe_array[id].sem_read);
         my_sem_close(pipe_array[id].sem_write);
         my_sem_close(pipe_array[id].mutex);
+
+        pipe_array[id].available=1;
    }
    return (close_read==0||close_write==0);
 }
 
-int64_t get_available_pipe_id() {
-    for (int i = 0; i < MAX_PIPES; i++) {
-        if (pipe_array[i].pids[PIPE_READ] == -1 && pipe_array[i].pids[PIPE_WRITE] == -1) {
-            return i; // Retorna el primer ID de pipe disponible
-        }
-    }
-    return -1; // No hay pipes disponibles
-}
+
 
 
 

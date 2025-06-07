@@ -244,11 +244,19 @@ void run_piped_program(char * comand1, char* comand2){
         return;
     }
 
-    int id_pipe = my_get_available_pipe_id();
+
+    int64_t id_pipe = my_get_available_pipe_id();
+
     if (id_pipe==-1){
         err_print("No hay pipes disponibles\n",24);
         return;
     }
+    else
+    {
+       err_print("SI HAY PIPES DISPONIBLES\n",24);
+        return;
+    }
+    
 
     //COMANDO 1= WRITER 
     //COMANDO 2= READER

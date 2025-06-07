@@ -29,7 +29,7 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_get_height_vd_handler, 
     (void*)syscall_sleep_handler, 
     (void*)syscall_paint_all_vd_handler,
-    (void*)syscall_errase_char_handler, 
+    (void*)syscall_errase_char_handler, //10
     (void*)syscall_increase_FS_handler, 
     (void*)syscall_decrease_FS_handler, 
     (void*)syscall_setPixelSize_handler, 
@@ -39,7 +39,7 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_regs_values, 
     (void*)syscall_my_getpid_handler, 
     (void*)syscall_my_create_process_handler, 
-    (void*)syscall_my_nice_handler, 
+    (void*)syscall_my_nice_handler, //20, 0x13
     (void*)syscall_my_kill_handler, 
     (void*)syscall_my_block_handler, 
     (void*)syscall_my_unblock_handler, 
@@ -49,18 +49,19 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_sem_close_handler, 
     (void*)syscall_my_yield_handler, 
     (void*)syscall_my_wait_handler,
-    (void*)syscall_malloc_handler, 
+    (void*)syscall_malloc_handler, //30, 0x1D
     (void*)syscall_free_handler, 
     (void*)syscall_get_processes_handler,
     (void*)syscall_free_processses_handler,
     (void*)syscall_my_mem_state_handler,
     (void*)syscall_my_free_mem_state,
+    (void*)syscall_my_sem_open_get_id_handler,
     (void*)syscall_create_pipe,
     (void*)syscall_open_pipe,
     (void*)syscall_write_pipe ,
     (void*)syscall_read_pipe,
-    (void*)syscall_close_pipe,
-    (void*)syscall_get_available_pipe_id,
+    (void*)syscall_close_pipe,//40
+    (void*)syscall_get_available_pipe_id,//41
     (void*)syscall_read, 
     (void*)syscall_write,
 };
@@ -186,9 +187,7 @@ static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue,in
     return my_sem_open(sem_id, initialValue, 0, id_by_hand);
 }
 
-static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue){
-    return my_sem_open_get_id(initialValue, 0);
-}
+
 static int64_t syscall_my_sem_wait_handler(char sem_id){
     return my_sem_wait(sem_id);
 }
@@ -229,6 +228,10 @@ static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager){
 
 void syscall_my_free_mem_state(memory_state *state) {
     my_free(get_memory_manager(), state);
+}
+
+static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue){
+    return my_sem_open_get_id(initialValue, 0);
 }
 
 

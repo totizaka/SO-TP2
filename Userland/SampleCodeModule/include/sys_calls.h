@@ -50,7 +50,7 @@ extern int8_t syscall_my_open_pipe(int64_t target, int role);
 extern int64_t syscall_my_write_pipe(int64_t target, char * buffer,int num_bytes);
 extern int64_t syscall_my_read_pipe(int64_t target, char * buffer,  int num_bytes);
 extern int8_t syscall_my_close_pipe(int64_t target);
-extern uint64_t syscall_my_get_available_pipe_id();
+extern int64_t syscall_my_get_available_pipe_id();
 extern int64_t syscall_my_read (int64_t fd, char* buffer, int num_bytes);
 extern int64_t syscall_my_write (int64_t fd, char* buffer, int num_bytes);
 
