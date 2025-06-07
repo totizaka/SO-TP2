@@ -10,19 +10,9 @@
 #include <shared_defs.h>
 #include <pipe.h>
 
-
-// #define zombie 3
-// #define blocked 2
-// #define ready 1
-// #define available 0
-
 #define MAX_PID 50
 
-
-
-
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );
-
 
 int64_t find_free_pcb();
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);

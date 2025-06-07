@@ -3,17 +3,9 @@
 #include <stdlib_user.h>
 
 
+// my_str functions
 
-
-void print(const char* buf, uint64_t count) {
-	syscall_write(1, buf, count);
-}
-
-void err_print(char* buff, int count){
-    syscall_write(2, buff, count);
-}
-
-int strlen_user(char * str){
+int my_strlen(char * str){
     int i=0;
     while(str[i]!=0){
         i++;
@@ -21,7 +13,7 @@ int strlen_user(char * str){
     return i;
 }
 
-void get_string(char* buff, int count){
+void my_get_string(char* buff, int count){
     int i=0;
     char c=0;
     while(i < (count -1) && (c!='\n')){
@@ -47,7 +39,7 @@ void get_string(char* buff, int count){
 }
 }
 
-int strcmp_user(char * s1, char * s2){
+int my_strcmp(char * s1, char * s2){
    int i = 0;
     while (s1[i] != 0 && s2[i] != 0){
         if (s1[i] - s2[i] != 0){
@@ -61,6 +53,84 @@ int strcmp_user(char * s1, char * s2){
     return 0;
 }
 
+int my_strcpy(char *dest, const char *src) {
+    char *original = dest;
+    int i=0;
+    while ((*original++ = *src++) != '\0') i++;
+
+    return i;
+}
+
+char * my_strncpy(char *dest, const char *src, int n) {
+    int i = 0;
+    while (i < n && src[i] != '\0') {
+        dest[i] = src[i];
+        i++;
+    }
+    while (i < n) {
+        dest[i++] = '\0';
+    }
+    return dest;
+}
+
+char * my_strchr(const char *s, int c) {
+    while (*s) {
+        if (*s == (char)c) return (char *)s;
+        s++;
+    }
+    return NULL;
+}
+
+char * my_strtok(char *str, const char *delim) {
+    static char *last;
+    if (str != NULL) {
+        last = str;
+    } else if (last == NULL) {
+        return NULL;
+    }
+
+    // Saltar delimitadores al principio
+    while (*last && my_strchr(delim, *last)) {
+        last++;
+    }
+
+    if (*last == '\0') {
+        last = NULL;
+        return NULL;
+    }
+
+    char *start = last;
+    while (*last && !my_strchr(delim, *last)) {
+        last++;
+    }
+
+    if (*last) {
+        *last = '\0';
+        last++;
+    } else {
+        last = NULL;
+    }
+
+    return start;
+}
+
+void my_strcat(char *dest, const char *src) {
+    while (*dest) {
+        dest++; // Move to the end of the destination string
+    }
+    while (*src) {
+        *dest++ = *src++; // Copy the source string to the destination
+    }
+    *dest = '\0'; // Null-terminate the resulting string
+}
+
+void print(const char* buf, uint64_t count) {
+	syscall_write(1, buf, count);
+}
+
+void err_print(char* buff, int count){
+    syscall_write(2, buff, count);
+}
 
 comands_pipe get_comands_pipe(char* input){
    comands_pipe comands;
@@ -452,14 +522,6 @@ void my_free_mem_state(memory_state *state) {
     syscall_my_free_mem_state(state);
 }
 
-int my_strcpy(char *dest, const char *src) {
-    char *original = dest;
-    int i=0;
-    while ((*original++ = *src++) != '\0') i++;
-
-    return i;
-}
-
 int64_t sem_open ( int64_t sem_id, int value){
     return syscall_my_sem_open(sem_id, value);
 }
@@ -498,14 +560,4 @@ int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
 
 int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
     return syscall_my_read_pipe(target, buffer, num_bytes);
-}
-
-void my_strcat(char *dest, const char *src) {
-    while (*dest) {
-        dest++; // Move to the end of the destination string
-    }
-    while (*src) {
-        *dest++ = *src++; // Copy the source string to the destination
-    }
-    *dest = '\0'; // Null-terminate the resulting string
 }

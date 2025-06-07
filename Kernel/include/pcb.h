@@ -4,14 +4,6 @@
 #include <stdint.h>
 #include <shared_defs.h>
 
-// typedef enum{
-//     FREE,
-//     READY,
-//     BLOCKED,
-//     RUNNING,
-//     ZOMBIE
-// }process_state_t;
-
 typedef struct PCB{
     pid_t pid, ppid; //si se puede usar libreria sys/type ponemos pid_t directo
     uint64_t rsp; 

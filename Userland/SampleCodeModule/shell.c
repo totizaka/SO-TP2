@@ -4,34 +4,74 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-
-
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"memstate", show_mem_state}};
+{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"mem", show_mem_state}, {"testa", test_a}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
 
+// para funciones con arguemntos
+typedef int (*cmd_func_t)(char **args, int argc);
 
+typedef struct {
+    char *name;
+    cmd_func_t func;
+} special_command_t;
 
+// array de funciones con argumentos
+special_command_t special_commands[] = {
+    {"kill", shell_kill},
+    {"nice", shell_nice},
+    {"block", shell_block},
+    {"unblock", shell_unblock},
+    {NULL, NULL}
+};
 
-typedef struct command{
-char * name; 
-int argc;
-char ** argv;
-}command;
-
-static command commands[2];
 void help(){
     paint_all_vd(BLACK);
-    print("To print the different functions of the shell >> enter: help\n", MAXBUFF);
-    print("To play Snake Game >> enter: snake\n", MAXBUFF);
-    print("To show snapshot of the Register values >> enter: regvalues\n", MAXBUFF);
-    print("To change the font size >> enter: fontsize \n", MAXBUFF);
-    print("To show current time >> enter: time \n", MAXBUFF);
-    print("To try Divide by Zero Exception>> enter: div0 \n", MAXBUFF);
-    print("To try Invalid Opcode Exception >> enter: opcode \n", MAXBUFF);
+    print("Enter: help >> To print the different functions of the shell\n", MAXBUFF);
+    print("Enter: snake >> To play the Snake Game\n", MAXBUFF);
+    print("Enter: regvalues >> To show snapshot of the Register values\n", MAXBUFF);
+    print("Enter: fontsize >> To change the font size\n", MAXBUFF);
+    print("Enter: time >> To show the current time\n", MAXBUFF);
+    print("Enter: div0 >> To try Divide by Zero Exception\n", MAXBUFF);
+    print("Enter: opcode >> To try Invalid Opcode Exception\n", MAXBUFF);
+    print("Enter: ps >> To see the current processes\n", MAXBUFF);
+    print("Enter: mem >> To see the current memory state\n", MAXBUFF);
+    print("Enter: kill [pid] >> To kill a process with the given PID\n", MAXBUFF);
+    print("Enter: nice [pid,new_priority] >> To change the priority of a process with the given PID, new_priority must be a number between 1(LOWEST) and 7(HIGHEST)\n", MAXBUFF);
+    print("Enter: block [pid] >> To block a process with the given PID\n", MAXBUFF);
+    print("Enter: unblock [pid] >> To unblock a process with the given PID\n", MAXBUFF);
+    print("\n\nApartado de tests de la catedra:\n", MAXBUFF);
+    print("Enter: mmtest >> To test the Memory Manager\n", MAXBUFF);
+    print("Enter: testprio >> To test the Process Manager\n", MAXBUFF);
+    print("Enter: testprocesses >> To test the Priority Manager\n", MAXBUFF);
+    print("Enter: testsyncro >> To test Synchronization\n", MAXBUFF);
+    return;
+}
+
+
+// para probar kill, nice, block y unblock
+void t_a(){
+	int x;
+		while(1){
+		print("a", MAXBUFF);
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}
+
+void test_a(){
+    paint_all_vd(BLACK);
+    fd_t fd={ STDIN, STDOUT, STDERR };
+    char *argv[] = {"test_a", NULL};
+    int pid  = my_create_process((void(*))t_a, argv, 1, 0, fd);
+    if(pid==-1){
+        err_print("Error creating process\n", 22);
+    }
     return;
 }
 
@@ -47,7 +87,6 @@ void show_mem_state(){
     return;
 }
 
-//fijarnos como hacer para llamar a funcion con parametros
 void shell_kill(char ** argv, uint64_t argc){
      paint_all_vd(BLACK);
     if(argc!=1){
@@ -61,7 +100,7 @@ void shell_kill(char ** argv, uint64_t argc){
     my_kill(pid);
     return;
 }
-//ver si tenemos en userland un enum de prios??
+
 void shell_nice(char** argv, uint64_t argc){
     paint_all_vd(BLACK);
     if(argc!=2){
@@ -73,13 +112,15 @@ void shell_nice(char** argv, uint64_t argc){
         print("ERROR: error getting PID", 30);
       return;
     }
-    if ((new_prio = satoi(argv[1])) <= 0){
+    new_prio = satoi(argv[1]);
+    if (new_prio <= 0 && new_prio > 7){
         print("ERROR: error getting new priority", 30);
       return;
     }  
     my_nice(pid, new_prio);
     return;
 }
+
 void shell_block(char ** argv, uint64_t argc){
     paint_all_vd(BLACK);
     if(argc!=1){
@@ -93,6 +134,7 @@ void shell_block(char ** argv, uint64_t argc){
     my_block(pid);
     return;
 }
+
 void shell_unblock(char ** argv, uint64_t argc){
      paint_all_vd(BLACK);
     if(argc!=1){
@@ -107,12 +149,12 @@ void shell_unblock(char ** argv, uint64_t argc){
     return;  
 }
 
-//VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
+//VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS, DEJARLOS COMO ESTAN EN EL REPO DE LA CATEDRA
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
     fd_t fd={ STDIN, STDOUT, STDERR };
-    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0,fd);
+    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fd);
 }
 
 void proc_test_shell(){
@@ -192,7 +234,7 @@ void snake(){
 
         print("\nWrite letter \"q\" to exit\n\nIntroduce Players to start game (1 or 2): ", MAXBUFF);
 
-        get_string(buff, MAXBUFF);
+        my_get_string(buff, MAXBUFF);
 
         if(buff[0] =='q'&& buff[1] == '\0'){
             set_pixel_size(aux1);
@@ -228,63 +270,95 @@ void invalid_comand(){
     err_print("Invalid Command!! \n",18);
 }
 
-void run_piped_program(char * comand1, char* comand2){
-    int c1=-1;
-    int c2=-1;
-    for(int i=0; i<menuDIM+1; i++){
-        if(strcmp_user(comand1,menu[i].name)==0){
-            c1=i;
+typedef struct {
+    char name[64];
+    char *args[8];
+    int argc;
+} parsed_command;
+
+parsed_command parse_command(char *input) {
+    parsed_command result = {0};
+    result.argc = 0;
+
+    char *arg_start = my_strchr(input, '[');
+    if (arg_start != NULL) {
+        int len = arg_start - input;
+        my_strncpy(result.name, input, len);
+        result.name[len] = '\0';
+
+        arg_start++; // saltar '['
+        char *arg_end = my_strchr(arg_start, ']');
+        if (arg_end != NULL) {
+            *arg_end = '\0';
+            char *token = my_strtok(arg_start, ",");
+            while (token != NULL && result.argc < 8) {
+                result.args[result.argc++] = token;
+                token = my_strtok(NULL, ",");
+            }
         }
-        if(strcmp_user(comand2,menu[i].name)==0){
-            c2=i;
+    } else {
+        my_strcpy(result.name, input);
+    }
+
+    return result;
+}
+
+int run_special_command(parsed_command cmd) {
+    for (int i = 0; special_commands[i].name != NULL; i++) {
+        if (my_strcmp(cmd.name, special_commands[i].name) == 0) {
+            special_commands[i].func(cmd.args, cmd.argc);
+            return 1;
         }
     }
-    if(c1==-1|| c2==-1){
+    return 0;
+}
+
+void run_piped_program(char *input1, char *input2) {
+    parsed_command cmd1 = parse_command(input1);
+    parsed_command cmd2 = parse_command(input2);
+
+    int c1 = -1, c2 = -1;
+    for (int i = 0; i < menuDIM + 1; i++) {
+        if (my_strcmp(cmd1.name, menu[i].name) == 0) c1 = i;
+        if (my_strcmp(cmd2.name, menu[i].name) == 0) c2 = i;
+    }
+
+    if (run_special_command(cmd1) || run_special_command(cmd2)) return;
+
+    if (c1 == -1 || c2 == -1) {
         invalid_comand();
         return;
     }
 
-
     int64_t id_pipe = my_get_available_pipe_id();
-
-    if (id_pipe==-1){
-        err_print("No hay pipes disponibles\n",24);
+    if (id_pipe == -1) {
+        err_print("No hay pipes disponibles\n", 24);
         return;
     }
-    else
-    {
-       err_print("SI HAY PIPES DISPONIBLES\n",24);
-        return;
-    }
-    
 
-    //COMANDO 1= WRITER 
-    //COMANDO 2= READER
-    
-    fd_t com1_fds[FD_MAX]={STDIN,id_pipe+FD_MAX,STDERR}; //pongo la salida al pipe 
-    fd_t com2_fds[FD_MAX]={id_pipe+FD_MAX,STDOUT,STDERR};//pongo la entrada al pipe
+    fd_t fds1[FD_MAX] = { STDIN, id_pipe + FD_MAX, STDERR };   // escritor
+    fd_t fds2[FD_MAX] = { id_pipe + FD_MAX, STDOUT, STDERR };  // lector
 
-    char *argv[] = {"", NULL};
-    
-    my_create_process_shell((void(*))menu[c1].function, 0, 0, 0, com1_fds);
-    my_create_process_shell((void(*))menu[c2].function, 0, 0, 0,com2_fds);
+    my_create_process_shell((void (*)())menu[c1].function, cmd1.argc, cmd1.args, 0, fds1);
+    my_create_process_shell((void (*)())menu[c2].function, cmd2.argc, cmd2.args, 0, fds2);
 
     my_close_pipe(id_pipe);
+}
 
+void run_simple_program(char* input) {
+    parsed_command cmd = parse_command(input);
+
+    if (run_special_command(cmd)) return;
+
+    for (int i = 0; i < menuDIM + 1; i++) {
+        if (my_strcmp(cmd.name, menu[i].name) == 0) {
+            menu[i].function();
+            return;
+        }
     }
 
-
-
-void run_simple_program(char* comand){
-    for(int i=0; i<menuDIM+1; i++){
-                    if(strcmp_user(comand,menu[i].name)==0){
-                        menu[i].function();
-                        return;
-                    }
-                }
-                paint_all_vd(0x000000);
-                err_print("Invalid Command!! \n",18);
-
+    paint_all_vd(0x000000);
+    err_print("Invalid Command!! \n", 18);
 }
 
 void command_wait(){
@@ -294,10 +368,10 @@ void command_wait(){
 
         char buff[MAXBUFF];
 
-        get_string(buff, MAXBUFF);
+        my_get_string(buff, MAXBUFF);
 
 
-        if (strlen_user(buff)!=0){
+        if (my_strlen(buff)!=0){
 
             comands_pipe comands = get_comands_pipe(buff);
 
@@ -307,11 +381,10 @@ void command_wait(){
             else {
                 run_simple_program(buff);
                 }
-            }     
+            }
         }
-
     }
-    
+
 
 
 void font_size(){
@@ -323,7 +396,7 @@ void font_size(){
 
         print("Write letter \"q\" to exit\nPress \"i\" to increase the font\nPress \"d\" to decrease the font\n", MAXBUFF);
 
-        get_string(buff, MAXBUFF);
+        my_get_string(buff, MAXBUFF);
         
         if(buff[0] =='q' && buff[1] == '\0'){
             paint_all_vd(BLACK);
@@ -392,43 +465,3 @@ void show_regs(){
     paint_all_vd(BLACK);
     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
 }*/
-
-
-
-int64_t get_argv(char ** args, char * str){
-    if(str==NULL){
-        return 0;
-    }
-    int argc=0;
-    char buf[100]={0};
-    int j=0;
-    for(int i=0; str[i]!='\0' && str[i]!='|' && str[i]!=']'; i++){
-        if(str[i]==','){
-            args[argc]=my_malloc(sizeof(char)*j);
-            my_strcpy(args[argc], buf);
-            argc++;
-        }
-        buf[j]=str[i];
-    }
-    return argc;
-}
-
-
-int64_t parse_command(char * str, int num_cmd){
-    int i=0;
-    for(; str[i]!='\0' && str[i]!='|';i++){
-        if(str[i]=='['){
-            commands[num_cmd].argv=my_malloc(sizeof(char*)*4);//ver max args???
-            commands[num_cmd].argc=get_argv(commands[num_cmd].argv,str+i);
-        }
-    }
-}
-
-int64_t parse (char* str){
-    int count=0;
-    int i=0;
-    while(*str!='\0'){
-        i=parse_command(str, count);
-        str+i;
-    }
-}

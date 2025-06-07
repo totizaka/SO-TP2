@@ -14,8 +14,6 @@ typedef int64_t fd_t;
 #define MEDIUM_PRIORITY 4
 #define HIGH_PRIORITY 7
 
-
-
 typedef enum {
     FREE = 0,
     READY,
