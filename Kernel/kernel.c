@@ -244,11 +244,15 @@ int main()
 {	
 
 	load_idt();
+	
+
 
 	
 	// ncPrintHex(((EntryPoint)sample_code_module_address)());
 
 	draw_word(0xFFFFFF,"hola\n");
+
+
 	//char a[2]="a";
 	char *b[] = {"b", NULL};
 	char* c[2]={"c"};
@@ -256,6 +260,9 @@ int main()
 	char * argv_shell[] = {"sh"};
 
 	memory_manager = create_memory_manager(memory_address);
+
+	initialize_pipes();
+
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler((void(*))sample_code_module_address);
 	//new_process(, LOW_PRIORITY, NULL, 0);

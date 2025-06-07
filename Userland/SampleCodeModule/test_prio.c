@@ -9,10 +9,11 @@ void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
   // char *argv[] = {0};
   uint64_t i;
+  fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
   for (i = 0; i < TOTAL_PROCESSES; i++){
     char* argv[] = {"endless_loop_print", NULL};
-    pids[i] = my_create_process((void(*))endless_loop_print, argv, 1, 0);
+    pids[i] = my_create_process((void(*))endless_loop_print, argv, 1, 0,fds);
   }
 
   bussy_wait(WAIT);

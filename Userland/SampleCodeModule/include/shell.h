@@ -33,10 +33,10 @@ void ps();
 void sync_test_shell();
 void no_sync_test_shell();
 void show_mem_state();
-void shell_kill(int64_t pid);
-void shell_nice(int64_t pid, int64_t new_prio);//ver si tenemos en userland un enum de prios??
-void shell_block(int64_t pid);
-void shell_unblock(int64_t pid);
-void philos_shell();
+void shell_kill(char ** argv, uint64_t argc);
+void shell_nice(char ** argv, uint64_t argc);//ver si tenemos en userland un enum de prios??
+void shell_block(char ** argv, uint64_t argc);
+void shell_unblock(char ** argv, uint64_t argc);
+//void philos_shell();
 
 #endif

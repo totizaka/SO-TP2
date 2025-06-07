@@ -18,9 +18,7 @@
 
 #define MAX_PID 50
 
-#define LOW_PRIORITY 1
-#define MEDIUM_PRIORITY 4
-#define HIGH_PRIORITY 7
+
 
 
 typedef int ( *main_function ) ( char ** argv, uint64_t argc );
@@ -39,5 +37,7 @@ void list_processes();
 void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 process_info_list * get_all_processes();
 void ctrl_c_handler();
+int64_t piping(pid_t pid, fd_t fds[]);
+pid_t wait(pid_t pid, int64_t *ret);
 
 #endif

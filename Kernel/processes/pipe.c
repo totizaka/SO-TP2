@@ -175,11 +175,7 @@ int8_t close_pipe(int64_t id ){
         my_sem_close(pipe_array[id].mutex);
    }
    return (close_read==0||close_write==0);
-
-
-
 }
-
 
 int64_t get_available_pipe_id() {
     for (int i = 0; i < MAX_PIPES; i++) {

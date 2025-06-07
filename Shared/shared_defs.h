@@ -10,6 +10,12 @@
 typedef int64_t target_t;
 typedef int64_t fd_t;
 
+#define LOW_PRIORITY 1
+#define MEDIUM_PRIORITY 4
+#define HIGH_PRIORITY 7
+
+
+
 typedef enum {
     FREE = 0,
     READY,
@@ -18,7 +24,7 @@ typedef enum {
     ZOMBIE
 } process_state_t;
 
-typedef uint64_t pid_t;
+typedef int64_t pid_t;
 
 typedef struct process_info {
 	pid_t pid;
@@ -41,6 +47,4 @@ typedef struct memory_state {
 	uint64_t occupied;
 } memory_state;
 
-
-fd_t fds_standard[FD_MAX] = {STDIN, STDOUT, STDERR};
 #endif

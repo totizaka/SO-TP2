@@ -13,6 +13,16 @@ module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"font
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
 
+
+
+
+typedef struct command{
+char * name; 
+int argc;
+char ** argv;
+}command;
+
+static command commands[2];
 void help(){
     paint_all_vd(BLACK);
     print("To print the different functions of the shell >> enter: help\n", MAXBUFF);
@@ -38,24 +48,61 @@ void show_mem_state(){
 }
 
 //fijarnos como hacer para llamar a funcion con parametros
-void shell_kill(int64_t pid){
-    paint_all_vd(BLACK);
+void shell_kill(char ** argv, uint64_t argc){
+     paint_all_vd(BLACK);
+    if(argc!=1){
+        return;
+    }
+    int64_t pid;
+    if ((pid = satoi(argv[0])) <= 0){
+        print("ERROR: error getting PID", 30);
+      return;
+    }
     my_kill(pid);
     return;
 }
 //ver si tenemos en userland un enum de prios??
-void shell_nice(int64_t pid, int64_t new_prio){
+void shell_nice(char** argv, uint64_t argc){
     paint_all_vd(BLACK);
+    if(argc!=2){
+        return;
+    }
+    int64_t pid;
+    int64_t new_prio;
+    if ((pid = satoi(argv[0])) <= 0){
+        print("ERROR: error getting PID", 30);
+      return;
+    }
+    if ((new_prio = satoi(argv[1])) <= 0){
+        print("ERROR: error getting new priority", 30);
+      return;
+    }  
     my_nice(pid, new_prio);
     return;
 }
-void shell_block(int64_t pid){
+void shell_block(char ** argv, uint64_t argc){
     paint_all_vd(BLACK);
+    if(argc!=1){
+        return;
+    }
+    int64_t pid;
+    if ((pid = satoi(argv[0])) <= 0){
+        print("ERROR: error getting PID", 30);
+      return;
+    }
     my_block(pid);
     return;
 }
-void shell_unblock(int64_t pid){
-    paint_all_vd(BLACK);
+void shell_unblock(char ** argv, uint64_t argc){
+     paint_all_vd(BLACK);
+    if(argc!=1){
+        return;
+    }
+    int64_t pid;
+    if ((pid = satoi(argv[0])) <= 0){
+        print("ERROR: error getting PID", 30);
+      return;
+    }
     my_unblock(pid);
     return;  
 }
@@ -64,25 +111,31 @@ void shell_unblock(int64_t pid){
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
-    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fds_standard);
+    fd_t fd={ STDIN, STDOUT, STDERR };
+    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0,fd);
 }
 
 void proc_test_shell(){
     paint_all_vd(BLACK);
+     fd_t fd={ STDIN, STDOUT, STDERR };
+
     char *argv[] = {"test_processes", "30", NULL};  
-    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fds_standard);
+    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fd);
 }
 
 void prio_test_shell(){
     paint_all_vd(BLACK);
+    fd_t fd={ STDIN, STDOUT, STDERR };
+
     char *argv[] = {"test_prio", NULL};
-    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fds_standard);
+    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fd);
 }
 
 void sync_tests(char* use_sem){
     //ver si me armo mini funcion para armarme los argv con malloc??
+    fd_t fd={ STDIN, STDOUT, STDERR };
     char * argv[]={"sync_test","5", use_sem, NULL };
-    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fds_standard);
+    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fd);
 }
 
 void sync_test_shell(){
@@ -200,8 +253,8 @@ void run_piped_program(char * comand1, char* comand2){
     //COMANDO 1= WRITER 
     //COMANDO 2= READER
     
-    fd_t com1_fds[FD_MAX]={STDIN,id_pipe,STDERR}; //pongo la salida al pipe 
-    fd_t com2_fds[FD_MAX]={id_pipe,STDOUT,STDERR};//pongo la entrada al pipe
+    fd_t com1_fds[FD_MAX]={STDIN,id_pipe+FD_MAX,STDERR}; //pongo la salida al pipe 
+    fd_t com2_fds[FD_MAX]={id_pipe+FD_MAX,STDOUT,STDERR};//pongo la entrada al pipe
 
     char *argv[] = {"", NULL};
     
@@ -241,7 +294,7 @@ void command_wait(){
             comands_pipe comands = get_comands_pipe(buff);
 
             if (comands.pipe){
-                print("pipe$> ", MAXBUFF);                
+               run_piped_program(comands.cm1,comands.cm2);          
             }
             else {
                 run_simple_program(buff);
@@ -325,9 +378,49 @@ void show_regs(){
     }
     return;
 }
+
 //no esta terminado
-void philos_shell(){
+/*void philos_shell(){
     paint_all_vd(BLACK);
     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
+}*/
+
+
+
+int64_t get_argv(char ** args, char * str){
+    if(str==NULL){
+        return 0;
+    }
+    int argc=0;
+    char buf[100]={0};
+    int j=0;
+    for(int i=0; str[i]!='\0' && str[i]!='|' && str[i]!=']'; i++){
+        if(str[i]==','){
+            args[argc]=my_malloc(sizeof(char)*j);
+            my_strcpy(args[argc], buf);
+            argc++;
+        }
+        buf[j]=str[i];
+    }
+    return argc;
 }
 
+
+int64_t parse_command(char * str, int num_cmd){
+    int i=0;
+    for(; str[i]!='\0' && str[i]!='|';i++){
+        if(str[i]=='['){
+            commands[num_cmd].argv=my_malloc(sizeof(char*)*4);//ver max args???
+            commands[num_cmd].argc=get_argv(commands[num_cmd].argv,str+i);
+        }
+    }
+}
+
+int64_t parse (char* str){
+    int count=0;
+    int i=0;
+    while(*str!='\0'){
+        i=parse_command(str, count);
+        str+i;
+    }
+}

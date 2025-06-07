@@ -230,8 +230,10 @@ static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager){
 void syscall_my_free_mem_state(memory_state *state) {
     my_free(get_memory_manager(), state);
 }
+
+
 void syscall_create_pipe( int64_t id ){
-     create_pipe(  id );
+     create_pipe( id );
 }
 
 int8_t syscall_open_pipe(int64_t target, int role){
@@ -254,10 +256,12 @@ int64_t syscall_get_available_pipe_id(){
 
 int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
-    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) return -1;
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
+     return -1;
 
     target_t target = running->fd[fd]; 
     if (target == STDIN) {
+
         for (int i = 0; i < num_bytes; i++) {
             buffer[i] = get_char_pressed(); // read_terminal(...) cuando lo implementemos
         }
@@ -271,7 +275,8 @@ int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
 
 int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
-    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) return -1;
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) 
+        return -1;
 
     target_t target = running->fd[fd];
     if (target == STDOUT || target == STDERR) {

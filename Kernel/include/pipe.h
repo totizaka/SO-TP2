@@ -32,7 +32,7 @@ typedef struct pipe {
 
 
 
-
+void initialize_pipes();
 int8_t open_pipe(int64_t id, int role);
 int8_t close_pipe(int64_t id);
 
@@ -40,6 +40,7 @@ int8_t close_pipe(int64_t id);
 int64_t write_pipe(int64_t id, char* buffer, uint64_t num_bytes);
 int64_t read_pipe(int64_t id, char* buffer, int num_bytes);
 
+void create_pipe( int64_t id );
 
-
+int64_t get_available_pipe_id() ;
 #endif

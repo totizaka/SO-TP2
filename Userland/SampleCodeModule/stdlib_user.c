@@ -484,7 +484,7 @@ int8_t my_open_pipe(int64_t target, int role){
     return syscall_my_open_pipe( target,  role);
 }
 
-int8_t my_close_pipe(int64_t target, int role){
+int8_t my_close_pipe(int64_t target){
     return syscall_my_close_pipe(target);
 }
 

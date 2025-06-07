@@ -1,4 +1,4 @@
-
+/*
 #include <philos.h>
 
 
@@ -232,5 +232,6 @@ clean_resources();
 
 }
 
+*/
 
 

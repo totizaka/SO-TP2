@@ -20,6 +20,7 @@ uint64_t amount_of_processes = 0;
  }stack;
  
 void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
+int64_t piping(pid_t pid, fd_t fds[]);
 
 static uint64_t my_strlen ( const char *str ) 
 {
@@ -143,27 +144,44 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     {
         current->fd[i] = fds[i];
 
-        if (fds[i] < 0 || fds[i] >= MAX_PIPES) {  
-            current->fd[i] = -1; // por error (Chqear esto. Teninedo encuenta usar pipes y 0,-1,-2) 
+        if (fds[i] < 0 || fds[i] >= MAX_PIPES+FD_MAX) {  
+            current->fd[i] = -1; // por error (Chqear esto) 
         }
 
+        if (piping(current->pid, current->fd)==-1){
+            return -1;
+
+        }
     }
-
-
-
-
     ready(current);
     amount_of_processes++;
     return pid;
 }
 
 
-int64_t pipeing(pid_t pid, fd_t fds[]){
+int64_t piping(pid_t pid, fd_t fds[]){
+
     for (int i=0;i<FD_MAX;i++){
-        
+        int role;
+
+        if(fds[i]>=FD_MAX && fds[i] < FD_MAX + MAX_PIPES){//Para que no sea un FD ESTANDAR 
+
+            if (i==STDIN){
+                role= PIPE_READ;
+            }
+            else if (i==STDOUT)  //CHEQUEAR LOS PIPES CON LOS ERROES QUE NO ESTA CLARO 
+            {
+               role= PIPE_WRITE;
+            }
+
+            if (open_pipe(fds[i]-FD_MAX, role)==-1){
+                return -1;
+            }
+            
+        }
+
     }
-
-
+    return 0; 
 
 }
 
@@ -274,7 +292,7 @@ uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uin
 
 
 
-void process_wrapper(main_function rip, char **argv, uint64_t argc, uint64_t pid) {
+void process_wrapper(main_function rip, char **argv, uint64_t argc, int64_t pid) {
     int ret = rip(argv, argc);
     _cli();
     PCB * pcb= get_pcb(pid);

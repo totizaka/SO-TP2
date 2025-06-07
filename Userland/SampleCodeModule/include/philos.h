@@ -1,4 +1,4 @@
-#ifndef _PHILOS_H
+/*#ifndef _PHILOS_H
 #define _PHILOS_H
 
 #include <stdlib_user.h>
@@ -23,3 +23,5 @@ typedef enum {
 int64_t philos ( char ** argv, int argc );
 
 #endif
+
+*/

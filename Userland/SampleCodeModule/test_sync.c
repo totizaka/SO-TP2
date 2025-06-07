@@ -63,10 +63,12 @@ uint64_t test_sync(char *argv[], uint64_t argc) {
   global = 0;
 
   uint64_t i;
+    fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
+
   
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = my_create_process((void(*))my_process_inc, argvDec, 4, 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc, argvInc, 4, 0);
+    pids[i] = my_create_process((void(*))my_process_inc, argvDec, 4, 0,fds);
+    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc, argvInc, 4, 0,fds);
     print("test_sync: enloqueciendo\n", 50);
   }
 

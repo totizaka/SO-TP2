@@ -35,7 +35,7 @@ uint64_t my_process_inc1() {
   use_sem = 1;
 
   if (use_sem)
-    if (!my_sem_open(SEM_ID, 1, 1)) {
+    if (!my_sem_open(SEM_ID, 1, 1,0)) {
       draw_word(0xFFFFFF ,"test_sync: ERROR opening semaphore\n");
       return -1;
     }
@@ -79,7 +79,7 @@ uint64_t my_process_inc2() {
   use_sem = 1;
 
   if (use_sem)
-    if (my_sem_open(SEM_ID, 1, 1)==-1) {
+    if (my_sem_open(SEM_ID, 1, 1, 0)==-1) {
       draw_word(0xFFFFFF ,"test_sync: ERROR opening semaphore\n");
       return -1;
     }
@@ -115,13 +115,14 @@ uint64_t test_sync() { //{n, use_sem, 0}
   int64_t fd[3] = {0, 1, 2};
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = new_process((void(*))my_process_inc1, 1, NULL, 0,fd);
-    pids[i + TOTAL_PAIR_PROCESSES] = new_process((void(*))my_process_inc2, 1, NULL, 0,fd);
+    pids[i] = new_process((void(*))my_process_inc1, 1, NULL, 0,fd,0);
+    pids[i + TOTAL_PAIR_PROCESSES] = new_process((void(*))my_process_inc2, 1, NULL, 0,fd,0);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    int64_t sem = wait(pids[i]);
-    wait(pids[i + TOTAL_PAIR_PROCESSES]);
+    int ret;
+    int64_t sem = wait(pids[i], &ret);
+    wait(pids[i + TOTAL_PAIR_PROCESSES], &ret);
   }
 
   char str[20];

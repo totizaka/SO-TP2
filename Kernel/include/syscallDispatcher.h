@@ -9,7 +9,6 @@
 #include <process.h>
 #include <semaphores.h>
 #include <shared_defs.h>
-#include <fd.h>
 #include <pipe.h>
 
 static void syscall_write_handler(int fd, char *buffer, uint64_t length);
