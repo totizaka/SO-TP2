@@ -8,7 +8,7 @@
 
 module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
 {"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"memstate", show_mem_state}};
+{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"memstate", show_mem_state}, {"writer", write_process_test}, {"reader", read_process_test}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -107,7 +107,42 @@ void shell_unblock(char ** argv, uint64_t argc){
     return;  
 }
 
+
+void write_process_test(){
+    char *to_print = "holis!! ESTOY PIPEANDOOOO";
+    int num_byte=strlen_user(to_print);
+    if (my_write(STDOUT,to_print,num_byte)){
+        print("el write anda creo ", 16);
+    }
+}
+
+void read_process_test(){
+    char buff[64];
+    // buff[0]='1';
+    // char c;
+    // int i=1;
+    // while(c!='\0' && i<30){
+    //     c=get_char_user();
+    //     buff[i]=c;
+    // }
+    // print(buff, 30);
+    int read=my_read(STDIN,buff,63);
+    if (read > 0) {
+        buff[read] = '\0';
+        print("Leido del pipe: ", 16);
+        print(buff, read);
+    }
+
+}
+
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
+// void p1(){
+    
+//     paint_all_vd(BLACK);
+//     fd_t fd={ STDIN, STDOUT, STDERR };
+//     int pid  = my_create_process_shell((void(*))process1, NULL, 0, 0,fd);
+// }
+
 
 void mm_test_shell(){
     paint_all_vd(BLACK);
@@ -228,6 +263,7 @@ void invalid_comand(){
     err_print("Invalid Command!! \n",18);
 }
 
+
 void run_piped_program(char * comand1, char* comand2){
     int c1=-1;
     int c2=-1;
@@ -251,12 +287,6 @@ void run_piped_program(char * comand1, char* comand2){
         err_print("No hay pipes disponibles\n",24);
         return;
     }
-    else
-    {
-       err_print("SI HAY PIPES DISPONIBLES\n",24);
-        return;
-    }
-    
 
     //COMANDO 1= WRITER 
     //COMANDO 2= READER

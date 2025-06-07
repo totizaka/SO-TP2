@@ -6,7 +6,7 @@
 #include <snake.h>
 #include <philos.h>
 
-#define menuDIM 13
+#define menuDIM 15
 #define BLACK 0x000000
 
 typedef struct module {
@@ -37,6 +37,8 @@ void shell_kill(char ** argv, uint64_t argc);
 void shell_nice(char ** argv, uint64_t argc);//ver si tenemos en userland un enum de prios??
 void shell_block(char ** argv, uint64_t argc);
 void shell_unblock(char ** argv, uint64_t argc);
+void write_process_test();
+void read_process_test();
 //void philos_shell();
 
 #endif

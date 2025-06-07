@@ -492,13 +492,25 @@ int64_t my_get_available_pipe_id(){
     return syscall_my_get_available_pipe_id();
 }
 
-int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
-    return syscall_my_write_pipe(target, buffer, num_bytes);
+// int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
+//     return syscall_my_write_pipe(target, buffer, num_bytes);
+// }
+
+// int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
+//     return syscall_my_read_pipe(target, buffer, num_bytes);
+// }
+
+
+int64_t my_read(int64_t fd, char* buffer, int num_bytes){
+    return syscall_my_read(fd, buffer, num_bytes);
+
 }
 
-int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
-    return syscall_my_read_pipe(target, buffer, num_bytes);
+int64_t my_write(int64_t fd, char* buffer, int num_bytes){
+    return syscall_my_write(fd, buffer, num_bytes);
 }
+
+
 
 void my_strcat(char *dest, const char *src) {
     while (*dest) {
