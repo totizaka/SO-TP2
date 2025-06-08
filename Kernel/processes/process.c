@@ -139,50 +139,46 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
     current->rsp = load_stack(rip, current->rsp, args_cpy, argc-1, pid);//  inciializar el stack
     current->args = args_cpy;
     current->argc = argc - 1; // argc sin el nombre del proceso
-    for (int i = 0; i < FD_MAX; i++)
-    {
-        current->fd[i] = fds[i];
 
-        if (fds[i] < 0 || fds[i] >= MAX_PIPES+FD_MAX) {  
-            current->fd[i] = -1; // por error (Chqear esto) 
+    for (int i = 0; i < FD_MAX; i++) {
+        if (fds[i] >= 0 && fds[i] < MAX_PIPES + FD_MAX) {
+            current->fd[i] = fds[i];
+        } else {
+            current->fd[i] = -1;
         }
-
     }
     
     if (piping(current->pid, current->fd)==-1){
-            return -1;
-
+        my_free(get_memory_manager(), (void *)rsp_malloc);
+        pcb_table[pid].state = FREE;
+        return -1;
     }
+
     ready(current);
     amount_of_processes++;
     return pid;
 }
 
 
-int64_t piping(pid_t pid, fd_t fds[]){
+int64_t piping(pid_t pid, fd_t fds[]) {
+    for (int i = 0; i < FD_MAX; i++) {
+        int role = -1;
 
-    for (int i=0;i<FD_MAX;i++){
-        int role;
-
-        if(fds[i]>=FD_MAX && fds[i] < FD_MAX + MAX_PIPES){//Para que no sea un FD ESTANDAR 
-
-            if (i==STDIN){
-                role= PIPE_READ;
-            }
-            else if (i==STDOUT)  //CHEQUEAR LOS PIPES CON LOS ERROES QUE NO ESTA CLARO 
-            {
-               role= PIPE_WRITE;
-            }
-
-            if (open_pipe(fds[i]-FD_MAX, role, pid)==-1){
-                return -1;
-            }
-            
+        if (i == STDIN) {
+            role = PIPE_READ;
+        } else if (i == STDOUT) {
+            role = PIPE_WRITE;
         }
 
+        // Sólo proceder si se definió un rol y el fd apunta a un pipe
+        if (role != -1 && fds[i] >= FD_MAX && fds[i] < FD_MAX + MAX_PIPES) {
+            int pipe_id = fds[i] - FD_MAX;
+            if (open_pipe(pipe_id, role, pid) == -1) {
+                return -1;
+            }
+        }
     }
-    return 0; 
-
+    return 0;
 }
 
 

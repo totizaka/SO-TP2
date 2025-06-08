@@ -153,9 +153,10 @@ void shell_unblock(char ** argv, uint64_t argc){
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS, DEJARLOS COMO ESTAN EN EL REPO DE LA CATEDRA
 
 void write_process_test(){
+    print("Iniciando write_process_test\n", 30);
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
     int num_byte = my_strlen(to_print);
-    if (my_write(STDOUT,to_print,num_byte)!=-1){
+    if (my_write(STDOUT, (char*)to_print, num_byte)!=-1){
         print("el write anda creo ", 16);
     }
 }
@@ -176,6 +177,7 @@ void read_process_test(){
         print("Leido del pipe: ", 16);
         print(buff, read);
     }
+    print("no lei nada\n", 26);
 
 }
 
@@ -303,7 +305,8 @@ void snake(){
 
 
 void invalid_comand(){
-       paint_all_vd(0x000000);
+    // paint_all_vd(0x000000);
+    print("Invalid Command!! \n",18);
     err_print("Invalid Command!! \n",18);
 }
 
@@ -376,10 +379,23 @@ void run_piped_program(char *input1, char *input2) {
     fd_t fds1[FD_MAX] = { STDIN, id_pipe + FD_MAX, STDERR };   // escritor
     fd_t fds2[FD_MAX] = { id_pipe + FD_MAX, STDOUT, STDERR };  // lector
 
-    my_create_process_shell((void (*)())menu[c1].function, cmd1.argc, cmd1.args, 0, fds1);
-    my_create_process_shell((void (*)())menu[c2].function, cmd2.argc, cmd2.args, 0, fds2);
+    uint64_t pid1 = my_create_process((void (*)())menu[c1].function, cmd1.args, cmd1.argc, 0, fds1);
+    uint64_t pid2 = my_create_process((void (*)())menu[c2].function, cmd2.args, cmd2.argc, 0, fds2);
 
-    my_close_pipe(id_pipe);
+    if (pid1 == -1 || pid2 == -1) {
+        err_print("Fallo la creacion de procesos con pipe\n", 39);
+        return;
+    }
+
+    print("Esperando writer\n", 17);
+    my_wait(pid1, NULL);
+
+    print("Esperando reader\n", 17);
+    my_wait(pid2, NULL);
+
+    print("Cerrando pipe\n", 14);
+
+    my_close_pipe(id_pipe);  // solo después de que ambos hayan terminado
 }
 
 void run_simple_program(char* input) {
@@ -413,7 +429,7 @@ void command_wait(){
             comands_pipe comands = get_comands_pipe(buff);
 
             if (comands.pipe){
-               run_piped_program(comands.cm1,comands.cm2);          
+                run_piped_program(comands.cm1,comands.cm2);          
             }
             else {
                 run_simple_program(buff);

@@ -261,21 +261,31 @@ int64_t syscall_get_available_pipe_id(){
 int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
     PCB* running = get_running();
 
-    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
-     return -1;
+   if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
+    return -1;
 
-    target_t target = running->fd[fd]; 
-    if (target == STDIN) {
+target_t target = running->fd[fd];
 
+if (target == STDOUT || target == STDERR)
+    return -1;
+
+if (target == STDIN) {
+    // ¿Está redirigido a un pipe o al teclado?
+    // Si el valor real es `STDIN`, es teclado.
+    // Si no, es un pipe u otra cosa.
+    target_t real_target = running->fd[STDIN];
+    if (real_target == STDIN) {
         for (int i = 0; i < num_bytes; i++) {
-            buffer[i] = get_char_pressed(); // read_terminal(...) cuando lo implementemos
+            buffer[i] = get_char_pressed();
         }
         return num_bytes;
-    } else if (target == STDOUT || target == STDERR) {
-        return -1;
     } else {
-        return syscall_read_pipe(target, buffer, num_bytes);
+        // redirigido → pipe
+        return syscall_read_pipe(real_target, buffer, num_bytes);
     }
+} else {
+    return syscall_read_pipe(target, buffer, num_bytes);
+}
 }
 
 int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
