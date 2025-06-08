@@ -509,7 +509,6 @@ void run_simple_program(char* input) {
 }
 
 void command_wait(){
-    while (1){
         print("\n",1);
         print("shell_TP_ARQUI$> ", MAXBUFF);
 
@@ -528,8 +527,9 @@ void command_wait(){
             else {
                 run_simple_program(buff);
                 }
+            }else{
+                return;
             }
-        }
     }
 
 

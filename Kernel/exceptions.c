@@ -39,14 +39,15 @@ void exception_dispatcher(int exception, uint64_t * regs) {
 		_sti();
 		draw_word(white, "Press key q to continue");
 
-		while(buff!='q'){
-			buff=get_char_pressed();
-
+		while ( !buf_has_next() ) {
+		_hlt();
 		}
 		_cli();
+		get_char_pressed();
 		pic_master_mask(0xFC);	
 		paint_all_vd(0x000000);
 		return;
+
 
 
 }

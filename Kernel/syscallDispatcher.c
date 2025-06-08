@@ -86,10 +86,7 @@ int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
         return -1;
 
     if (target == STDIN) {
-        for (int i = 0; i < num_bytes; i++) {
-            buffer[i] = get_char_pressed();
-        }
-        return num_bytes;
+        return read_stdin(buffer, num_bytes);
         }
     else {
         return syscall_read_pipe(target, buffer, num_bytes);
