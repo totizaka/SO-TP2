@@ -20,8 +20,8 @@ extern uint64_t data_regs[18];
 // Array de punteros a funciones que reciben los mismos argumentos
 void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8) = {
 
-    (void*)syscall_read_handler, 
-    (void*)syscall_write_handler, 
+    (void*)syscall_read, 
+    (void*)syscall_write,
     (void*)syscall_time_handler,
     (void*)syscall_draw_pixel_handler, 
     (void*)syscall_draw_square_handler, 
@@ -61,9 +61,7 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_write_pipe ,
     (void*)syscall_read_pipe,//40
     (void*)syscall_close_pipe,//41
-    (void*)syscall_get_available_pipe_id,
-    (void*)syscall_read, 
-    (void*)syscall_write,
+    (void*)syscall_get_available_pipe_id
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
@@ -75,20 +73,47 @@ void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
 
 }
 
-static void syscall_write_handler(int fd, char *buffer, uint64_t length) {
 
-    draw_word(0xffffff, buffer);
+int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
+    PCB* running = get_running();
+
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
+        return -1;
+
+    target_t target = running->fd[fd];
+
+    if (target == STDOUT || target == STDERR)
+        return -1;
+
+    if (target == STDIN) {
+        for (int i = 0; i < num_bytes; i++) {
+            buffer[i] = get_char_pressed();
+        }
+        return num_bytes;
+        }
+    else {
+        return syscall_read_pipe(target, buffer, num_bytes);
+    }
 }
 
-static uint64_t syscall_read_handler(int fd, char *buffer){
-
-    if (fd != 0){
+int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
+    PCB* running = get_running();
+    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1){
         return -1;
     }
 
-    *buffer = get_char_pressed();
-    return 0;
+    target_t target = running->fd[fd];
+    if (target == STDOUT || target == STDERR) {
+        draw_word(0xffffff, buffer);
+        return num_bytes;
+
+    } else if (target == STDIN) {
+        return -1; // No se puede escribir en STDIN
+    } else {
+        return syscall_write_pipe(target, buffer, num_bytes);
+    }
 }
+
 
 static uint64_t syscall_time_handler(){
     return get_current_time_binary();
@@ -257,47 +282,3 @@ int64_t syscall_get_available_pipe_id(){
     return get_available_pipe_id();
 }
 
-
-int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
-    PCB* running = get_running();
-
-    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1)
-        return -1;
-
-    target_t target = running->fd[fd];
-
-    if (target == STDOUT || target == STDERR)
-        return -1;
-
-    if (target == STDIN) {
-        target_t real_target = running->fd[STDIN];
-        if (real_target == STDIN) {
-            for (int i = 0; i < num_bytes; i++) {
-                buffer[i] = get_char_pressed();
-            }
-            return num_bytes;
-        } else {
-            return syscall_read_pipe(real_target, buffer, num_bytes);
-        }
-    } else {
-        return syscall_read_pipe(target, buffer, num_bytes);
-    }
-}
-
-int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
-    PCB* running = get_running();
-    if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1){
-        return -1;
-    }
-
-    target_t target = running->fd[fd];
-    if (target == STDOUT || target == STDERR) {
-        draw_word(0xffffff, buffer);
-        return num_bytes;
-
-    } else if (target == STDIN) {
-        return -1; // No se puede escribir en STDIN
-    } else {
-        return syscall_write_pipe(target, buffer, num_bytes);
-    }
-}

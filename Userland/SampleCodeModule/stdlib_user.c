@@ -125,11 +125,11 @@ void my_strcat(char *dest, const char *src) {
 }
 
 void print(const char* buf, uint64_t count) {
-	syscall_write(1, buf, count);
+	syscall_my_write(STDOUT, buf, count);
 }
 
 void err_print(char* buff, int count){
-    syscall_write(2, buff, count);
+    syscall_my_write(STDERR, buff, count);
 }
 
 comands_pipe get_comands_pipe(char* input){
@@ -222,7 +222,7 @@ void print_time() {
 
 char get_char_user(){
 	char c;
-	syscall_read(0,&c);
+	syscall_my_read(STDIN,&c,1);
 	return c;
 }
 
@@ -569,6 +569,7 @@ int64_t my_read(int64_t fd, char* buffer, int num_bytes){
 int64_t my_write(int64_t fd, char* buffer, int num_bytes){
     return syscall_my_write(fd, buffer, num_bytes);
 }
+
 
 
 

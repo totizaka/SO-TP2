@@ -1,5 +1,5 @@
-GLOBAL syscall_read
-GLOBAL syscall_write
+GLOBAL syscall_my_read
+GLOBAL syscall_my_write
 GLOBAL syscall_time
 GLOBAL syscall_get_width_vd
 GLOBAL syscall_get_height_vd
@@ -41,17 +41,16 @@ GLOBAL syscall_my_write_pipe
 GLOBAL syscall_my_read_pipe
 GLOBAL syscall_my_close_pipe
 GLOBAL syscall_my_get_available_pipe_id
-GLOBAL syscall_my_read
-GLOBAL syscall_my_write
+
 
 section .text
 
-syscall_read:
+syscall_my_read:
     mov rax, 0x00
     int 80h
     ret
 
-syscall_write:
+syscall_my_write:
     mov rax, 0x01
     int 80h
     ret
@@ -257,12 +256,3 @@ syscall_my_get_available_pipe_id:
     int 80h
     ret
 
-syscall_my_read:
-    mov rax, 0x2A
-    int 80h
-    ret
-
-syscall_my_write:
-    mov rax, 0x2B
-    int 80h
-    ret

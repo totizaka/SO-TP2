@@ -262,8 +262,6 @@ int main()
 	memory_manager = create_memory_manager(memory_address);
 	initialize_pipes(); 
 	
-
-
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler((void(*))sample_code_module_address);
 	//new_process(, LOW_PRIORITY, NULL, 0);

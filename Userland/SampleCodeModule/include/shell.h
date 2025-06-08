@@ -7,7 +7,7 @@
 #include <philos.h>
 #include <shell_apps.h>
 
-#define menuDIM 17
+#define menuDIM 22
 #define BLACK 0x000000
 #define BUILTIN 1
 #define NOT_BUILTIN 0
@@ -58,6 +58,13 @@ void shell_unblock(char ** argv, uint64_t argc);
 void test_a();
 void write_process_test();
 void read_process_test();
+
+void slow_writer_test(void);
+void fast_reader_test(void);
+void blocking_reader_test(void);
+void orphan_writer_test(void);
+void eof_reader_test(void);
+
 //void philos_shell();
 
 #endif

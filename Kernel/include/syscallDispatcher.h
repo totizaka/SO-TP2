@@ -11,8 +11,9 @@
 #include <shared_defs.h>
 #include <pipe.h>
 
-static void syscall_write_handler(int fd, char *buffer, uint64_t length);
-static uint64_t syscall_read_handler(int fd, char *buffer);
+int64_t syscall_read (int64_t fd, char* buffer, int num_bytes);
+int64_t syscall_write (int64_t fd, char* buffer, int num_bytes);
+
 static uint64_t syscall_time_handler();
 static void syscall_draw_pixel_handler(uint32_t color, uint64_t x, uint64_t y); 
 static void syscall_draw_square_handler(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
@@ -58,9 +59,6 @@ int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes);
 int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes);
 int8_t syscall_close_pipe(int64_t target);
 int64_t syscall_get_available_pipe_id();
-
-int64_t syscall_read (int64_t fd, char* buffer, int num_bytes);
-int64_t syscall_write (int64_t fd, char* buffer, int num_bytes);
 
 
 #endif  

@@ -55,7 +55,12 @@ module menu[] = {
     {"testa", t_a, prepare_args_test_a, NOT_BUILTIN},
     {"writer", write_process_test, prepare_args_default, NOT_BUILTIN},
     {"reader", read_process_test, prepare_args_default, NOT_BUILTIN},
-    {"loop", shell_loop, prepare_args_loop, NOT_BUILTIN}
+    {"loop", shell_loop, prepare_args_loop, NOT_BUILTIN},
+    {"slowwriter", slow_writer_test, prepare_args_default, NOT_BUILTIN},
+    {"fastreader", fast_reader_test, prepare_args_default, NOT_BUILTIN},
+    {"blockingreader", blocking_reader_test, prepare_args_default, NOT_BUILTIN},
+    {"orphanwriter", orphan_writer_test, prepare_args_default, NOT_BUILTIN},
+    {"eofreader", eof_reader_test, prepare_args_default, NOT_BUILTIN},
 };
 
 uint64_t regs[18];
@@ -195,6 +200,8 @@ void write_process_test(){
     else{
         print("no anda my_write", MAXBUFF);
     }
+    if (STDOUT >= FD_MAX) my_close_pipe(STDOUT);
+
 }
 
 void read_process_test(){
@@ -209,6 +216,64 @@ void read_process_test(){
     else {
         print("Error al leer del pipe\n", 22);
     }
+    if (STDOUT >= FD_MAX) my_close_pipe(STDIN);
+
+}
+
+
+void slow_writer_test() {
+    char *msg = "Mensaje lento por pipe...";
+    for (int i = 0; msg[i] != 0; i++) {
+        my_write(STDOUT, &msg[i], 1);
+        for (volatile int j = 0; j < 1000000; j++); // Pequeño delay
+    }
+    if (STDOUT >= FD_MAX) my_close_pipe(STDOUT);
+}
+
+void fast_reader_test() {
+    char buff[64];
+    int read;
+    while ((read = my_read(STDIN, buff, 63)) > 0) {
+        buff[read] = '\0';
+        print("Leido: ", 7);
+        print(buff, read);
+    }
+    if (STDIN >= FD_MAX) my_close_pipe(STDIN);
+}
+void blocking_reader_test() {
+    char buff[64];
+    int read = my_read(STDIN, buff, 63);
+    if (read > 0) {
+        buff[read] = '\0';
+        print("Reader recibió: ", 17);
+        print(buff, read);
+    } else {
+        print("Reader no recibió nada\n", 24);
+    }
+    if (STDIN >= FD_MAX) my_close_pipe(STDIN);
+}
+
+void orphan_writer_test() {
+    char *msg = "Esto no debería llegar a nadie";
+    int res = my_write(STDOUT, msg, my_strlen(msg));
+    if (res == -1) {
+        print("No hay reader, write falló como corresponde\n", 41);
+    } else {
+        print("ERROR: write no falló\n", 23);
+    }
+    if (STDOUT >= FD_MAX) my_close_pipe(STDOUT);
+}
+
+void eof_reader_test() {
+    char buff[64];
+    int read;
+    while ((read = my_read(STDIN, buff, 63)) > 0) {
+        buff[read] = '\0';
+        print("EOF Reader: ", 12);
+        print(buff, read);
+    }
+    print("EOF recibido, reader termina\n", 29);
+    if (STDIN >= FD_MAX) my_close_pipe(STDIN);
 }
 
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
