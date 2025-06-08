@@ -38,15 +38,17 @@ void keyboard_handler() {
         _cli(); // Deshabilitar interrupciones
         ctrl_c_handler(); // Llamar al manejador en process.c
         ctrl_pressed = 0; // Resetear el estado de CTRL
-    } else if (scan_code == 0x38 && ctrl_pressed) { // Scan code de D
+    } else if (scan_code == 0x20 && ctrl_pressed) { // Scan code de D
         _cli(); // Deshabilitar interrupciones
-        // ctrl_d_handler(); // Llamar al manejador en process.d
+        if (dim < BUFF_MAX){
+            char_to_ret[dim] = EOF;
+            dim++;
+        }
         ctrl_pressed = 0; // Resetear el estado de CTRL
     } else {
         ctrl_pressed = 0; // Resetear si no es CTRL+C
     }
 
-	
 	if ( dim < BUFF_MAX ) {
         char_to_ret[dim] = scan_codes[scan_code];
 		dim++;
