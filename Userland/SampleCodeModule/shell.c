@@ -59,15 +59,6 @@ arg_preparer_map_t arg_preparers[] = {
     {NULL, NULL} // Fin del mapa.
 };
 
-char **get_args_preparer(parsed_command cmd) {
-    for (int i = 0; arg_preparers[i].name != NULL; i++) {
-        if (my_strcmp(cmd.name, arg_preparers[i].name) == 0) {
-            return arg_preparers[i].preparer(cmd);
-        }
-    }
-    return cmd.args; // Usa los argumentos tal como están si no hay preparador específico.
-}
-
 module menu[] = {
     {"help", help, prepare_args_default, BUILTIN}, 
     {"snake", snake, prepare_args_default, BUILTIN}, 
@@ -76,13 +67,13 @@ module menu[] = {
     {"time", show_time, prepare_args_default, BUILTIN},
     {"div0", div0_exc, prepare_args_default, BUILTIN}, 
     {"opcode", opcode_exc, prepare_args_default, BUILTIN}, 
-    {"mmtest", mm_test_shell, prepare_args_default, NOT_BUILTIN}, 
-    {"testprio", prio_test_shell, prepare_args_test_prio, NOT_BUILTIN}, 
-    {"testprocesses", proc_test_shell, prepare_args_test_processes, NOT_BUILTIN}, 
-    {"testsyncro", sync_test_shell, prepare_args_test_syncro, NOT_BUILTIN}, 
+    {"mmtest", test_mm, prepare_args_default, NOT_BUILTIN}, 
+    {"testprio", test_prio, prepare_args_test_prio, NOT_BUILTIN}, 
+    {"testprocesses", test_processes, prepare_args_test_processes, NOT_BUILTIN}, 
+    {"testsyncro", test_sync, prepare_args_test_syncro, NOT_BUILTIN}, 
     {"ps", ps, prepare_args_default, BUILTIN},
     {"memstate", show_mem_state, prepare_args_default, BUILTIN}, 
-    {"testa", test_a, prepare_args_test_a, NOT_BUILTIN},
+    {"testa", t_a, prepare_args_test_a, NOT_BUILTIN},
     {"writer", write_process_test, prepare_args_default, NOT_BUILTIN},
     {"reader", read_process_test, prepare_args_default, NOT_BUILTIN},
     {"loop", shell_loop, prepare_args_default, NOT_BUILTIN}
@@ -108,6 +99,15 @@ special_command_t special_commands[] = {
     {NULL, NULL}
 };
 
+char **get_args_preparer(parsed_command cmd) {
+    for (int i = 0; arg_preparers[i].name != NULL; i++) {
+        if (my_strcmp(cmd.name, arg_preparers[i].name) == 0) {
+            return arg_preparers[i].preparer(cmd);
+        }
+    }
+    return cmd.args; // Usa los argumentos tal como están si no hay preparador específico.
+}
+
 void help(){
     paint_all_vd(BLACK);
     print("Enter: help >> To print the different functions of the shell\n", MAXBUFF);
@@ -128,30 +128,6 @@ void help(){
     print("Enter: testprio >> To test the Process Manager\n", MAXBUFF);
     print("Enter: testprocesses >> To test the Priority Manager\n", MAXBUFF);
     print("Enter: testsyncro >> To test Synchronization\n", MAXBUFF);
-    return;
-}
-
-
-// para probar kill, nice, block y unblock
-void t_a(){
-	int x;
-		while(1){
-		print("a", MAXBUFF);
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-}}
-
-void test_a(){
-    paint_all_vd(BLACK);
-    fd_t fd={ STDIN, STDOUT, STDERR };
-    char *argv[] = {"test_a", NULL};
-    int pid  = my_create_process((void(*))t_a, argv, 1, 0, fd);
-    if(pid==-1){
-        err_print("Error creating process\n", 22);
-    }
     return;
 }
 
@@ -232,7 +208,6 @@ void shell_unblock(char ** argv, uint64_t argc){
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS, DEJARLOS COMO ESTAN EN EL REPO DE LA CATEDRA
 
 void write_process_test(){
-    print("Iniciando write_process_test\n", 30);
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
     int num_byte = my_strlen(to_print);
     if (my_write(STDOUT, to_print, num_byte)!=-1){
@@ -250,6 +225,7 @@ void read_process_test(){
         buff[read] = '\0';
         print("Leido del pipe: ", 16);
         print(buff, read);
+        print("\n", 1);
     }
     else {
         print("Error al leer del pipe\n", 22);
@@ -265,47 +241,47 @@ void read_process_test(){
 // }
 
 
-void mm_test_shell(){
-    paint_all_vd(BLACK);
-    fd_t fd={ STDIN, STDOUT, STDERR };
-    int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fd);
-}
+// void mm_test_shell(){
+//     paint_all_vd(BLACK);
+//     fd_t fd={ STDIN, STDOUT, STDERR };
+//     int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fd);
+// }
 
-void proc_test_shell(){
-    paint_all_vd(BLACK);
-     fd_t fd={ STDIN, STDOUT, STDERR };
+// void proc_test_shell(){
+//     paint_all_vd(BLACK);
+//      fd_t fd={ STDIN, STDOUT, STDERR };
 
-    char *argv[] = {"test_processes", "30", NULL};  
-    int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fd);
-}
+//     char *argv[] = {"test_processes", "30", NULL};  
+//     int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fd);
+// }
 
-void prio_test_shell(){
-    paint_all_vd(BLACK);
-    fd_t fd={ STDIN, STDOUT, STDERR };
+// void prio_test_shell(){
+//     paint_all_vd(BLACK);
+//     fd_t fd={ STDIN, STDOUT, STDERR };
 
-    char *argv[] = {"test_prio", NULL};
-    int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fd);
-}
+//     char *argv[] = {"test_prio", NULL};
+//     int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fd);
+// }
 
-void sync_tests(char* use_sem){
-    //ver si me armo mini funcion para armarme los argv con malloc??
-    fd_t fd={ STDIN, STDOUT, STDERR };
-    char * argv[]={"sync_test","5", use_sem, NULL };
-    int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fd);
-}
+// void sync_tests(char* use_sem){
+//     //ver si me armo mini funcion para armarme los argv con malloc??
+//     fd_t fd={ STDIN, STDOUT, STDERR };
+//     char * argv[]={"sync_test","5", use_sem, NULL };
+//     int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fd);
+// }
 
-void sync_test_shell(){
-    paint_all_vd(BLACK);
-    char* use_sem="1\0";
-    sync_tests(use_sem);
-    //ver si tiro msjito dependiendo valor ret??
-}
+// void sync_test_shell(){
+//     paint_all_vd(BLACK);
+//     char* use_sem="1\0";
+//     sync_tests(use_sem);
+//     //ver si tiro msjito dependiendo valor ret??
+// }
 
-void no_sync_test_shell(){
-    paint_all_vd(BLACK);
-    char* use_sem="0\0";
-    sync_tests(use_sem);
-}
+// void no_sync_test_shell(){
+//     paint_all_vd(BLACK);
+//     char* use_sem="0\0";
+//     sync_tests(use_sem);
+// }
 
 
 void opcode_exc(){

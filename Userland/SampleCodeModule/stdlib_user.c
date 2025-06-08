@@ -569,3 +569,20 @@ int64_t my_read(int64_t fd, char* buffer, int num_bytes){
 int64_t my_write(int64_t fd, char* buffer, int num_bytes){
     return syscall_my_write(fd, buffer, num_bytes);
 }
+
+
+
+
+// borrar
+
+// para probar kill, nice, block y unblock
+void t_a(){
+	int x;
+		while(1){
+		print("a", MAXBUFF);
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
+}}

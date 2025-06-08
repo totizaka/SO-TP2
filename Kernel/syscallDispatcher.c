@@ -270,9 +270,6 @@ int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
         return -1;
 
     if (target == STDIN) {
-        // ¿Está redirigido a un pipe o al teclado?
-        // Si el valor real es `STDIN`, es teclado.
-        // Si no, es un pipe u otra cosa.
         target_t real_target = running->fd[STDIN];
         if (real_target == STDIN) {
             for (int i = 0; i < num_bytes; i++) {
@@ -280,7 +277,6 @@ int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
             }
             return num_bytes;
         } else {
-            // redirigido → pipe
             return syscall_read_pipe(real_target, buffer, num_bytes);
         }
     } else {
@@ -293,10 +289,6 @@ int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
     if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1){
         return -1;
     }
-
-    char msg[64];
-    uint_to_base(fd, msg, 10); draw_word(0xFFFFFF, msg);
-    uint_to_base(running->fd[fd], msg, 10); draw_word(0xFFFFFF, msg);
 
     target_t target = running->fd[fd];
     if (target == STDOUT || target == STDERR) {

@@ -8,8 +8,6 @@
 
 #define MAXBUFF 200
 
-
-
 typedef struct comands_pipe {
     char cm1[MAXBUFF];
     char cm2[MAXBUFF];
@@ -98,5 +96,10 @@ char * my_strncpy(char *dest, const char *src, int n);
 // my number managers functions
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
+
+
+//borrar
+
+void t_a();
 
 #endif
