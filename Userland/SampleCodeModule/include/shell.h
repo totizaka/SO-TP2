@@ -10,10 +10,24 @@
 #define menuDIM 17
 #define BLACK 0x000000
 
+typedef struct {
+    char name[64];
+    char *args[8];
+    int argc;
+} parsed_command;
+
 typedef struct module {
     char *name;
     void (*function)();
+    char **(*arg_preparer)(parsed_command cmd);
 } module;
+
+typedef char **(*arg_preparer_t)(parsed_command cmd);
+
+typedef struct {
+    char *name;
+    arg_preparer_t preparer;
+} arg_preparer_map_t;
 
 void help();
 void snake();

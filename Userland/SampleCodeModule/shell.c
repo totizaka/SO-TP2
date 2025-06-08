@@ -4,10 +4,88 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-module menu[] ={{"help", help}, {"snake", snake}, {"regvalues",show_regs},{"fontsize", font_size},{"time", show_time},
-{"div0", div0_exc}, {"opcode", opcode_exc}, {"mmtest", mm_test_shell}, {"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}, {"testsyncro", sync_test_shell}, {"ps", ps}, {"memstate", show_mem_state}, {"testa", test_a}, 
-{"writer", write_process_test}, {"reader", read_process_test}, {"loop", shell_loop}};
+char **prepare_args_default(parsed_command cmd) {
+    return cmd.args; // Usa los argumentos tal como están.
+}
+
+char **prepare_args_test_a(parsed_command cmd) {
+    static char *argv[] = {"test_a", NULL};
+    return argv; // Devuelve argumentos específicos para `test_a`.
+}
+
+char **prepare_args_test_processes(parsed_command cmd) {
+    static char *argv[] = {"test_processes", "30", NULL};
+    return argv;
+}
+
+char **prepare_args_test_prio(parsed_command cmd) {
+    static char *argv[] = {"test_prio", NULL};
+    return argv;
+}
+
+char **prepare_args_test_syncro(parsed_command cmd) {
+    static char *argv[] = {"test_sync", "5", "1", NULL}; // Por defecto, usar semáforos.
+    return argv;
+}
+
+char **prepare_args_test_syncro_no_sem(parsed_command cmd) {
+    static char *argv[] = {"test_sync", "5", "0", NULL}; // Sin semáforos.
+    return argv;
+}
+
+arg_preparer_map_t arg_preparers[] = {
+    {"help", prepare_args_default}, 
+    {"snake", prepare_args_default}, 
+    {"regvalues", prepare_args_default}, 
+    {"fontsize", prepare_args_default}, 
+    {"time", prepare_args_default}, 
+    {"div0", prepare_args_default}, 
+    {"opcode", prepare_args_default}, 
+    {"testprocesses", prepare_args_test_processes},
+    {"testprio", prepare_args_test_prio},
+    {"testsyncro", prepare_args_test_syncro},
+    {"testsyncro_no_sem", prepare_args_test_syncro_no_sem},
+    {"mmtest", prepare_args_default},
+    {"ps", prepare_args_default}, 
+    {"memstate", prepare_args_default}, 
+    {"kill", prepare_args_default}, 
+    {"nice", prepare_args_default}, 
+    {"block", prepare_args_default}, 
+    {"unblock", prepare_args_default}, 
+    {"writer", prepare_args_default}, 
+    {"reader", prepare_args_default}, 
+    {"loop", prepare_args_default}, 
+    {"testa", prepare_args_test_a},
+    {NULL, NULL} // Fin del mapa.
+};
+
+char **get_args_preparer(parsed_command cmd) {
+    for (int i = 0; arg_preparers[i].name != NULL; i++) {
+        if (my_strcmp(cmd.name, arg_preparers[i].name) == 0) {
+            return arg_preparers[i].preparer(cmd);
+        }
+    }
+    return cmd.args; // Usa los argumentos tal como están si no hay preparador específico.
+}
+
+module menu[] ={
+{"help", help}, 
+{"snake", snake}, 
+{"regvalues",show_regs},
+{"fontsize", font_size},
+{"time", show_time},
+{"div0", div0_exc}, 
+{"opcode", opcode_exc}, 
+{"mmtest", mm_test_shell}, 
+{"testprio", prio_test_shell}, 
+{"testprocesses", proc_test_shell}, 
+{"testsyncro", sync_test_shell}, 
+{"ps", ps}, 
+{"memstate", show_mem_state}, 
+{"testa", test_a}, 
+{"writer", write_process_test}, 
+{"reader", read_process_test}, 
+{"loop", shell_loop}};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -155,8 +233,11 @@ void shell_unblock(char ** argv, uint64_t argc){
 void write_process_test(){
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
     int num_byte = my_strlen(to_print);
-    if (my_write(STDOUT,to_print,num_byte)!=-1){
+    if (my_write(STDOUT, to_print, num_byte)!=-1){
         print("el write anda creo ", 16);
+    }
+    else{
+        print("no anda", 16);
     }
 }
 
@@ -176,6 +257,10 @@ void read_process_test(){
         print("Leido del pipe: ", 16);
         print(buff, read);
     }
+    else {
+        print("Error al leer del pipe\n", 22);
+    }
+    
 
 }
 
@@ -307,12 +392,6 @@ void invalid_comand(){
     err_print("Invalid Command!! \n",18);
 }
 
-typedef struct {
-    char name[64];
-    char *args[8];
-    int argc;
-} parsed_command;
-
 parsed_command parse_command(char *input) {
     parsed_command result = {0};
     result.argc = 0;
@@ -376,8 +455,13 @@ void run_piped_program(char *input1, char *input2) {
     fd_t fds1[FD_MAX] = { STDIN, id_pipe + FD_MAX, STDERR };   // escritor
     fd_t fds2[FD_MAX] = { id_pipe + FD_MAX, STDOUT, STDERR };  // lector
 
-    my_create_process_shell((void (*)())menu[c1].function, cmd1.argc, cmd1.args, 0, fds1);
-    my_create_process_shell((void (*)())menu[c2].function, cmd2.argc, cmd2.args, 0, fds2);
+    uint64_t pid1 = my_create_process((void (*)())menu[c1].function, cmd1.args, cmd1.argc, 0, fds1);
+    uint64_t pid2 = my_create_process((void (*)())menu[c2].function,  cmd2.args,cmd2.argc, 0, fds2);
+
+    int64_t * ret1;
+    int64_t * ret2;
+    my_wait(pid1, ret1);
+    my_wait(pid2, ret2);
 
     my_close_pipe(id_pipe);
 }
@@ -387,9 +471,14 @@ void run_simple_program(char* input) {
 
     if (run_special_command(cmd)) return;
 
-    for (int i = 0; i < menuDIM + 1; i++) {
+    for (int i = 0; i < menuDIM; i++) {
         if (my_strcmp(cmd.name, menu[i].name) == 0) {
-            menu[i].function();
+            // Usa get_args_preparer para obtener los argumentos específicos del comando.
+            char **args = get_args_preparer(cmd);
+
+            fd_t fd = {STDIN, STDOUT, STDERR};
+            my_create_process_shell((void (*)())menu[i].function, cmd.argc, args, 0, fd);
+
             return;
         }
     }

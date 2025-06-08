@@ -250,7 +250,7 @@ int64_t syscall_read_pipe(int64_t target, char * buffer,  int num_bytes){
 }
 
 int8_t syscall_close_pipe(int64_t target){
-    return close_pipe(target-FD_MAX);
+    return close_pipe(target-FD_MAX, get_pid());
 }
 
 int64_t syscall_get_available_pipe_id(){
@@ -279,8 +279,10 @@ int64_t syscall_read (int64_t fd, char* buffer, int num_bytes) {
 }
 
 int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
+    draw_word(BLACK, "entre a la syscall_write");
     PCB* running = get_running();
     if (fd < 0 || fd >= FD_MAX || running->fd[fd] == -1) 
+        draw_word(BLACK, "falle1");
         return -1;
 
     target_t target = running->fd[fd];
@@ -289,6 +291,7 @@ int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
         return num_bytes;
 
     } else if (target == STDIN) {
+        draw_word(BLACK, "falle2");
         return -1; // No se puede escribir en STDIN
     } else {
         return syscall_write_pipe(target, buffer, num_bytes);
