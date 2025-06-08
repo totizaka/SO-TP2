@@ -127,7 +127,6 @@ int64_t write_pipe( int64_t id, char* buffer, uint64_t num_bytes ){
 }
 
 
-
 int64_t read_pipe(int64_t id, char* buffer, int num_bytes){
     if (invalid_ID_pipe(id) || pipe_array[id].pids[PIPE_READ] == -1 || pipe_array[id].pids[PIPE_READ] != get_running()->pid) {// IDEA:  pipe_array[id].pids[READER] != get_running()->pid chequea que el proceso sea el asignadocomo lector 
         return -1;
@@ -177,13 +176,11 @@ int8_t close_pipe_by_role(int64_t id, pid_t pid, int role  ){
 
 
 //VERIFICAR EL CLOSE(PUEDE SER QUE NO ESTE CERRANDO TODO CORRECTO ) 
-int8_t close_pipe(int64_t id ){
+int8_t close_pipe(int64_t id , pid_t current_pid){
     
     if (invalid_ID_pipe(id) ) {
         return -1; 
     }
-
-    pid_t current_pid = get_running()->pid; 
 
     int close_read=close_pipe_by_role(id, current_pid, PIPE_READ)==0;
     int close_write=close_pipe_by_role(id, current_pid, PIPE_WRITE)==0;
