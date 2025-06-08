@@ -9,6 +9,7 @@
 #include <interrupts.h>
 #include <shared_defs.h>
 #include <pipe.h>
+#include <scheduler.h>
 
 #define MAX_PID 50
 
@@ -27,7 +28,9 @@ void list_processes();
 void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc);
 process_info_list * get_all_processes();
 void ctrl_c_handler();
+void ctrl_d_handler();
 int64_t piping(pid_t pid, fd_t fds[]);
 pid_t wait(pid_t pid, int64_t *ret);
+int64_t kill_process_no_yield(uint64_t pid);
 
 #endif
