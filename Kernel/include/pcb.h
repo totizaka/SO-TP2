@@ -20,6 +20,7 @@ typedef struct PCB{
     int ret;
     fd_t fd[3];// file descriptors  fd[0]=entrada, fd[1]=salida, fd[2]=error
     int8_t background; // 1 si es un proceso en background, 0 si es foreground
+    int16_t group_id; // ID del grupo de procesos al que pertenece
 }PCB;
 
 #endif

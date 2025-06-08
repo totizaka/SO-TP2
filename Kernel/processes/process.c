@@ -3,12 +3,13 @@
 
 PCB pcb_table[MAX_PID]={0};
 
-uint64_t amount_of_processes = 0;
+uint64_t amount_of_processes = 1;
  
  typedef struct {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rdi, rbp, rdx, rcx, rbx, rax;
  }stack_regs;
 
+ int next_group_id = 2; // empieza en 2 para no pisar shell (pid 1)
 
  typedef struct{
     stack_regs stack_regs;
@@ -19,6 +20,10 @@ uint64_t amount_of_processes = 0;
 	uint64_t ss;
  }stack;
  
+int assign_new_group_id() {
+    return next_group_id++;
+}
+
 void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
 int64_t piping(pid_t pid, fd_t fds[]);
 
@@ -109,6 +114,28 @@ int set_free_pcb(pid_t pid) {
     return 0;
 }
 
+int assign_group_id_by_pipe(PCB *current) {
+    for (int i = 0; i < FD_MAX; i++) {
+        fd_t fd = current->fd[i];
+        if (fd >= FD_MAX && fd < FD_MAX + MAX_PIPES) {
+            int pipe_id = fd - FD_MAX;
+            pipe_t *pipe = &pipe_array[pipe_id];
+            pid_t pid_read = pipe->pids[PIPE_READ];
+            pid_t pid_write = pipe->pids[PIPE_WRITE];
+
+            if (pid_read != -1 && pcb_table[pid_read].group_id != 0) {
+                return pcb_table[pid_read].group_id;
+            }
+            if (pid_write != -1 && pcb_table[pid_write].group_id != 0) {
+                return pcb_table[pid_write].group_id;
+            }
+        }
+    }
+
+    // ✔ Si no encontró pipes válidos, devuelve 0
+    return 0;
+}
+
 //primer arg va a ser el nombre por convencion argv[0] = nombre del proceso
 
 uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]) {
@@ -161,6 +188,25 @@ uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc
         pcb_table[pid].state = FREE;
         return -1;
     }
+
+    int g_id = assign_group_id_by_pipe(current);
+    if (g_id != 0) {
+        current->group_id = g_id;
+    } else if (current->pid == 1) {
+        current->group_id = 1;
+    } else if (current->ppid == 1) {
+        current->group_id = assign_new_group_id();
+    } else {
+        current->group_id = pcb_table[current->ppid].group_id;
+    }
+
+    // if (current->pid == 1) {
+    //     current->group_id = 1;
+    // } else if (current->ppid == 1) {
+    //     current->group_id = assign_new_group_id();
+    // } else {
+    //     current->group_id = pcb_table[current->ppid].group_id;
+    // }
 
     ready(current);
     amount_of_processes++;
@@ -217,8 +263,20 @@ int64_t ready_process(uint64_t pid){
     //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
 
-//falta implementar
+// Mata un proceso y hace yield si es necesario.
 int64_t kill_process(uint64_t pid){
+    if(kill_process_no_yield(pid) == -1){
+        return -1;
+    }
+    if(&pcb_table[pid] == get_running()){
+        // Si el proceso que se está matando es el que está corriendo, hacemos yield
+        timer_tick();
+    }
+    return 0;
+}
+
+// Mata un proceso sin hacer yield.
+int64_t kill_process_no_yield(uint64_t pid){
     if (pid <= 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
         //no puedo matar ni idle ni shell
         return -1;
@@ -232,13 +290,8 @@ int64_t kill_process(uint64_t pid){
     if(set_free_pcb(pid) != -1){
         amount_of_processes--;
     }
-    if(&pcb_table[pid] == get_running()){
-        // Si el proceso que se está matando es el que está corriendo, hacemos yield
-        timer_tick();
-    }
     return 0;
 }
-
 
 int64_t find_free_pcb(){
     int64_t to_ret=1;
@@ -478,17 +531,31 @@ pid_t wait(pid_t pid, int64_t *ret) {
 
 
 void ctrl_c_handler(){
-    pid_t current_pid = get_pid(); 
-    if (current_pid != 0 && current_pid != 1) { // No permitir CTRL+C en el proceso kernel o init
-        for (int i = 2; i < MAX_PID; i++) {
-            if (pcb_table[i].state == RUNNING || pcb_table[i].state == READY) {
-                // Si el proceso está en ejecución o listo, lo matamos
-                kill_process(i);
-            }
-        }
-        if (pcb_table[1].state != READY) {
-            pcb_table[1].state = READY;
-        }
-        timer_tick(); // Forzar un cambio de contexto para que el scheduler pueda elegir un nuevo proceso
+    PCB * shell_process = get_pcb(SHELL_PID);
+    PCB * foreground_process;
+
+    if (shell_process == NULL || ((foreground_process = shell_process->waiting_for) == NULL)){
+        return; 
     }
+    PCB * other_process_in_pipe = NULL;
+	if(foreground_process->fd[STDIN] > FD_MAX){
+	    other_process_in_pipe = get_pcb(get_pid_from_pipe(foreground_process->fd[STDIN] - 3, PIPE_WRITE));
+	}
+    int f_gid = foreground_process->group_id;
+    draw_word(0xFFFFFF, "parent group_id: ");
+    char f_gid_str[20];
+    itoa(f_gid, f_gid_str);
+    draw_word(0xFFFFFF, f_gid_str);
+    for (int i = 2; i < MAX_PID; i++) {
+        draw_word(0xFFFFFF, "child group_id: ");
+        char f_gid_str[20];
+        itoa(pcb_table[i].group_id, f_gid_str);
+        draw_word(0xFFFFFF, f_gid_str);
+        if (pcb_table[i].background == 0 && pcb_table[i].group_id == f_gid && pcb_table[i].pid != foreground_process->pid &&
+            (pcb_table[i].state == RUNNING || pcb_table[i].state == READY || pcb_table[i].state == BLOCKED)) {
+            kill_process_no_yield(i);
+        }
+    }
+    kill_process_no_yield(foreground_process->pid); // Mata el proceso foreground
+    timer_tick(); // Forzar un cambio de contexto para que el scheduler pueda elegir un nuevo proceso
 }

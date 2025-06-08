@@ -6,7 +6,8 @@
 #include <interrupts.h>
 #include <list.h>
 
-#define  QUANTUM 1 //Nose cuanto hacer el quanttum cambiarllo dsp . Entre 20ms y 50ms es razonable 
+#define SHELL_PID 1 //PID de la shell, no se puede cambiar
+#define QUANTUM 1 //Nose cuanto hacer el quanttum cambiarllo dsp . Entre 20ms y 50ms es razonable 
 //Maxima prioridad =0 
 
 //Round Robin 

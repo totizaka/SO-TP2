@@ -30,12 +30,17 @@ void keyboard_handler() {
         return;
     }
 
-    // Detectar CTRL+C
+    // Detectar CTRL+C y CTRL+D
     static int ctrl_pressed = 0;
     if (scan_code == 0x1D) { // Scan code de CTRL
         ctrl_pressed = 1;
     } else if (scan_code == 0x2E && ctrl_pressed) { // Scan code de C
+        _cli(); // Deshabilitar interrupciones
         ctrl_c_handler(); // Llamar al manejador en process.c
+        ctrl_pressed = 0; // Resetear el estado de CTRL
+    } else if (scan_code == 0x38 && ctrl_pressed) { // Scan code de D
+        _cli(); // Deshabilitar interrupciones
+        // ctrl_d_handler(); // Llamar al manejador en process.d
         ctrl_pressed = 0; // Resetear el estado de CTRL
     } else {
         ctrl_pressed = 0; // Resetear si no es CTRL+C

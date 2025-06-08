@@ -42,7 +42,7 @@ int8_t close_pipe(int64_t id , pid_t current_pid);
 
 int64_t write_pipe(int64_t id, char* buffer, uint64_t num_bytes);
 int64_t read_pipe(int64_t id, char* buffer, int num_bytes);
-
+pid_t get_pid_from_pipe(int64_t pipe_id, int role);
 void create_pipe( int64_t id );
 
 int64_t get_available_pipe_id() ;
