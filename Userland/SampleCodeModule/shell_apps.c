@@ -15,6 +15,7 @@ void shell_loop(char** argv, uint64_t argc){
        pid = my_getpid();
        itoa(pid, buff+10);
        print(buff, 30);
+       print ("\n",1);
        nano_sleep(segs);
     }
 }

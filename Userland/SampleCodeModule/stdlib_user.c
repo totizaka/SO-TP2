@@ -16,8 +16,8 @@ int my_strlen(char * str){
 void my_get_string(char* buff, int count){
     int i=0;
     char c=0;
-    while(i < (count -1) && (c!='\n')){
-         c = get_char_user();
+    char s[2];
+    while( ( c = get_char_user() ) != '\n' && i < (count -1)){
         if(c=='\b'){
             if(i!=0){
              i--;
@@ -25,18 +25,16 @@ void my_get_string(char* buff, int count){
             }
             buff[i]=0;
         }
-        if(c!=0 && c!='=' && c!='\b'){   
-        char auxPrint[2];
-        auxPrint[0]=c;
-        auxPrint[1]='\0';
-        print(auxPrint, 1);
-        
-        if(c!=0 && c!='\n'){
-            buff[i++]=c;
-        }
+        if ( c != '\b' && c!='=' && i < count - 1 && c != 0 ) {
+            s[0]=c;
+            s[1]=0;
+			print ( s, 1 );
+			buff[i++] = c;
+		}
     }
+
+    print("\n",1);
     buff[i]='\0';
-}
 }
 
 int my_strcmp(char * s1, char * s2){

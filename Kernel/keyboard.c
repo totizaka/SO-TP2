@@ -2,11 +2,14 @@
 #include <naiveConsole.h> 
 #include <process.h>
 
+#define BUFF_MAX 50
 extern int key_pressed();
 
 unsigned char scan_code = 0;
-static char char_to_ret[10] = {0};
+static char char_to_ret[BUFF_MAX] = {0};
 int current=0;
+int dim=0;
+PCB*  blocked=NULL;
 
 void keyboard_handler() {
     // Obtener el scan_code 
@@ -38,14 +41,20 @@ void keyboard_handler() {
         ctrl_pressed = 0; // Resetear si no es CTRL+C
     }
 
-    // Agregar el carácter al buffer
-    for(int i = 0; i < 10; i++){
-        if (char_to_ret[i] == 0)
-        {
-            char_to_ret[i]=scan_codes[scan_code];
-            break;
-        }
-    }
+	char_to_ret[dim] = scan_codes[scan_code];
+	if ( dim < BUFF_MAX ) {
+		dim++;
+	} else if ( current == dim ) {
+		char_to_ret[0] = scan_codes[scan_code];
+		dim = 1;
+		current = 0;
+	} else {
+		return;
+	}
+	if ( blocked != NULL ) {
+		ready ( blocked );
+		blocked = NULL;
+	}
 }
 
 int get_regs(){
@@ -53,24 +62,37 @@ int get_regs(){
 }
 
 
-void cleanchar_to_ret(){
-    char_to_ret[0] = 0;
-    if(char_to_ret[1] != 0){
-        for (int i = 0; i < 9; i++)
-        {
-            char_to_ret[i] = char_to_ret[i+1];
-        }
-    }
-}
 
 char get_char_pressed(){
-    if (char_to_ret[0]!=0)
-    {
-        char to_ret = char_to_ret[0];
-        cleanchar_to_ret();
+    if (buf_has_next()){
+        char to_ret = char_to_ret[current];
+        current++;
         return to_ret;
     }
     return 0; //AGREGADO POR EL WARNING (CHEQUEAR !!!!!)
+}
 
 
+
+int buf_has_next(){
+	return ( dim > 0 ) && ( current < dim );
+}
+
+
+int read_stdin(char * buff, int count){
+    if(blocked!=NULL){
+        return -1;
+    }
+    if(!buf_has_next()){
+        blocked=get_running();
+        block(blocked);
+    }
+    int i=0;
+    while(buf_has_next() && i<count && char_to_ret[current]!=EOF){
+        buff[i++]=get_char_pressed();
+    }
+    if ( char_to_ret[current] == EOF) {
+		get_char_pressed();
+	}
+    return i;
 }

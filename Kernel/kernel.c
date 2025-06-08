@@ -96,9 +96,11 @@ memory_manager_adt get_memory_manager(){
 
 void idle_process(){
 	/*while(1){
-	//draw_word ( 0xFFFFFF, "idle\n");
+	draw_word ( 0xFFFFFF, "idle\n");
 	}*/
+
 	while (1){
+		//draw_word ( 0xFFFFFF, "idle\n");
 		_hlt();
 	}
 }
