@@ -21,11 +21,11 @@ typedef struct {
 typedef struct module {
     char *name;
     void (*function)();
-    char **(*arg_preparer)(parsed_command cmd);
+    char **(*arg_preparer)(parsed_command * cmd);
     int is_builtin;
 } module;
 
-typedef char **(*arg_preparer_t)(parsed_command cmd);
+typedef char **(*arg_preparer_t)(parsed_command * cmd);
 
 typedef struct {
     char *name;

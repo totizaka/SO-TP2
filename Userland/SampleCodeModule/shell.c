@@ -4,37 +4,38 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-char **prepare_args_default(parsed_command cmd) {
-    return cmd.args; // Usa los argumentos tal como están.
+char **prepare_args_default(parsed_command * cmd) {
+    return cmd->args; // Usa los argumentos tal como están.
 }
 
-char **prepare_args_test_a(parsed_command cmd) {
+char **prepare_args_test_a(parsed_command * cmd) {
     static char *argv[] = {"test_a", NULL};
     return argv; // Devuelve argumentos específicos para `test_a`.
 }
 
-char **prepare_args_test_processes(parsed_command cmd) {
+char **prepare_args_test_processes(parsed_command * cmd) {
     static char *argv[] = {"test_processes", "30", NULL};
     return argv;
 }
 
-char **prepare_args_test_prio(parsed_command cmd) {
+char **prepare_args_test_prio(parsed_command * cmd) {
     static char *argv[] = {"test_prio", NULL};
     return argv;
 }
 
-char **prepare_args_test_syncro(parsed_command cmd) {
+char **prepare_args_test_syncro(parsed_command * cmd) {
     static char *argv[] = {"test_sync", "5", "1", NULL}; // Por defecto, usar semáforos.
     return argv;
 }
 
-char **prepare_args_test_syncro_no_sem(parsed_command cmd) {
+char **prepare_args_test_syncro_no_sem(parsed_command * cmd) {
     static char *argv[] = {"test_sync", "5", "0", NULL}; // Sin semáforos.
     return argv;
 }
 
-char **prepare_args_loop(parsed_command cmd) {
+char **prepare_args_loop(parsed_command * cmd) {
     static char *argv[] = {"loop", "30", NULL}; // Por defecto, 5 segundos.
+    cmd->argc=2;
     return argv;
 }
 
@@ -83,13 +84,13 @@ special_command_t special_commands[] = {
     {NULL, NULL}
 };
 
-char **get_args_preparer(parsed_command cmd) {
+char **get_args_preparer(parsed_command * cmd) {
     for (int i = 0; i < sizeof(menu) / sizeof(menu[0]); i++) {
-        if (my_strcmp(menu[i].name, cmd.name) == 0) {
+        if (my_strcmp(menu[i].name, cmd->name) == 0) {
             return menu[i].arg_preparer(cmd);
         }
     }
-    return cmd.args; 
+    return cmd->args; 
 }
 
 void help(){
@@ -495,7 +496,7 @@ void run_simple_program(char* input) {
                 menu[i].function();
             } else {
                 // Crear un proceso para comandos no built-in
-                char **args = get_args_preparer(cmd);
+                char **args = get_args_preparer(&cmd);
                 fd_t fds[FD_MAX] = {STDIN, STDOUT, STDERR};
                 my_create_process_shell((void (*)())menu[i].function, args, cmd.argc, 0, fds);
             }
