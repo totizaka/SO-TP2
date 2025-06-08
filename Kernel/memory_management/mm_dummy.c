@@ -1,4 +1,4 @@
-#ifdef DUMMY
+// #ifdef DUMMY
 
 #include <mm_dummy.h>
 
@@ -142,4 +142,4 @@ void my_free_mem_state(memory_manager_adt manager, memory_state *state) {
     }
 }
 
-#endif 
+// #endif 

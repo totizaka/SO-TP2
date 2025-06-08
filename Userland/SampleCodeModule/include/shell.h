@@ -9,6 +9,8 @@
 
 #define menuDIM 17
 #define BLACK 0x000000
+#define BUILTIN 1
+#define NOT_BUILTIN 0
 
 typedef struct {
     char name[64];
@@ -20,6 +22,7 @@ typedef struct module {
     char *name;
     void (*function)();
     char **(*arg_preparer)(parsed_command cmd);
+    int is_builtin;
 } module;
 
 typedef char **(*arg_preparer_t)(parsed_command cmd);

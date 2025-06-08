@@ -68,24 +68,25 @@ char **get_args_preparer(parsed_command cmd) {
     return cmd.args; // Usa los argumentos tal como están si no hay preparador específico.
 }
 
-module menu[] ={
-{"help", help}, 
-{"snake", snake}, 
-{"regvalues",show_regs},
-{"fontsize", font_size},
-{"time", show_time},
-{"div0", div0_exc}, 
-{"opcode", opcode_exc}, 
-{"mmtest", mm_test_shell}, 
-{"testprio", prio_test_shell}, 
-{"testprocesses", proc_test_shell}, 
-{"testsyncro", sync_test_shell}, 
-{"ps", ps}, 
-{"memstate", show_mem_state}, 
-{"testa", test_a}, 
-{"writer", write_process_test}, 
-{"reader", read_process_test}, 
-{"loop", shell_loop}};
+module menu[] = {
+    {"help", help, prepare_args_default, BUILTIN}, 
+    {"snake", snake, prepare_args_default, BUILTIN}, 
+    {"regvalues", show_regs, prepare_args_default, BUILTIN},
+    {"fontsize", font_size, prepare_args_default, BUILTIN},
+    {"time", show_time, prepare_args_default, BUILTIN},
+    {"div0", div0_exc, prepare_args_default, BUILTIN}, 
+    {"opcode", opcode_exc, prepare_args_default, BUILTIN}, 
+    {"mmtest", mm_test_shell, prepare_args_default, NOT_BUILTIN}, 
+    {"testprio", prio_test_shell, prepare_args_test_prio, NOT_BUILTIN}, 
+    {"testprocesses", proc_test_shell, prepare_args_test_processes, NOT_BUILTIN}, 
+    {"testsyncro", sync_test_shell, prepare_args_test_syncro, NOT_BUILTIN}, 
+    {"ps", ps, prepare_args_default, BUILTIN},
+    {"memstate", show_mem_state, prepare_args_default, BUILTIN}, 
+    {"testa", test_a, prepare_args_test_a, NOT_BUILTIN},
+    {"writer", write_process_test, prepare_args_default, NOT_BUILTIN},
+    {"reader", read_process_test, prepare_args_default, NOT_BUILTIN},
+    {"loop", shell_loop, prepare_args_default, NOT_BUILTIN}
+};
 
 uint64_t regs[18];
 static char * regstxt[18]={"RAX:", "RBX:", "RCX:", "RDX:", "RDI:", "RSI:", "RBP:", "RSP:", "R8:", "R9:", "R10:", "R11:", "R12:", "R13:", "R14:", "R15:", "RIP:", "RFLAGS:" };
@@ -119,7 +120,7 @@ void help(){
     print("Enter: ps >> To see the current processes\n", MAXBUFF);
     print("Enter: mem >> To see the current memory state\n", MAXBUFF);
     print("Enter: kill [pid] >> To kill a process with the given PID\n", MAXBUFF);
-    print("Enter: nice [pid,new_priority] >> To change the priority of a process with the given PID, new_priority must be a number between 1(LOWEST) and 7(HIGHEST)\n", MAXBUFF);
+    print("Enter: nice [pid,new_priority] >> To change the priority of a process with the given PID, new_priority must be a        number between 1(LOWEST) and 7(HIGHEST)\n", MAXBUFF);
     print("Enter: block [pid] >> To block a process with the given PID\n", MAXBUFF);
     print("Enter: unblock [pid] >> To unblock a process with the given PID\n", MAXBUFF);
     print("\n\nApartado de tests de la catedra:\n", MAXBUFF);
@@ -235,23 +236,15 @@ void write_process_test(){
     char *to_print = "holis!! ESTOY PIPEANDOOOO";
     int num_byte = my_strlen(to_print);
     if (my_write(STDOUT, to_print, num_byte)!=-1){
-        print("el write anda creo ", 16);
+        return;
     }
     else{
-        print("no anda", 16);
+        print("no anda my_write", MAXBUFF);
     }
 }
 
 void read_process_test(){
     char buff[64];
-    // buff[0]='1';
-    // char c;
-    // int i=1;
-    // while(c!='\0' && i<30){
-    //     c=get_char_user();
-    //     buff[i]=c;
-    // }
-    // print(buff, 30);
     int read=my_read(STDIN,buff,63);
     if (read > 0) {
         buff[read] = '\0';
@@ -261,8 +254,6 @@ void read_process_test(){
     else {
         print("Error al leer del pipe\n", 22);
     }
-    
-
 }
 
 //VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
@@ -465,13 +456,9 @@ void run_piped_program(char *input1, char *input2) {
         return;
     }
 
-    print("Esperando writer\n", 17);
     my_wait(pid1, NULL);
 
-    print("Esperando reader\n", 17);
     my_wait(pid2, NULL);
-
-    print("Cerrando pipe\n", 14);
 
     my_close_pipe(id_pipe);  // solo después de que ambos hayan terminado
 }
@@ -483,12 +470,15 @@ void run_simple_program(char* input) {
 
     for (int i = 0; i < menuDIM; i++) {
         if (my_strcmp(cmd.name, menu[i].name) == 0) {
-            // Usa get_args_preparer para obtener los argumentos específicos del comando.
-            char **args = get_args_preparer(cmd);
-
-            fd_t fd = {STDIN, STDOUT, STDERR};
-            my_create_process_shell((void (*)())menu[i].function, cmd.argc, args, 0, fd);
-
+            if (menu[i].is_builtin) {
+                // Ejecutar directamente el comando built-in
+                menu[i].function();
+            } else {
+                // Crear un proceso para comandos no built-in
+                char **args = get_args_preparer(cmd);
+                fd_t fds[FD_MAX] = {STDIN, STDOUT, STDERR};
+                my_create_process_shell((void (*)())menu[i].function, args, cmd.argc, 0, fds);
+            }
             return;
         }
     }

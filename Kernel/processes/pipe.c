@@ -128,37 +128,36 @@ int64_t write_pipe( int64_t id, char* buffer, uint64_t num_bytes ){
 
 
 int64_t read_pipe(int64_t id, char* buffer, int num_bytes){
-    if (invalid_ID_pipe(id) || pipe_array[id].pids[PIPE_READ] == -1 || pipe_array[id].pids[PIPE_READ] != get_running()->pid) {// IDEA:  pipe_array[id].pids[READER] != get_running()->pid chequea que el proceso sea el asignadocomo lector 
+    if (invalid_ID_pipe(id) || pipe_array[id].pids[PIPE_READ] != get_running()->pid){
         return -1;
     }
 
-    int64_t read=0;
+    int64_t read = 0;
 
-    while(read<num_bytes){
+    while (read < num_bytes) {
 
-        if (pipe_array[id].pids[PIPE_WRITE]==-1){//No hay quien escriba
-            if (pipe_array[id].where_reading==pipe_array[id].where_writing)//ya termine de leer
-                return read;
-        }
-
-
-        if (my_sem_wait(pipe_array[id].sem_read)==-1){
+        // Esperar a que haya algo para leer
+        if (my_sem_wait(pipe_array[id].sem_read) == -1)
             return read;
-        }
+
+        // Lock mutex
         my_sem_wait(pipe_array[id].mutex);
 
-        int64_t current=pipe_array[id].where_reading;
+        // 💡 Verificar si no hay escritor y el buffer quedó vacío
+        if (pipe_array[id].pids[PIPE_WRITE] == -1 &&
+            pipe_array[id].where_reading == pipe_array[id].where_writing) {
+            my_sem_post(pipe_array[id].mutex);
+            return read;  // fin de datos
+        }
 
-
-        buffer[read++]=pipe_array[id].buffer[current];
-        pipe_array[id].where_reading= next_in_buffer(current);
-
-
+        int64_t current = pipe_array[id].where_reading;
+        buffer[read++] = pipe_array[id].buffer[current];
+        pipe_array[id].where_reading = next_in_buffer(current);
 
         my_sem_post(pipe_array[id].mutex);
         my_sem_post(pipe_array[id].sem_write);
-
     }
+
     return read;
 }
 
@@ -184,6 +183,10 @@ int8_t close_pipe(int64_t id , pid_t current_pid){
 
     int close_read=close_pipe_by_role(id, current_pid, PIPE_READ)==0;
     int close_write=close_pipe_by_role(id, current_pid, PIPE_WRITE)==0;
+
+    if (close_write && pipe_array[id].pids[PIPE_READ] != -1) {
+        my_sem_post(pipe_array[id].sem_read);  // Desbloquea lector colgado
+    }
 
    if(pipe_array[id].pids[PIPE_READ]==-1  && pipe_array[id].pids[PIPE_WRITE]==-1 ){
         pipe_array[id].where_reading = 0;

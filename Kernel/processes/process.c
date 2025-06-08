@@ -77,6 +77,14 @@ int set_free_pcb(pid_t pid) {
     if (process == NULL || process->state == FREE) {
         return -1; 
     }
+
+    // Cerrar pipes abiertos por el proceso antes de liberar recursos
+    for (int i = 0; i < FD_MAX; i++) {
+        if (process->fd[i] >= FD_MAX && process->fd[i] < FD_MAX + MAX_PIPES) {
+            close_pipe(process->fd[i] - FD_MAX, process->pid);
+        }
+    }
+
     // Liberar args
     if (process->args != NULL) {
         for (uint64_t i = 0; process->args[i] != NULL; i++) {
