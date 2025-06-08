@@ -62,6 +62,9 @@ module menu[] = {
     {"blockingreader", blocking_reader_test, prepare_args_default, NOT_BUILTIN},
     {"orphanwriter", orphan_writer_test, prepare_args_default, NOT_BUILTIN},
     {"eofreader", eof_reader_test, prepare_args_default, NOT_BUILTIN},
+    {"cat", shell_cat,prepare_args_default, NOT_BUILTIN},
+    {"filter", shell_filter, prepare_args_default, NOT_BUILTIN},
+    {"wc", shell_wc,prepare_args_default, NOT_BUILTIN}
 };
 
 uint64_t regs[18];

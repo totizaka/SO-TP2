@@ -41,8 +41,9 @@ void keyboard_handler() {
         ctrl_pressed = 0; // Resetear si no es CTRL+C
     }
 
-	char_to_ret[dim] = scan_codes[scan_code];
+	
 	if ( dim < BUFF_MAX ) {
+        char_to_ret[dim] = scan_codes[scan_code];
 		dim++;
 	} else if ( current == dim ) {
 		char_to_ret[0] = scan_codes[scan_code];

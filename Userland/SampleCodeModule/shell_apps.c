@@ -22,24 +22,30 @@ void shell_loop(char** argv, uint64_t argc){
 
 void shell_cat(){
    char c;
+   char s[2];
    while((c=get_char_user())>=0){
-      print(&c, 1);
+      s[0]=c;
+      s[1]=0;
+      print(s, 1);
    }
    print("\n",1);
 }
 void shell_wc(){
    char c;
+   char s[2];
    int64_t l=1;
    while((c=get_char_user())>=0){
       if(c=='\n'){
          l++;
       }
-      print(&c, 1);
+      s[0]=c;
+      s[1]=0;
+      print(s, 1);
    }
    print("Lines: ",7);
-   char s[3];
+   char st[3];
    itoa(l, s);
-   print(s,3);
+   print(st,3);
 }
 
 int8_t vowel(char c) {
@@ -48,10 +54,13 @@ int8_t vowel(char c) {
 }
 
 void shell_filter(){
-    char c;
-   while((c=get_char_user())>=0){
+   char c;
+   char s[2];
+   while((c=get_char_user())>=0 ){
       if(!vowel(c)){
-         print(&c, 1);
+         s[0]=c;
+         s[1]=0;
+         print(s, 1);
       }
    }
    print("\n",1);
