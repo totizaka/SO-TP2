@@ -33,31 +33,10 @@ char **prepare_args_test_syncro_no_sem(parsed_command cmd) {
     return argv;
 }
 
-arg_preparer_map_t arg_preparers[] = {
-    {"help", prepare_args_default}, 
-    {"snake", prepare_args_default}, 
-    {"regvalues", prepare_args_default}, 
-    {"fontsize", prepare_args_default}, 
-    {"time", prepare_args_default}, 
-    {"div0", prepare_args_default}, 
-    {"opcode", prepare_args_default}, 
-    {"testprocesses", prepare_args_test_processes},
-    {"testprio", prepare_args_test_prio},
-    {"testsyncro", prepare_args_test_syncro},
-    {"testsyncro_no_sem", prepare_args_test_syncro_no_sem},
-    {"mmtest", prepare_args_default},
-    {"ps", prepare_args_default}, 
-    {"memstate", prepare_args_default}, 
-    {"kill", prepare_args_default}, 
-    {"nice", prepare_args_default}, 
-    {"block", prepare_args_default}, 
-    {"unblock", prepare_args_default}, 
-    {"writer", prepare_args_default}, 
-    {"reader", prepare_args_default}, 
-    {"loop", prepare_args_default}, 
-    {"testa", prepare_args_test_a},
-    {NULL, NULL} // Fin del mapa.
-};
+char **prepare_args_loop(parsed_command cmd) {
+    static char *argv[] = {"loop", "30", NULL}; // Por defecto, 5 segundos.
+    return argv;
+}
 
 module menu[] = {
     {"help", help, prepare_args_default, BUILTIN}, 
@@ -76,7 +55,7 @@ module menu[] = {
     {"testa", t_a, prepare_args_test_a, NOT_BUILTIN},
     {"writer", write_process_test, prepare_args_default, NOT_BUILTIN},
     {"reader", read_process_test, prepare_args_default, NOT_BUILTIN},
-    {"loop", shell_loop, prepare_args_default, NOT_BUILTIN}
+    {"loop", shell_loop, prepare_args_loop, NOT_BUILTIN}
 };
 
 uint64_t regs[18];
@@ -100,12 +79,12 @@ special_command_t special_commands[] = {
 };
 
 char **get_args_preparer(parsed_command cmd) {
-    for (int i = 0; arg_preparers[i].name != NULL; i++) {
-        if (my_strcmp(cmd.name, arg_preparers[i].name) == 0) {
-            return arg_preparers[i].preparer(cmd);
+    for (int i = 0; i < sizeof(menu) / sizeof(menu[0]); i++) {
+        if (my_strcmp(menu[i].name, cmd.name) == 0) {
+            return menu[i].arg_preparer(cmd);
         }
     }
-    return cmd.args; // Usa los argumentos tal como están si no hay preparador específico.
+    return cmd.args; 
 }
 
 void help(){
