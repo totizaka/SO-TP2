@@ -7,7 +7,7 @@
 #include <philos.h>
 #include <shell_apps.h>
 
-#define menuDIM 21
+#define menuDIM 23
 #define BLACK 0x000000
 #define BUILTIN 1
 #define NOT_BUILTIN 0

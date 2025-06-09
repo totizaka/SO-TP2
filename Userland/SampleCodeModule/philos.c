@@ -12,13 +12,14 @@ uint8_t is_even(uint64_t id){
 uint64_t left(uint64_t i, uint64_t n){
     return (i+n-1)%n;
 }
+
 uint64_t right(uint64_t i, uint64_t n){
     return (i+1)%n;
 }
 
 
 void print_state(){
-    sem_wait(table.array_mutex);
+    sem_wait(table.mutex);
     for(int i=0; i<table.amount; i++){
         if(table.philos_array[i].state==EATING){
             print ("E ", 2);
@@ -27,19 +28,9 @@ void print_state(){
         };
     }
     print ("\n", 1);
-    sem_post(table.array_mutex);
+    sem_post(table.mutex);
 }
 
-
-void wait_sems(){
-    sem_wait(table.num_mutex);
-    sem_wait(table.array_mutex);
-}
-
-void post_sems(){
-    sem_post(table.array_mutex);
-    sem_post(table.num_mutex);
-}
 
 
 int philos_init_error(char *msg, int i){
@@ -89,7 +80,6 @@ int64_t philos(char **argv, uint64_t argc){
         return -1;
     }
     
-    // print_state();
     keyboard_handler();
     clean_resources();
     return 0;
@@ -108,24 +98,23 @@ void take_forks(int i){
             sem_wait(table.philos_array[i].right_fork);
             sem_wait(table.philos_array[i].left_fork);
         }
-    //sem_post(table.num_mutex); // limita a n-1 filósofos en esta sección crítica
 
 }
 void eat(int i){
 
-    sem_wait(table.array_mutex);
+    sem_wait(table.mutex);
 
     table.philos_array[i].state=EATING;
     
     nano_sleep(EATING_TIME);
 
-    sem_post(table.array_mutex);
+    sem_post(table.mutex);
 
     print_state(); 
 
-    sem_wait(table.array_mutex);
+    sem_wait(table.mutex);
     table.philos_array[i].state=THINKING;
-    sem_post(table.array_mutex);
+    sem_post(table.mutex);
 }
 
 void put_forks(uint64_t i){
@@ -135,23 +124,22 @@ void put_forks(uint64_t i){
 
 
 void clean_resources(){
-    sem_wait(table.array_mutex);
+    sem_wait(table.mutex);
     for(int i=0; i<table.amount; i++){
         sem_close(table.philos_array[i].left_fork);
         my_kill(table.philos_array[i].pid);
     }
-    sem_post(table.array_mutex);
+    sem_post(table.mutex);
     close_mutexes();
 }
 
 int philos_add_remove_error(char *msg){
-    post_sems();
+    sem_post(table.mutex);
     err_print(msg, my_strlen(msg));
     return -1;
 }
 
 int new_philo(int i){
-    wait_sems();
     table.philos_array[i].state = THINKING;
     char index[4];  // suficiente para un número de hasta 3 cifras + null terminator
     itoa(i, index);
@@ -162,12 +150,14 @@ int new_philo(int i){
     if (table.philos_array[i].pid == -1) {
         print("Error al crear filosofo ", 25);
     }
-    post_sems();
+    sem_post(table.mutex);
     return table.philos_array[i].pid;
 }
 
 int add_philo(){
-    wait_sems();
+    sem_wait(table.mutex);
+
+    print("Entro al add",12);
 
     if(table.amount==MAX_PHILOS){
         return philos_add_remove_error("Error: No podes agregar mas filosofos el maximo es:10 \n");
@@ -175,32 +165,37 @@ int add_philo(){
 
     int i=table.amount;
 
+
     table.philos_array[i].left_fork=sem_open_get_id(1);
+
     if(table.philos_array[i].left_fork==-1){
          return philos_add_remove_error("Error: abriendo semaforos \n");
     }
 
-    table.philos_array[left(i,i+1)].right_fork = table.philos_array[i].left_fork;
-    table.philos_array[i].right_fork = table.philos_array[right(i,i+1)].left_fork;
+    table.amount++;
+
+
+    table.philos_array[left(i,table.amount)].right_fork = table.philos_array[i].left_fork;
+    
+    table.philos_array[i].right_fork = table.philos_array[right(i,table.amount)].left_fork;
     
     table.philos_array[i].state = THINKING;
 
-
-
     if (  new_philo(i) == -1){
         sem_close(table.philos_array[i].left_fork);
-        table.philos_array[left(i,i)].right_fork = table.philos_array[0].left_fork;
+        table.philos_array[left(i,table.amount)].right_fork = table.philos_array[0].left_fork;
+        table.amount--;
         return philos_add_remove_error("Error: creando el proceso\n");
     }
-    table.amount++;
 
-    post_sems();
+    sem_post(table.mutex);
     return 0;
 }
 
 
 int  remove_philo(){
-    wait_sems();
+     sem_wait(table.mutex);
+
     if(table.amount<=MIN_PHILOS){
         return philos_add_remove_error("Error: no podes eliminar mas filosofos el minimo es:5 \n");
     }
@@ -212,8 +207,8 @@ int  remove_philo(){
     table.philos_array[left(last,table.amount)].right_fork= table.philos_array[0].left_fork;
     
     table.amount--;
+    sem_post(table.mutex);
 
-    post_sems();
     return 0;
 }
 
@@ -238,40 +233,34 @@ int64_t philosopher(char ** argv, int argc){
 }
 
 int open_mutexes(){
-    table.array_mutex=sem_open_get_id(1);
-    if(table.array_mutex==-1){
+    table.mutex=sem_open_get_id(1);
+    if(table.mutex==-1){
         err_print("ERROR: error abriendo semaforo\n", 35);
         return-1;
     }
 
-    table.num_mutex= sem_open_get_id(1);
-        if(table.num_mutex==-1){
-            err_print("ERROR: error abriendo semaforo\n", 35);
-            sem_close(table.array_mutex);
-            return-1;
-        }
     return 0;   
 }
 
 void close_mutexes(){
-    sem_close(table.array_mutex);
-    sem_close(table.num_mutex);
+    sem_close(table.mutex);
 }
 
 void keyboard_handler(){
     char c;
-    while((c= get_char_user())!=EOF){
-        if(c==ADD){
+
+    while((c = get_char_user()) != EOF){
+      
+        if(c == ADD){
             add_philo();
-        } else if(c==REMOVE){
+        } else if(c == REMOVE){
             remove_philo();
-        } 
-        else if(c==STATE){
+        } else if(c == STATE){
             print_state();
         }
-
-    }    
+    }
 }
+
 
 void print_instructions(){
     print("Toca la tecla 'a' para agregar un filosofo y la tecla 'r' para borrar uno.\n"

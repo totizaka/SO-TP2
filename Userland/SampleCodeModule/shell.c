@@ -110,6 +110,10 @@ char **prepare_args_reader(parsed_command *cmd) {
     return prepare_args_generic(cmd, "reader", NULL);
 }
 
+char **prepare_args_philos(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "philos", NULL);
+}
+
 module menu[] = {
     {"help", help, prepare_args_default, BUILTIN}, 
     {"clear", clear_screen, NULL, BUILTIN},
@@ -132,7 +136,9 @@ module menu[] = {
     {"loop", shell_loop, prepare_args_loop, NOT_BUILTIN},
     {"cat", shell_cat,prepare_args_cat, NOT_BUILTIN},
     {"filter", shell_filter, prepare_args_filter, NOT_BUILTIN},
-    {"wc", shell_wc,prepare_args_wc, NOT_BUILTIN}
+    {"philos", philos_shell,prepare_args_philos, NOT_BUILTIN},
+    {"wc", shell_wc,prepare_args_wc, NOT_BUILTIN},
+
 };
 
 uint64_t regs[18];
@@ -636,7 +642,7 @@ void show_regs(){
     return;
 }
 
-// void philos_shell(){
-//     paint_all_vd(BLACK);
-//     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
-// }
+void philos_shell(){
+    fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
+    int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0,fds );
+}
