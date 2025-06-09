@@ -19,7 +19,7 @@ typedef enum {
 }philo_state;
 
 typedef struct philo_t{
-    int64_t pid; //proceso
+    int64_t pid;
     philo_state state;
     int64_t left_fork;
     int64_t right_fork;

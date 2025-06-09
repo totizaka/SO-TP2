@@ -78,12 +78,12 @@ int64_t philos(char **argv, uint64_t argc){
     table.amount= MIN_PHILOS;
     print_instructions();
 
-    if(open_mutexes()==-1){//si solo abro los mutex cambiar nombre func
+    if(open_mutexes()==-1){
         return -1;
     }
 
     if(init_philos()==-1){
-        close_mutexes();//limpiar recursos
+        close_mutexes();
         return -1;
     }
     
@@ -97,7 +97,6 @@ void think(){
 }
 
 void take_forks(int i){
-    
     sem_wait(table.mutex);
     int border = (i == 0 || i == table.amount - 1);
     sem_post(table.mutex);
@@ -113,8 +112,8 @@ void take_forks(int i){
         sem_wait(table.philos_array[i].right_fork);
         sem_wait(table.philos_array[i].left_fork);
     }
-
 }
+
 
 void eat(int i){
 
@@ -149,8 +148,6 @@ void put_forks(uint64_t i){
 }
 
 
-
-
 void clean_resources(){
     sem_wait(table.mutex);
     for(int i=0; i<table.amount; i++){
@@ -169,7 +166,7 @@ int philos_add_remove_error(char *msg){
 
 int new_philo(int i){
     table.philos_array[i].state = THINKING;
-    char index[4];  // suficiente para un número de hasta 3 cifras + null terminator
+    char index[4];  
     itoa(i, index);
 
     char* argv[] = {"filosofo", index, NULL};
@@ -193,7 +190,7 @@ int add_philo(){
     int i=table.amount;
 
     sem_wait(table.border_mutex);
-    //i=nuevo filosofo
+ 
     table.philos_array[i].left_fork=sem_open_get_id(1);
 
     if(table.philos_array[i].left_fork==-1){
@@ -222,34 +219,31 @@ int add_philo(){
     return 0;
 }
 
-
 int remove_philo() {
-
     sem_wait(table.border_mutex);
     sem_wait(table.mutex);
 
     if (table.amount <= MIN_PHILOS) {
+        sem_post(table.mutex);
+        sem_post(table.border_mutex);
         return philos_add_remove_error("Error: no podes eliminar más filósofos, el mínimo es 5.\n");
     }
 
     int last = table.amount - 1;
-    
 
-    // Terminar el proceso y cerrar semáforo
     my_kill(table.philos_array[last].pid);
     sem_close(table.philos_array[last].left_fork);
 
     table.philos_array[last - 1].right_fork = table.philos_array[0].left_fork;
 
     table.amount--;
-   
+
     sem_post(table.mutex);
     sem_post(table.border_mutex);
-    
+
     return 0;
 }
 
-//por ahi meterle argv, argc si quiero pasarle i
 int64_t philosopher(char ** argv, int argc){
     if (argc<1){
          return -1;
@@ -295,7 +289,7 @@ void close_mutexes(){
 void keyboard_handler(){
     char c;
 
-    while((c = get_char_user()) != EOF){
+    while((c = get_char_user()) != EOF && c != 'q'){
       
         if(c == ADD){
             add_philo();
@@ -310,6 +304,7 @@ void keyboard_handler(){
 
 void print_instructions(){
     print("Toca la tecla 'a' para agregar un filosofo y la tecla 'r' para borrar uno.\n"
+        "Toca la tecla 'q' para salir.\n"
       "El minimo de filosofos es 5 y el maximo 10.\n"
       "E en la posicion del filosofo significa que esta comiendo.\n"
       ". en la posicion del filosofo significa que esta pensando.\n", 200);
