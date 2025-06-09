@@ -2,6 +2,6 @@
 #define TEST_MM_H
 
 
-uint64_t test_mm(uint64_t argc, char *argv);
+uint64_t test_mm(char *argv[], uint64_t argc);
 
 #endif

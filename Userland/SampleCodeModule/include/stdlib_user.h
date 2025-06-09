@@ -12,7 +12,13 @@ typedef struct comands_pipe {
     char cm1[MAXBUFF];
     char cm2[MAXBUFF];
     int pipe; //flag si hay un pipe o no 
+    int background; //flag si hay un background o no
 }comands_pipe;
+
+typedef struct comand_background {
+    char cm[MAXBUFF];
+    int background; //flag si hay un background o no
+}comand_background;
 
 
 // my_syscalls wrappers some functions
@@ -48,7 +54,6 @@ uint8_t get_current_pixel_size();
 // my_syscalls wrappers memory functions
 void* my_malloc(uint64_t size);
 void my_free(uint64_t ptr);
-void my_mem_state();
 void my_free_mem_state(memory_state *state);
 
 // my_syscalls wrappers process functions
@@ -61,7 +66,6 @@ int64_t my_wait(uint64_t pid, int64_t *ret);
 int64_t my_block(uint64_t pid);
 int64_t my_unblock(uint64_t pid);
 int64_t exit_proc(uint64_t res, uint64_t pid);
-void my_ps();
 void my_free_ps(process_info_list *plist);
 
 // my_syscalls wrappers semaphores functions
@@ -98,6 +102,9 @@ char * my_strncpy(char *dest, const char *src, int n);
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
 
+// my_get_comands functions
+comand_background get_comand_background(char* input);
+comands_pipe get_comand_background_pipe(char* input);
 
 //borrar
 

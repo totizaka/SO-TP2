@@ -13,26 +13,29 @@ typedef struct MM_rq {
   uint32_t size;
 } mm_rq;
 
-uint64_t test_mm(uint64_t argc, char *argv) {
+uint64_t test_mm(char *argv[], uint64_t argc) {
 
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
   uint64_t max_memory;
 
-  // print("entre", MAXBUFF);
-  // if (argc != 1)
-  //   return -1;
+  char *str[20];
+  if (argc != 1){
+    itoa(argc, str);
+    err_print("ERROR: argc ", MAXBUFF);
+    err_print(str, MAXBUFF);
+    return -1;
+  }
 
-  // print("entre", MAXBUFF);
+  if ((max_memory = satoi(argv[0])) <= 0){
+    // if (max_memory > 100000) {
+    //   err_print("ERROR: invalid memory size, not enough capacity\n", MAXBUFF);
+    // }
+    return -1;
+  }
 
-  // if ((max_memory = satoi(argv)) <= 0)
-  //   return -1;
-
-  max_memory = 0x50000;
-
-  print("test_mm pase \n", MAXBUFF);
-  /*while (1) {*/
+  while (1) {
     rq = 0;
     total = 0;
     int count = 0;
@@ -49,6 +52,9 @@ uint64_t test_mm(uint64_t argc, char *argv) {
       if (mm_rqs[rq].address) {
         total += mm_rqs[rq].size;
         rq++;
+      }
+      else {
+        break;
       }
     }
 
@@ -70,11 +76,6 @@ uint64_t test_mm(uint64_t argc, char *argv) {
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
         my_free((uint64_t)mm_rqs[i].address);
-  ////}
-  char itoa_buffer[20];
-  itoa(count, itoa_buffer);
-  print(itoa_buffer, MAXBUFF);
-  print("todo OK!!!\n", MAXBUFF);
-
+  }
   return 0;
 }

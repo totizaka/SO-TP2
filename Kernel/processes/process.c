@@ -369,6 +369,12 @@ int zombie(int ret){
     process->ret = ret;
     remove_from_scheduler(process); // Eliminar de la lista de procesos listos
     unblock_waiting_proc(process); // Desbloquear procesos que estaban esperando a este
+    //cerrar pipes
+    for (int i = 0; i < FD_MAX; i++) {
+        if (process->fd[i] >= FD_MAX && process->fd[i] < FD_MAX + MAX_PIPES) {
+            close_pipe(process->fd[i] - FD_MAX, process->pid);
+        }
+    }
     process->state = ZOMBIE;
     process->waiting_me = NULL; // El proceso no espera a nadie
     process->waiting_for = NULL; // El proceso no está esperando a nadie

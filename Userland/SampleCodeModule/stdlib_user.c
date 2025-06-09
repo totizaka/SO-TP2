@@ -130,16 +130,38 @@ void err_print(char* buff, int count){
     syscall_my_write(STDERR, buff, count);
 }
 
-comands_pipe get_comands_pipe(char* input){
+comand_background get_comand_background(char* input){
+    comand_background bg;
+    bg.background=0;
+    int cm = 0;
+    int i=0;
+    while (input[i]!='\0'){
+        if(input[i]=='/' && bg.background==0){
+            bg.background=1;
+        }
+        else if (!bg.background){
+            bg.cm[cm++]=input[i];
+        }
+        i++;
+    }
+    bg.cm[cm] = '\0';
+    return bg;
+}
+
+comands_pipe get_comand_background_pipe(char* input){
    comands_pipe comands;
     int i=0;
     int c1=0;
     int c2=0;
     comands.pipe=0;
+    comands.background=0;
 
     while (input[i]!='\0'){
         if(input[i]=='|' && comands.pipe==0){
             comands.pipe=1;
+        }
+        else if (input[i]=='/' && comands.pipe==1){
+            comands.background=1;
         }
         else if (!comands.pipe)
         {
@@ -151,14 +173,9 @@ comands_pipe get_comands_pipe(char* input){
         i++;
     }
         comands.cm1[c1]='\0';
-   
         comands.cm2[c2]='\0';
         return comands;
-    
 }
-
-
-
 
 
 uint64_t itoa(uint64_t number, char* s) {
@@ -390,130 +407,8 @@ int utoa_hex(uint64_t value, char *str) {
     return i; // cantidad de caracteres escritos
 }
 
-void my_ps(){
-    print("Iniciando my_ps\n", MAXBUFF);
-
-    process_info_list *plist = syscall_my_get_processes();
-    if (plist == NULL) {
-        print("Error: no se pudo obtener la lista de procesos\n", MAXBUFF);
-        return;
-    }
-
-    char tmp[64];
-    int len = itoa(plist->amount_of_processes, tmp);
-    tmp[len] = '\0';
-
-    print("Procesos encontrados: ", MAXBUFF);
-    print(tmp, len);
-    print("\n", 1);
-
-    print("  PID   PRIORITY   STATE     NAME           STACK_BASE   STACK_PTR   BACKGROUND\n", MAXBUFF);
-    print("-------------------------------------------------------------------------------\n", MAXBUFF);
-
-    char buffer[128];  // ampliamos para más información
-    char numbuf[21];
-
-    for (uint64_t i = 0; i < plist->amount_of_processes; i++) {
-        process_info *p = &plist->processes[i];
-
-        int pos = 0;
-
-        // PID
-        len = itoa(p->pid, numbuf);
-        for (int j = 0; j < 4 - len; j++) buffer[pos++] = ' ';
-        for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
-        buffer[pos++] = ' ';
-
-        // PRIORITY
-        len = itoa(p->priority, numbuf);
-        for (int j = 0; j < 7 - len; j++) buffer[pos++] = ' ';
-        for (int j = 0; j < len; j++) buffer[pos++] = numbuf[j];
-        buffer[pos++] = ' ';
-
-        for (int j = 0; j < 6; j++) buffer[pos++] = ' '; // espacio para el estado
-
-        // STATE
-        const char *state_str;
-        switch (p->status) {
-            case READY: state_str = "READY\0"; break;
-            case BLOCKED: state_str = "BLOCKE\0"; break;
-            case FREE: state_str = "FREE\0"; break;
-            case RUNNING: state_str = "RUNNING\0"; break;
-            case ZOMBIE: state_str = "ZOMBIE\0"; break;
-            default: state_str = "UNKNOWN\0"; break;
-        }
-
-        int st_len= my_strcpy(buffer+pos, state_str);
-        pos+=st_len;
-        for (int j = st_len; j < 9; j++) buffer[pos++] = ' ';
-        buffer[pos++] = ' ';
-
-        // NAME
-        const char *name = p->name ? p->name : "NoName";
-        int n = 0;
-        while (name[n] != '\0' && pos < (int)sizeof(buffer) - 1) {
-            buffer[pos++] = name[n++];
-        }
-        for (int j = n; j < 14; j++) buffer[pos++] = ' ';
-
-        // STACK_BASE (hex)
-        char * prefix=" 0x\0";
-        pos+=my_strcpy(buffer+pos, prefix);
-        pos += utoa_hex(p->stack_base, buffer + pos);
-
-        for (int i = 0; i < 4; i++){
-            buffer[pos++] = ' ';
-        }
-
-        // STACK_POINTER (hex)
-        pos+=my_strcpy(buffer+pos, prefix);
-        pos += utoa_hex(p->stack_pointer, buffer + pos);
-
-        for (int i = 0; i < 5; i++){
-            buffer[pos++] = ' ';
-        }
-
-        // BACKGROUND 
-        pos+=my_strcpy(buffer+pos, p->background ? "YES\0":"NO\0");
-
-        print(buffer, pos);
-        print("\n", 1);
-        print("-------------------------------------------------------------------------------\n", MAXBUFF);
-    }
-
-    my_free_ps(plist);
-    return;
-}
-
 void my_free_ps(process_info_list *plist) {
     syscall_my_free_processes(plist);
-}
-
-void my_mem_state() {
-    memory_state* state = syscall_my_mem_state();
-
-    if (state == NULL) {
-        print("Error al obtener el estado de la memoria\n", MAXBUFF);
-        return;
-    }
-    char buffer[128];
-    int len = 0;
-    len += my_strcpy(buffer + len, "Estado de la memoria:\n");
-    len += my_strcpy(buffer + len, "Total Size: ");
-    len += itoa(state->total_size, buffer + len);
-    len += my_strcpy(buffer + len, " bytes\n");
-    len += my_strcpy(buffer + len, "Free Memory: ");
-    len += itoa(state->free, buffer + len);
-    len += my_strcpy(buffer + len, " bytes\n");
-    len += my_strcpy(buffer + len, "Occupied Memory: ");
-    len += itoa(state->occupied, buffer + len);
-    len += my_strcpy(buffer + len, " bytes\n");
-    buffer[len] = '\0';
-    print(buffer, len);
-    print("\n", 1);
-
-    my_free_mem_state(state);
-    return;
 }
 
 void my_free_mem_state(memory_state *state) {
@@ -577,23 +472,23 @@ int64_t my_write(int64_t fd, char* buffer, int num_bytes){
 // para probar kill, nice, block y unblock
 void t_a(){
 	int x;
-		while(1){
-		print("a", MAXBUFF);
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-    }
-    // char str[31];
-    // for (int i = 0; i < 30; i++){
-    //     str[i] = 'a';
-    //     for(int i=0; i<10000000;i++){
-    //         i--;
-    //         i++;
-    //         x = i;
-    //     }
+	// 	while(1){
+	// 	print("a", MAXBUFF);
+	// 	for(int i=0; i<10000000;i++){
+	// 		i--;
+	// 		i++;
+	// 		x = i;
+	// 	}
     // }
-    // str[30] = '\0';
-    // print(str, 30);
+    char str[31];
+    for (int i = 0; i < 30; i++){
+        str[i] = 'a';
+        for(int i=0; i<10000000;i++){
+            i--;
+            i++;
+            x = i;
+        }
+    }
+    str[30] = '\0';
+    print(str, 30);
 }

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <shared_defs.h>
 
+// Arqui
+
 extern uint64_t syscall_read(uint64_t fd, char* buf);
 extern uint64_t syscall_write(uint64_t fd, const char *buf, uint64_t count);
 extern uint64_t syscall_time();
@@ -24,7 +26,6 @@ extern uint64_t syscall_regs();
 
 // SO
 
-
 extern int64_t syscall_my_getpid();
 extern int64_t syscall_my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
 extern int64_t syscall_my_nice(uint64_t pid, uint64_t newPrio);
@@ -44,7 +45,6 @@ extern process_info_list * syscall_my_get_processes();
 extern int64_t syscall_my_free_processes(process_info_list *processes);
 extern memory_state* syscall_my_mem_state();
 extern void syscall_my_free_mem_state(memory_state *state);
-
 extern void syscall_my_create_pipe(int64_t id);
 extern int8_t syscall_my_open_pipe(int64_t target, int role);
 extern int64_t syscall_my_write_pipe(int64_t target, char * buffer,int num_bytes);
