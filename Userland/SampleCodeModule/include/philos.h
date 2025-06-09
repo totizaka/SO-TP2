@@ -5,11 +5,12 @@
 
 #define ADD 'a'
 #define REMOVE 'r'
-#define STATE 's'
+
 #define MAX_PHILOS 10
 #define MIN_PHILOS 5
-#define THINKING_TIME 1000
-#define EATING_TIME 10000000
+
+#define EATING_TIME 10
+#define THINKING_TIME 20
 
 typedef enum {
     THINKING,
@@ -17,7 +18,7 @@ typedef enum {
 }philo_state;
 
 typedef struct philo_t{
-    uint64_t pid; //proceso
+    int64_t pid;
     philo_state state;
     int64_t left_fork;
     int64_t right_fork;
@@ -28,8 +29,8 @@ typedef struct table_t
 {
     philo_t philos_array[MAX_PHILOS];
     uint8_t amount;
-    int64_t array_mutex;
-    int64_t num_mutex;
+    int64_t mutex;
+    int64_t border_mutex;
     fd_t fds[FD_MAX];
 
 }table_t;

@@ -7,6 +7,10 @@
 int run_special_command(parsed_command cmd);
 parsed_command parse_command(char *input);
 
+char **prepare_args_philos(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "philos", NULL);
+}
+
 module menu[] = {
     {"help", help, BUILTIN},  
     {"clear", clear_screen, BUILTIN},
@@ -19,7 +23,7 @@ module menu[] = {
     {"cat", shell_cat,NOT_BUILTIN},
     {"filter", shell_filter, NOT_BUILTIN},
     {"wc", shell_wc,NOT_BUILTIN},
-    {"phylos", phylo,  NOT_BUILTIN},
+    {"phylos", philos,  NOT_BUILTIN},
     {"mmtest", test_mm, NOT_BUILTIN}, 
     {"testprio", test_prio, NOT_BUILTIN}, 
     {"testprocesses", test_processes, NOT_BUILTIN}, 
@@ -314,9 +318,4 @@ void shell_unblock(char ** argv, uint64_t argc){
     }
     my_unblock(pid);
     return;  
-}
-
-void philos_shell(){
-    paint_all_vd(BLACK);
-    int pid  = my_create_process_shell((void(*))phylo, NULL, 0, 0);
 }
