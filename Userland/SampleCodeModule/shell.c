@@ -600,8 +600,7 @@ void show_regs(){
     return;
 }
 
-//no esta terminado
-/*void philos_shell(){
+void philos_shell(){
     paint_all_vd(BLACK);
     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
-}*/
+}

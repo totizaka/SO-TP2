@@ -66,6 +66,6 @@ void blocking_reader_test(void);
 void orphan_writer_test(void);
 void eof_reader_test(void);
 
-//void philos_shell();
+void philos_shell();
 
 #endif
