@@ -14,7 +14,6 @@ void slowInc(int64_t *p, int64_t inc) {
 
 
 uint64_t my_process_inc( char *argv[], uint64_t argc) {
-  print("test_sync: process-inc\n", 50);
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
@@ -62,27 +61,22 @@ uint64_t test_sync(char *argv[], uint64_t argc) {
   global = 0;
 
   uint64_t i;
-    fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
+  fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
   
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
     pids[i] = my_create_process((void(*))my_process_inc, argvDec, 4, 0, fds);
     pids[i + TOTAL_PAIR_PROCESSES] = my_create_process((void(*))my_process_inc, argvInc, 4, 0, fds);
-    print("test_sync: enloqueciendo\n", 50);
   }
 
-  int64_t* res= my_malloc(4);
-  int64_t*res2=  my_malloc(4);
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    my_wait(pids[i],res );
-    my_wait(pids[i + TOTAL_PAIR_PROCESSES],res2 );
+    my_wait(pids[i], NULL);
+    my_wait(pids[i + TOTAL_PAIR_PROCESSES], NULL);
   }
-  my_free(res);
-  my_free(res2);
 
-  print("Final value: ", 15);
-  char s[4];
-  itoa( global, s);
-  print(s, 4);
+  print("Final value: ", MAXBUFF);
+  char s[10];
+  itoa(global, s);
+  print(s, MAXBUFF);
   return 0;
 }

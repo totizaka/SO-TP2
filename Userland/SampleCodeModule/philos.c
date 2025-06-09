@@ -172,7 +172,7 @@ int new_philo(int i){
 
     table.philos_array[i].pid = my_create_process((void*)philosopher, argv, 2, 0, table.fds);
     if (table.philos_array[i].pid == -1) {
-        print("Error al crear filosofo ", 25);
+        print("Error al crear filosofo ", MAXBUFF);
     }
     sem_post(table.mutex);
     return table.philos_array[i].pid;
@@ -219,7 +219,7 @@ int remove_philo() {
     if (table.amount <= MIN_PHILOS) {
         sem_post(table.mutex);
         sem_post(table.border_mutex);
-        return philos_add_remove_error("Error: no podes eliminar más filósofos, el mínimo es 5.\n");
+        return philos_add_remove_error("Error: no podes eliminar mas filosofos, el minimo es 5.\n");
     }
 
     int last = table.amount - 1;
@@ -244,7 +244,7 @@ int64_t philosopher(char ** argv, int argc){
 
     int i = satoi(argv[0]);
     if(i < 0 || i >= MAX_PHILOS){
-        err_print("ERROR: indice de filosofo invalido\n", 35);
+        err_print("ERROR: indice de filosofo invalido\n", MAXBUFF);
         return -1;
     }
 
@@ -259,13 +259,13 @@ int64_t philosopher(char ** argv, int argc){
 int open_mutexes(){
     table.mutex=sem_open_get_id(1);
     if(table.mutex==-1){
-        err_print("ERROR: error abriendo mutex\n", 35);
+        err_print("ERROR: error abriendo mutex\n", MAXBUFF);
         return-1;
     }
     table.border_mutex = sem_open_get_id(1);
     if (table.border_mutex == -1) {
         sem_close(table.mutex);
-        err_print("ERROR: error abriendo border_mutex\n", 38);
+        err_print("ERROR: error abriendo border_mutex\n", MAXBUFF);
         return -1;
     }
     return 0;   
@@ -295,7 +295,7 @@ void print_instructions(){
         "Toca la tecla 'q' para salir.\n"
       "El minimo de filosofos es 5 y el maximo 10.\n"
       "E en la posicion del filosofo significa que esta comiendo.\n"
-      ". en la posicion del filosofo significa que esta pensando.\n", 200);
+      ". en la posicion del filosofo significa que esta pensando.\n", 500);
 }
 
 

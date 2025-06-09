@@ -7,9 +7,6 @@
 int run_special_command(parsed_command cmd);
 parsed_command parse_command(char *input);
 
-char **prepare_args_philos(parsed_command *cmd) {
-    return prepare_args_generic(cmd, "philos", NULL);
-}
 
 module menu[] = {
     {"help", help, BUILTIN},  
