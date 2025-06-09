@@ -64,7 +64,9 @@ module menu[] = {
     {"eofreader", eof_reader_test, prepare_args_default, NOT_BUILTIN},
     {"cat", shell_cat,prepare_args_default, NOT_BUILTIN},
     {"filter", shell_filter, prepare_args_default, NOT_BUILTIN},
-    {"wc", shell_wc,prepare_args_default, NOT_BUILTIN}
+    {"wc", shell_wc,prepare_args_default, NOT_BUILTIN},
+    {"philos", philos, prepare_args_default, NOT_BUILTIN},
+
 };
 
 uint64_t regs[18];
@@ -610,8 +612,7 @@ void show_regs(){
     return;
 }
 
-//no esta terminado
-/*void philos_shell(){
+void philos_shell(){
     paint_all_vd(BLACK);
     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
-}*/
+}

@@ -7,7 +7,7 @@
 #include <philos.h>
 #include <shell_apps.h>
 
-#define menuDIM 25
+#define menuDIM 26
 #define BLACK 0x000000
 #define BUILTIN 1
 #define NOT_BUILTIN 0
@@ -65,6 +65,6 @@ void blocking_reader_test(void);
 void orphan_writer_test(void);
 void eof_reader_test(void);
 
-//void philos_shell();
+void philos_shell();
 
 #endif
