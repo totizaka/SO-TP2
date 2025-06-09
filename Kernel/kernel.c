@@ -246,13 +246,6 @@ int main()
 {	
 
 	load_idt();
-	
-
-
-	
-	// ncPrintHex(((EntryPoint)sample_code_module_address)());
-
-	draw_word(0xFFFFFF,"hola\n");
 
 
 	//char a[2]="a";

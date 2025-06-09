@@ -10,26 +10,31 @@ char **prepare_args_default(parsed_command * cmd) {
 
 char **prepare_args_test_a(parsed_command * cmd) {
     static char *argv[] = {"test_a", NULL};
+    cmd->argc = 1;
     return argv; // Devuelve argumentos específicos para `test_a`.
 }
 
 char **prepare_args_test_processes(parsed_command * cmd) {
     static char *argv[] = {"test_processes", "30", NULL};
+    cmd->argc = 2; 
     return argv;
 }
 
 char **prepare_args_test_prio(parsed_command * cmd) {
     static char *argv[] = {"test_prio", NULL};
+    cmd->argc = 1; 
     return argv;
 }
 
 char **prepare_args_test_syncro(parsed_command * cmd) {
     static char *argv[] = {"test_sync", "5", "1", NULL}; // Por defecto, usar semáforos.
+    cmd->argc = 3;
     return argv;
 }
 
 char **prepare_args_test_syncro_no_sem(parsed_command * cmd) {
     static char *argv[] = {"test_sync", "5", "0", NULL}; // Sin semáforos.
+    cmd->argc = 3;
     return argv;
 }
 
@@ -39,8 +44,39 @@ char **prepare_args_loop(parsed_command * cmd) {
     return argv;
 }
 
+char **prepare_args_cat(parsed_command * cmd) {
+    static char *argv[] = {"cat", NULL}; // No necesita argumentos adicionales.
+    cmd->argc = 1;
+    return argv;
+}
+
+char **prepare_args_filter(parsed_command * cmd) {
+    static char *argv[] = {"filter", NULL}; // No necesita argumentos adicionales.
+    cmd->argc = 1;
+    return argv;
+}
+
+char **prepare_args_wc(parsed_command * cmd) {
+    static char *argv[] = {"wc", NULL}; // No necesita argumentos adicionales.
+    cmd->argc = 1;
+    return argv;
+}
+
+char **prepare_args_ps(parsed_command * cmd) {
+    static char *argv[] = {"ps", NULL}; // No necesita argumentos adicionales.
+    cmd->argc = 1;
+    return argv;
+}
+
+char **prepare_args_mem_state(parsed_command * cmd) {
+    static char *argv[] = {"memstate", NULL}; // No necesita argumentos adicionales.
+    cmd->argc = 1;
+    return argv;
+}
+
 module menu[] = {
     {"help", help, prepare_args_default, BUILTIN}, 
+    {"clear", clear_screen, NULL, BUILTIN},
     {"snake", snake, prepare_args_default, BUILTIN}, 
     {"regvalues", show_regs, prepare_args_default, BUILTIN},
     {"fontsize", font_size, prepare_args_default, BUILTIN},
@@ -50,21 +86,17 @@ module menu[] = {
     {"mmtest", test_mm, prepare_args_default, NOT_BUILTIN}, 
     {"testprio", test_prio, prepare_args_test_prio, NOT_BUILTIN}, 
     {"testprocesses", test_processes, prepare_args_test_processes, NOT_BUILTIN}, 
-    {"testsyncro", test_sync, prepare_args_test_syncro, NOT_BUILTIN}, 
-    {"ps", ps, prepare_args_default, BUILTIN},
-    {"memstate", show_mem_state, prepare_args_default, BUILTIN}, 
+    {"testsyncro-sem", test_sync, prepare_args_test_syncro, NOT_BUILTIN}, 
+    {"testsyncro-no-sem", test_sync, prepare_args_test_syncro_no_sem, NOT_BUILTIN},
+    {"ps", ps, prepare_args_ps, NOT_BUILTIN},
+    {"mem", show_mem_state, prepare_args_mem_state, NOT_BUILTIN}, 
     {"testa", t_a, prepare_args_test_a, NOT_BUILTIN},
     {"writer", write_process_test, prepare_args_default, NOT_BUILTIN},
     {"reader", read_process_test, prepare_args_default, NOT_BUILTIN},
     {"loop", shell_loop, prepare_args_loop, NOT_BUILTIN},
-    {"slowwriter", slow_writer_test, prepare_args_default, NOT_BUILTIN},
-    {"fastreader", fast_reader_test, prepare_args_default, NOT_BUILTIN},
-    {"blockingreader", blocking_reader_test, prepare_args_default, NOT_BUILTIN},
-    {"orphanwriter", orphan_writer_test, prepare_args_default, NOT_BUILTIN},
-    {"eofreader", eof_reader_test, prepare_args_default, NOT_BUILTIN},
-    {"cat", shell_cat,prepare_args_default, NOT_BUILTIN},
-    {"filter", shell_filter, prepare_args_default, NOT_BUILTIN},
-    {"wc", shell_wc,prepare_args_default, NOT_BUILTIN}
+    {"cat", shell_cat,prepare_args_cat, NOT_BUILTIN},
+    {"filter", shell_filter, prepare_args_filter, NOT_BUILTIN},
+    {"wc", shell_wc,prepare_args_wc, NOT_BUILTIN}
 };
 
 uint64_t regs[18];
@@ -99,6 +131,7 @@ char **get_args_preparer(parsed_command * cmd) {
 void help(){
     paint_all_vd(BLACK);
     print("Enter: help >> To print the different functions of the shell\n", MAXBUFF);
+    print("Enter: clear >> To clear the screen\n", MAXBUFF);
     print("Enter: snake >> To play the Snake Game\n", MAXBUFF);
     print("Enter: regvalues >> To show snapshot of the Register values\n", MAXBUFF);
     print("Enter: fontsize >> To change the font size\n", MAXBUFF);
@@ -115,7 +148,8 @@ void help(){
     print("Enter: mmtest >> To test the Memory Manager\n", MAXBUFF);
     print("Enter: testprio >> To test the Process Manager\n", MAXBUFF);
     print("Enter: testprocesses >> To test the Priority Manager\n", MAXBUFF);
-    print("Enter: testsyncro >> To test Synchronization\n", MAXBUFF);
+    print("Enter: testsyncro-sem >> To test Synchronization\n", MAXBUFF);
+    print("Enter: testsyncro-no-sem >> To test Synchronization without semaphores\n", MAXBUFF);
     return;
 }
 
@@ -157,7 +191,7 @@ void shell_nice(char** argv, uint64_t argc){
       return;
     }
     new_prio = satoi(argv[1]);
-    if (new_prio <= 0 && new_prio > 7){
+    if (new_prio <= 0 || new_prio > 7){
         print("ERROR: error getting new priority", 30);
       return;
     }  
@@ -280,56 +314,10 @@ void eof_reader_test() {
     if (STDIN >= FD_MAX) my_close_pipe(STDIN);
 }
 
-//VER CON ARGUMENTOS, NO HARDCODEAR LOS TESTS
-// void p1(){
-    
-//     paint_all_vd(BLACK);
-//     fd_t fd={ STDIN, STDOUT, STDERR };
-//     int pid  = my_create_process_shell((void(*))process1, NULL, 0, 0,fd);
-// }
-
-
-// void mm_test_shell(){
-//     paint_all_vd(BLACK);
-//     fd_t fd={ STDIN, STDOUT, STDERR };
-//     int pid  = my_create_process_shell((void(*))test_mm, NULL, 0, 0, fd);
-// }
-
-// void proc_test_shell(){
-//     paint_all_vd(BLACK);
-//      fd_t fd={ STDIN, STDOUT, STDERR };
-
-//     char *argv[] = {"test_processes", "30", NULL};  
-//     int64_t pid = my_create_process_shell((void(*))test_processes, argv, 2, 0, fd);
-// }
-
-// void prio_test_shell(){
-//     paint_all_vd(BLACK);
-//     fd_t fd={ STDIN, STDOUT, STDERR };
-
-//     char *argv[] = {"test_prio", NULL};
-//     int64_t pid= my_create_process_shell((void(*))test_prio, argv, 1, 0, fd);
-// }
-
-// void sync_tests(char* use_sem){
-//     //ver si me armo mini funcion para armarme los argv con malloc??
-//     fd_t fd={ STDIN, STDOUT, STDERR };
-//     char * argv[]={"sync_test","5", use_sem, NULL };
-//     int64_t pid= my_create_process_shell((void(*))test_sync, argv, 2, 0, fd);
-// }
-
-// void sync_test_shell(){
-//     paint_all_vd(BLACK);
-//     char* use_sem="1\0";
-//     sync_tests(use_sem);
-//     //ver si tiro msjito dependiendo valor ret??
-// }
-
-// void no_sync_test_shell(){
-//     paint_all_vd(BLACK);
-//     char* use_sem="0\0";
-//     sync_tests(use_sem);
-// }
+void clear_screen(){
+    paint_all_vd(BLACK);
+    return;
+}
 
 
 void opcode_exc(){
@@ -472,6 +460,7 @@ void run_piped_program(char *input1, char *input2) {
     fd_t fds1[FD_MAX] = { STDIN, id_pipe + FD_MAX, STDERR };   // escritor
     fd_t fds2[FD_MAX] = { id_pipe + FD_MAX, STDOUT, STDERR };  // lector
 
+    clear_screen();
     uint64_t pid1 = my_create_process((void (*)())menu[c1].function, cmd1.args, cmd1.argc, 0, fds1);
     uint64_t pid2 = my_create_process((void (*)())menu[c2].function, cmd2.args, cmd2.argc, 0, fds2);
 
@@ -501,7 +490,8 @@ void run_simple_program(char* input) {
                 // Crear un proceso para comandos no built-in
                 char **args = get_args_preparer(&cmd);
                 fd_t fds[FD_MAX] = {STDIN, STDOUT, STDERR};
-                my_create_process_shell((void (*)())menu[i].function, args, cmd.argc, 0, fds);
+                clear_screen();
+                my_create_process((void (*)())menu[i].function, args, cmd.argc, 0, fds);
             }
             return;
         }

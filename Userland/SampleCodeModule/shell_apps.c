@@ -1,32 +1,58 @@
 #include <shell_apps.h>
 
+int8_t vowel(char c) {
+    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' ||
+           c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U';
+}
 
+//funciones auxiliares
 
-// void my_get_string(char* buff, int count){
-//     int i=0;
-//     char c=0;
-//     char s[2];
-//     while( ( c = get_char_user() ) && i < (count -1)){
-//         if(c=='\b'){
-//             if(i!=0){
-//              i--;
-//              errase_char(0x000000);
-//             }
-//             buff[i]=0;
-//         }
-//         if ( c != '\b' && c!='=' && i < count - 1 && c != 0 ) {
-//             s[0]=c;
-//             s[1]=0;
-// 			print ( s, 1 );
-// 			buff[i++] = c;
-// 		}
-//     }
+int read_line_with_backspace(char *buffer, int max_len) {
+    int i = 0;
+    char c;
+    char s[2] = {0};
 
-//     print("\n",1);
-//     buff[i]='\0';
-// }
+    while (i < max_len - 1) {
+        c = get_char_user();
 
+        if (c == EOF) {
+            buffer[0] = '\0';
+            return 1; // Ctrl+D → EOF
+        }
 
+        if (c == '\b') {
+            if (i > 0) {
+                i--;
+                buffer[i] = '\0';
+                errase_char(0x000000);
+            }
+        } else if ((c >= 32 && c < 127) || c == '\n') { // imprimible o enter
+            buffer[i++] = c;
+            s[0] = c;
+            print(s, 1);
+        }
+    }
+
+    buffer[i] = '\0';
+    return 0;
+}
+
+char get_char_handled_input() {
+    char c;
+
+    while (1) {
+        c = get_char_user();
+
+        if (c == '\b') {
+            errase_char(0x000000);
+            continue; // No devolvemos backspace
+        }
+
+        return c;
+    }
+}
+
+// shell_apps commands
 
 void shell_loop(char** argv, uint64_t argc){
    if(argc!=1){
@@ -48,86 +74,46 @@ void shell_loop(char** argv, uint64_t argc){
     }
 }
 
-void read_line_with_backspace(char *buffer, int max_len) {
-    int i = 0;
-    char c;
-    char s[2] = {0};
-
-    while (i < max_len - 1) {
-         c = get_char_user();
-
-         if (c = 0) { // Valor especial devuelto por tu handler para Ctrl+D
-            buffer[0] = '\0';
-            return 1; // EOF detectado
-         }
-
-        if (c == '\b') {
-            if (i > 0) {
-                i--;
-                buffer[i] = '\0';
-                errase_char(0x000000); // Borra el carácter en pantalla
-            }
-        } else if (c != 0 && c >= 32 && c < 127) { // caracteres imprimibles
-            buffer[i++] = c;
-            s[0] = c;
-            print(s, 1); // Imprimir el carácter
-        }
-    }
-
-    buffer[i] = '\0';
-    print("\n", 1); // Avanzar de línea al terminar
-}
-
-#define MAX_LINE 128
-
 void shell_cat() {
     char buffer[MAX_LINE];
     while (1) {
-        read_line_with_backspace(buffer, MAX_LINE);
-        if (buffer[0] == 0) break; // Salir si se presiona Enter sin texto
-        print(buffer, 1);
-        print("\n", 1);
+        if (read_line_with_backspace(buffer, MAX_LINE)) {
+            break; // Ctrl+D
+        }
     }
 }
 
-void shell_wc(){
-   char c;
-   char s[2];
-   int64_t l=1;
-   while((c=get_char_user())>0){
-      if(c=='\n'){
-         l++;
-      }
-      s[0]=c;
-      s[1]=0;
-      print(s, 1);
-   }
-   if(c=='\b'){
-      errase_char(0x000000);
-   }
-   print("Lines: ",7);
-   char st[3];
-   itoa(l, s);
-   print(st,3);
+void shell_wc() {
+    char c;
+    char s[2] = {0};
+    int64_t l = 1;
+
+    while ((c = get_char_handled_input()) > 0) {
+        if (c == '\n') {
+            l++;
+        }
+
+        s[0] = c;
+        print(s, 1);
+    }
+
+    print("\nLines: ", 7);
+    char count_buf[20];
+    itoa(l, count_buf);
+    print(count_buf, 1);
 }
 
-int8_t vowel(char c) {
-    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' ||
-           c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U';
-}
 
-void shell_filter(){
-   char c;
-   char s[2];
-   while((c=get_char_user())>0 ){
-      if(c=='\b'){
-         errase_char(0x000000);
-      }
-      if(!vowel(c)){
-         s[0]=c;
-         s[1]=0;
-         print(s, 1);
-      }
-   }
-   print("\n",1);
+void shell_filter() {
+    char c;
+    char s[2] = {0};
+
+    while ((c = get_char_handled_input()) > 0) {
+        if (!vowel(c)) {
+            s[0] = c;
+            print(s, 1);
+        }
+    }
+
+    print("\n", 1);
 }

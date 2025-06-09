@@ -3,6 +3,8 @@
 #include <process.h>
 
 #define BUFF_MAX 50
+#define EOF 0 // Definimos EOF como 0
+
 extern int key_pressed();
 
 unsigned char scan_code = 0;
@@ -34,22 +36,36 @@ void keyboard_handler() {
     static int ctrl_pressed = 0;
     if (scan_code == 0x1D) { // Scan code de CTRL
         ctrl_pressed = 1;
-    } else if (scan_code == 0x2E && ctrl_pressed) { // Scan code de C
+        return;
+    } else if (scan_code == 0x9D) { // Ctrl LIBERADO
+        ctrl_pressed = 0;
+        return; // No meter Ctrl en el buffer
+    }
+    if (scan_code == 0x2E && ctrl_pressed) { // Scan code de C
         _cli(); // Deshabilitar interrupciones
         ctrl_c_handler(); // Llamar al manejador en process.c
         ctrl_pressed = 0; // Resetear el estado de CTRL
+        return;
     } else if (scan_code == 0x20 && ctrl_pressed) { // Scan code de D
-        _cli(); // Deshabilitar interrupciones
+        _cli();
         if (dim < BUFF_MAX){
-            char_to_ret[dim] = EOF;
+            char_to_ret[dim] = EOF; // 0 lo usamos como señal de EOF en read_line
             dim++;
+            if (blocked != NULL) {
+                ready(blocked);
+                blocked = NULL;
+            }
         }
-        ctrl_pressed = 0; // Resetear el estado de CTRL
+        ctrl_pressed = 0;
+        return; // No meter Ctrl+D en el buffer
     } else {
         ctrl_pressed = 0; // Resetear si no es CTRL+C
     }
 
 	if ( dim < BUFF_MAX ) {
+        if (scan_codes[scan_code] == 0) {
+            return; // No meter en el buffer si no es un caracter imprimible
+        }
         char_to_ret[dim] = scan_codes[scan_code];
 		dim++;
 	} else if ( current == dim ) {

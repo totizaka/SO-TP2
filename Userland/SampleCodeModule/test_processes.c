@@ -16,14 +16,18 @@ int64_t test_processes(char *argv[], uint64_t argc) {
   uint64_t max_processes;
   char *argvAux[] = {0};
 
-   if (argc != 1)
-     return -1;
+    if (argc != 1){
+      print("test_processes: ERROR: expected 1 argument (max processes)\n", MAXBUFF);
+      return -1;
+    }
 
-   if ((max_processes = satoi(argv[0])) <= 0)
-     return -1;
+    if ((max_processes = satoi(argv[0])) <= 0){
+      print("test_processes: ERROR: invalid number of processes\n", MAXBUFF);
+      return -1;
+    }
 
   p_rq p_rqs[max_processes];
-    fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
+  fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
 
   while (1) {

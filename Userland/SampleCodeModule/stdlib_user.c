@@ -577,23 +577,23 @@ int64_t my_write(int64_t fd, char* buffer, int num_bytes){
 // para probar kill, nice, block y unblock
 void t_a(){
 	int x;
-	// 	while(1){
-	// 	print("a", MAXBUFF);
-	// 	for(int i=0; i<10000000;i++){
-	// 		i--;
-	// 		i++;
-	// 		x = i;
-	// 	}
-    // }
-    char str[31];
-    for (int i = 0; i < 30; i++){
-        str[i] = 'a';
-        for(int i=0; i<10000000;i++){
-            i--;
-            i++;
-            x = i;
-        }
+		while(1){
+		print("a", MAXBUFF);
+		for(int i=0; i<10000000;i++){
+			i--;
+			i++;
+			x = i;
+		}
     }
-    str[30] = '\0';
-    print(str, 30);
+    // char str[31];
+    // for (int i = 0; i < 30; i++){
+    //     str[i] = 'a';
+    //     for(int i=0; i<10000000;i++){
+    //         i--;
+    //         i++;
+    //         x = i;
+    //     }
+    // }
+    // str[30] = '\0';
+    // print(str, 30);
 }

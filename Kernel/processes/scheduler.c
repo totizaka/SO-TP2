@@ -19,7 +19,6 @@ int compare_elem(list_elem_t e1, list_elem_t e2){
 //tiene q hacer las dos listas y dsp llamar a set_idle() => en el pcb table en la posicision 0 tenmos el idle 
 
 void initialize_scheduler(void * shell){
-    draw_word(0xFFFFFF, "Initializing scheduler\n");
     t_cmp cmp = compare_elem;
     readys = new_list(cmp);
     blockeds = new_list(cmp);
