@@ -48,7 +48,7 @@ int64_t init_philos(){
 
 
     for(int i=0; i<MIN_PHILOS; i++){
-        table.philos_array[i].left_fork=sem_open_get_id(1);
+        table.philos_array[i].left_fork= sem_open_get_id(1);
 
         if(table.philos_array[i].left_fork==-1){
             return philos_init_error( "ERROR: error abriendo semaforos\n",i);
