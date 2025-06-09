@@ -31,6 +31,7 @@ typedef struct table_t
     philo_t philos_array[MAX_PHILOS];
     uint8_t amount;
     int64_t mutex;
+    int64_t border_mutex;
     fd_t fds[FD_MAX];
 
 }table_t;
