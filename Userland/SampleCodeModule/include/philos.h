@@ -6,18 +6,21 @@
 #define ADD 'a'
 #define REMOVE 'r'
 #define STATE 's'
+
 #define MAX_PHILOS 10
 #define MIN_PHILOS 5
-#define THINKING_TIME 1000
-#define EATING_TIME 10000000
+#define TICKS_PER_SECOND 18
+#define EATING_TIME (2 * TICKS_PER_SECOND)
+#define THINKING_TIME (3 * TICKS_PER_SECOND)
 
 typedef enum {
     THINKING,
+    HUNGRY,
     EATING,
 }philo_state;
 
 typedef struct philo_t{
-    uint64_t pid; //proceso
+    int64_t pid; //proceso
     philo_state state;
     int64_t left_fork;
     int64_t right_fork;

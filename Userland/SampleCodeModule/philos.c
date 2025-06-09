@@ -5,15 +5,26 @@ static table_t table;
 static int64_t philosopher(char ** argv, int argc);
 
 
+uint8_t is_even(uint64_t id){
+    return (id%2==0);
+}
+
+uint64_t left(uint64_t i, uint64_t n){
+    return (i+n-1)%n;
+}
+uint64_t right(uint64_t i, uint64_t n){
+    return (i+1)%n;
+}
+
+
 void print_state(){
     sem_wait(table.array_mutex);
     for(int i=0; i<table.amount; i++){
         if(table.philos_array[i].state==EATING){
-            print ("E", 1);
+            print ("E ", 2);
         }else{
-            print (".", 1);
-        }
-        print(" ", 1);
+            print (". ", 2);
+        };
     }
     print ("\n", 1);
     sem_post(table.array_mutex);
@@ -56,7 +67,7 @@ int64_t init_philos(){
     }
 
     for(int i=0; i<MIN_PHILOS; i++){
-        table.philos_array[i].right_fork = table.philos_array[(i + 1) % MIN_PHILOS].left_fork;
+        table.philos_array[i].right_fork = table.philos_array[right(i,MIN_PHILOS)].left_fork;
         
         if(   new_philo(i) ==-1){
             return philos_init_error( "ERROR: error creando proceso de filosofo\n",i);}
@@ -65,87 +76,61 @@ int64_t init_philos(){
     return 0;
 }
 
-uint8_t is_even(uint64_t id){
-    return (id%2==0);
-}
-
-// uint64_t left(uint64_t i, uint64_t n){
-//     return (i+n-1)%n;
-// }
-// uint64_t right(uint64_t i, uint64_t n){
-//     return (i+1)%n;
-// }
-
-
 int64_t philos(char **argv, uint64_t argc){
     table.amount= MIN_PHILOS;
     print_instructions();
-    print('a', 1);
-
 
     if(open_mutexes()==-1){//si solo abro los mutex cambiar nombre func
-       print('b', 1);
         return -1;
     }
-    print('c', 1);
 
     if(init_philos()==-1){
         close_mutexes();//limpiar recursos
-        print('d', 1);
-
         return -1;
     }
-    print('f', 1);
-
-    print_state();
+    
+    // print_state();
     keyboard_handler();
     clean_resources();
     return 0;
 }
-
 
 void think(){
     nano_sleep(THINKING_TIME);
 }
 
 void take_forks(int i){
-     print("Filosofo ", 9); 
-    print(" intentando tomar tenedores\n", 28);
 
-     if(is_even(i)){
-            sem_wait(table.num_mutex);
+    if(is_even(i)){
             sem_wait(table.philos_array[i].left_fork);
             sem_wait(table.philos_array[i].right_fork);
-            sem_post(table.num_mutex);
     }else{
-            sem_wait(table.num_mutex);
             sem_wait(table.philos_array[i].right_fork);
             sem_wait(table.philos_array[i].left_fork);
-            sem_post(table.num_mutex);
         }
+    //sem_post(table.num_mutex); // limita a n-1 filósofos en esta sección crítica
+
 }
 void eat(int i){
-        print("Filosofo ", 9);
-        print(" comiendo\n", 10);
 
     sem_wait(table.array_mutex);
+
     table.philos_array[i].state=EATING;
-    print_state();
+    
+    nano_sleep(EATING_TIME);
+
     sem_post(table.array_mutex);
 
-    nano_sleep(EATING_TIME);
+    print_state(); 
 
     sem_wait(table.array_mutex);
     table.philos_array[i].state=THINKING;
-    print_state();
     sem_post(table.array_mutex);
 }
 
 void put_forks(uint64_t i){
-        sem_wait(table.num_mutex);
         sem_post(table.philos_array[i].right_fork);
         sem_post(table.philos_array[i].left_fork); 
-        sem_post(table.num_mutex);    
 }
 
 
@@ -166,6 +151,7 @@ int philos_add_remove_error(char *msg){
 }
 
 int new_philo(int i){
+    wait_sems();
     table.philos_array[i].state = THINKING;
     char index[4];  // suficiente para un número de hasta 3 cifras + null terminator
     itoa(i, index);
@@ -176,6 +162,7 @@ int new_philo(int i){
     if (table.philos_array[i].pid == -1) {
         print("Error al crear filosofo ", 25);
     }
+    post_sems();
     return table.philos_array[i].pid;
 }
 
@@ -193,21 +180,21 @@ int add_philo(){
          return philos_add_remove_error("Error: abriendo semaforos \n");
     }
 
-    table.philos_array[i - 1].right_fork = table.philos_array[i].left_fork;
-    table.philos_array[i].right_fork = table.philos_array[0].left_fork;
+    table.philos_array[left(i,i+1)].right_fork = table.philos_array[i].left_fork;
+    table.philos_array[i].right_fork = table.philos_array[right(i,i+1)].left_fork;
+    
     table.philos_array[i].state = THINKING;
 
 
 
-    if (  new_philo(i) ==-1){
+    if (  new_philo(i) == -1){
         sem_close(table.philos_array[i].left_fork);
-        table.philos_array[i - 1].right_fork = table.philos_array[0].left_fork;
+        table.philos_array[left(i,i)].right_fork = table.philos_array[0].left_fork;
         return philos_add_remove_error("Error: creando el proceso\n");
     }
     table.amount++;
 
     post_sems();
-    print_state();
     return 0;
 }
 
@@ -222,37 +209,25 @@ int  remove_philo(){
     my_kill(table.philos_array[last ].pid); 
     sem_close(table.philos_array[last].left_fork);
 
-    table.philos_array[last-1].right_fork= table.philos_array[0].left_fork;
+    table.philos_array[left(last,table.amount)].right_fork= table.philos_array[0].left_fork;
     
     table.amount--;
 
     post_sems();
-    print_state();
     return 0;
 }
 
 //por ahi meterle argv, argc si quiero pasarle i
 int64_t philosopher(char ** argv, int argc){
-
-    print("philosopher lanzado\n", 21);
-
-    if (argc<=1){
-        print("keeeeeee filosofo ", 18);
+    if (argc<1){
          return -1;
     }
 
-    print("argv[1] = ", 10);
-
-    print(argv[1], my_strlen(argv[1]));
-    print("\n", 1);
-
-    int i = satoi(argv[1]);
-
+    int i = satoi(argv[0]);
     if(i < 0 || i >= MAX_PHILOS){
         err_print("ERROR: índice de filósofo inválido\n", 35);
         return -1;
     }
-       
 
     while(1){
         think();
