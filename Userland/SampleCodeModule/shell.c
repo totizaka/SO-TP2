@@ -4,74 +4,110 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-char **prepare_args_default(parsed_command * cmd) {
-    return cmd->args; // Usa los argumentos tal como están.
-}
+char **prepare_args_generic(parsed_command *cmd, const char *cmd_name, const char *default_arg) {
+    static char *argv[10];
+    int argc = 0;
 
-char **prepare_args_test_a(parsed_command * cmd) {
-    static char *argv[] = {"test_a", NULL};
-    cmd->argc = 1;
-    return argv; // Devuelve argumentos específicos para `test_a`.
-}
+    argv[argc++] = (char *)cmd_name;
 
-char **prepare_args_test_processes(parsed_command * cmd) {
-    static char *argv[] = {"test_processes", "30", NULL};
-    cmd->argc = 2; 
+    if (cmd->argc > 0) {
+        for (int i = 0; i < cmd->argc && i < 8; i++) {
+            argv[argc++] = cmd->args[i];
+        }
+    } else if (default_arg != NULL) {
+        argv[argc++] = (char *)default_arg;
+    }
+
+    argv[argc] = NULL;
+    cmd->argc = argc;
     return argv;
 }
 
-char **prepare_args_test_prio(parsed_command * cmd) {
-    static char *argv[] = {"test_prio", NULL};
-    cmd->argc = 1; 
+char **prepare_args_loop(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "loop", "30");
+}
+
+char **prepare_args_test_processes(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "test_processes", "30");
+}
+
+char **prepare_args_test_syncro(parsed_command *cmd) {
+    static char *argv[4];
+    int argc = 0;
+
+    argv[argc++] = "test_sync";
+
+    if (cmd->argc > 0) {
+        for (int i = 0; i < cmd->argc && i < 2; i++) {
+            argv[argc++] = cmd->args[i];
+        }
+    } else {
+        argv[argc++] = "5";
+        argv[argc++] = "1";
+    }
+    argv[argc] = NULL;
+    cmd->argc = argc;
     return argv;
 }
 
-char **prepare_args_test_syncro(parsed_command * cmd) {
-    static char *argv[] = {"test_sync", "5", "1", NULL}; // Por defecto, usar semáforos.
-    cmd->argc = 3;
+char **prepare_args_test_syncro_no_sem(parsed_command *cmd) {
+    static char *argv[4];
+    int argc = 0;
+
+    argv[argc++] = "test_sync";
+
+    if (cmd->argc > 0) {
+        for (int i = 0; i < cmd->argc && i < 2; i++) {
+            argv[argc++] = cmd->args[i];
+        }
+    } else {
+        argv[argc++] = "5";
+        argv[argc++] = "0";
+    }
+    argv[argc] = NULL;
+    cmd->argc = argc;
     return argv;
 }
 
-char **prepare_args_test_syncro_no_sem(parsed_command * cmd) {
-    static char *argv[] = {"test_sync", "5", "0", NULL}; // Sin semáforos.
-    cmd->argc = 3;
-    return argv;
+char **prepare_args_test_a(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "test_a", NULL);
 }
 
-char **prepare_args_loop(parsed_command * cmd) {
-    static char *argv[] = {"loop", "30", NULL}; // Por defecto, 5 segundos.
-    cmd->argc=2;
-    return argv;
+char **prepare_args_test_prio(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "test_prio", NULL);
 }
 
-char **prepare_args_cat(parsed_command * cmd) {
-    static char *argv[] = {"cat", NULL}; // No necesita argumentos adicionales.
-    cmd->argc = 1;
-    return argv;
+char **prepare_args_default(parsed_command *cmd) {
+    // Simplemente usa los argumentos tal cual están
+    return cmd->args;
 }
 
-char **prepare_args_filter(parsed_command * cmd) {
-    static char *argv[] = {"filter", NULL}; // No necesita argumentos adicionales.
-    cmd->argc = 1;
-    return argv;
+char **prepare_args_cat(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "cat", NULL);
 }
 
-char **prepare_args_wc(parsed_command * cmd) {
-    static char *argv[] = {"wc", NULL}; // No necesita argumentos adicionales.
-    cmd->argc = 1;
-    return argv;
+char **prepare_args_filter(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "filter", NULL);
 }
 
-char **prepare_args_ps(parsed_command * cmd) {
-    static char *argv[] = {"ps", NULL}; // No necesita argumentos adicionales.
-    cmd->argc = 1;
-    return argv;
+char **prepare_args_wc(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "wc", NULL);
 }
 
-char **prepare_args_mem_state(parsed_command * cmd) {
-    static char *argv[] = {"memstate", NULL}; // No necesita argumentos adicionales.
-    cmd->argc = 1;
-    return argv;
+char **prepare_args_ps(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "ps", NULL);
+}
+
+char **prepare_args_mem_state(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "memstate", NULL);
+}
+
+char **prepare_args_writer(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "writer", NULL);
+}
+
+char **prepare_args_reader(parsed_command *cmd) {
+    return prepare_args_generic(cmd, "reader", NULL);
 }
 
 module menu[] = {
@@ -491,7 +527,7 @@ void run_simple_program(char* input) {
                 char **args = get_args_preparer(&cmd);
                 fd_t fds[FD_MAX] = {STDIN, STDOUT, STDERR};
                 clear_screen();
-                my_create_process((void (*)())menu[i].function, args, cmd.argc, 0, fds);
+                my_create_process_shell((void (*)())menu[i].function, args, cmd.argc, 0, fds);
             }
             return;
         }
@@ -600,7 +636,7 @@ void show_regs(){
     return;
 }
 
-void philos_shell(){
-    paint_all_vd(BLACK);
-    int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
-}
+// void philos_shell(){
+//     paint_all_vd(BLACK);
+//     int pid  = my_create_process_shell((void(*))philos, NULL, 0, 0);
+// }
