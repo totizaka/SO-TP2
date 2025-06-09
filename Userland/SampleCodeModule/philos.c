@@ -125,9 +125,19 @@ void eat(int i){
 }
 
 void put_forks(uint64_t i){
+    if(is_even(i)){
         sem_post(table.philos_array[i].right_fork);
         sem_post(table.philos_array[i].left_fork); 
+
+    }
+    else{
+        sem_post(table.philos_array[i].left_fork); 
+        sem_post(table.philos_array[i].right_fork);
+
+
+    }
 }
+
 
 
 void clean_resources(){
@@ -190,7 +200,7 @@ int add_philo(){
 
     if (  new_philo(i) == -1){
         sem_close(table.philos_array[i].left_fork);
-        table.philos_array[left(i,table.amount)].right_fork = table.philos_array[0].left_fork;
+        table.philos_array[i-1].right_fork = table.philos_array[0].left_fork;
         table.amount--;
         return philos_add_remove_error("Error: creando el proceso\n");
     }
@@ -211,7 +221,7 @@ int  remove_philo(){
     my_kill(table.philos_array[last ].pid); 
     sem_close(table.philos_array[last].left_fork);
 
-    table.philos_array[left(last,table.amount)].right_fork= table.philos_array[0].left_fork;
+    table.philos_array[last-1].right_fork= table.philos_array[0].left_fork;
     
     table.amount--;
     sem_post(table.mutex);
