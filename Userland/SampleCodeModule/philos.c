@@ -157,7 +157,6 @@ int new_philo(int i){
 int add_philo(){
     sem_wait(table.mutex);
 
-    print("Entro al add",12);
 
     if(table.amount==MAX_PHILOS){
         return philos_add_remove_error("Error: No podes agregar mas filosofos el maximo es:10 \n");
