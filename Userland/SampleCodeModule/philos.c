@@ -56,9 +56,16 @@ int64_t init_philos(){
             return philos_init_error( "ERROR: error abriendo semaforos\n",i);
         }
     }
+    int left;
 
     for(int i=0; i<MIN_PHILOS; i++){
-        table.philos_array[i].right_fork = table.philos_array[right(i,MIN_PHILOS)].left_fork;
+        if(i+1==MIN_PHILOS){
+             left=0;
+        }
+        else {
+             left=i+1;
+        }
+        table.philos_array[i].right_fork = table.philos_array[left].left_fork;
         
         if(   new_philo(i) ==-1){
             return philos_init_error( "ERROR: error creando proceso de filosofo\n",i);}
@@ -164,19 +171,20 @@ int add_philo(){
 
     int i=table.amount;
 
-
+    //i=nuevo filosofo
     table.philos_array[i].left_fork=sem_open_get_id(1);
 
     if(table.philos_array[i].left_fork==-1){
          return philos_add_remove_error("Error: abriendo semaforos \n");
     }
 
+
     table.amount++;
 
 
-    table.philos_array[left(i,table.amount)].right_fork = table.philos_array[i].left_fork;
+    table.philos_array[i-1].right_fork = table.philos_array[i].left_fork;
     
-    table.philos_array[i].right_fork = table.philos_array[right(i,table.amount)].left_fork;
+    table.philos_array[i].right_fork = table.philos_array[0].left_fork;
     
     table.philos_array[i].state = THINKING;
 
