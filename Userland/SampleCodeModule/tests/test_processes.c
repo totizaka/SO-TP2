@@ -27,14 +27,15 @@ int64_t test_processes(char *argv[], uint64_t argc) {
     }
 
   p_rq p_rqs[max_processes];
-  fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
+  fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
   while (1) {
 
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
-      p_rqs[rq].pid = my_create_process((void(*))endless_loop_print, NULL, 0, 0,fds);
+      char * argv[] = {"endless_loop", NULL};
+      p_rqs[rq].pid = my_create_process((void(*))endless_loop, argv, 1, 0, fds);
 
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n", MAXBUFF);

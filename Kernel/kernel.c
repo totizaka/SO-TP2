@@ -1,10 +1,4 @@
 #include <kernel.h>
-
-#define TOTAL_PROCESSES 3
-#define LOWEST 0  // TODO: Change as required
-#define MEDIUM 1  // TODO: Change as required
-#define HIGHEST 2 // TODO: Change as required
-#define WAIT 1000000000 // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 	
 extern uint8_t text;
 extern uint8_t rodata;
@@ -95,178 +89,21 @@ memory_manager_adt get_memory_manager(){
 }
 
 void idle_process(){
-	/*while(1){
-	draw_word ( 0xFFFFFF, "idle\n");
-	}*/
-
 	while (1){
-		//draw_word ( 0xFFFFFF, "idle\n");
 		_hlt();
 	}
 }
 
-void test_process(){
-	int x;
-		while(1){
-		draw_word( 0, "A\n", 1);
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-}}
-
-void t_a(){
-	int x;
-		while(1){
-		draw_word ( 0xFFFFFF, "a");
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-}}
-
-
-void t_b(char**argv, int argc){
-	int x;
-		while(1){
-		draw_word ( 0xFFFFFF, argv[0]);
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-}}
-
-void t_c(){
-	int x;
-		while(1){
-		draw_word (0xFFFFFF, "c");
-		for(int i=0; i<10000000;i++){
-			i--;
-			i++;
-			x = i;
-		}
-}}
-
-
-// void bussy_wait(uint64_t n) {
-//   	uint64_t i;
-//   	int x;
-// 	for (i = 0; i < n; i++){
-// 				i--;
-// 				i++;
-// 				x = i;
-// 	}
-// }
-
-// uint64_t itoa(uint64_t number, char* s) {
-//     int digits = 0;
-
-//     // Contar los dígitos
-//     for (uint64_t n = number; n != 0; digits++, n /= 10);
-
-//     // Manejo del caso donde number es 0
-//     if (digits == 0) {
-//         s[0] = '0';
-//         s[1] = '\0';
-//         return 1;
-//     }
-
-//     // Terminar la cadena con un carácter nulo
-//     s[digits] = '\0';
-
-//     // Convertir los dígitos en orden inverso
-//     for (int i = digits - 1; i >= 0; i--) {
-//         s[i] = (number % 10) + '0';
-//         number /= 10;
-//     }
-
-//     return digits;
-// }
-
-/*int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
-
-void endless_loop_print() {
-  draw_word(0xFFFFFF, "Endless loop print\n");
-  int64_t pid = get_pid();
-  char str[4];
-    while (1) {
-      itoa(pid, str);
-      draw_word(0xFFFFFF ,str);
-      bussy_wait(10000000);
-    }
-}
-
-
-//Volver a probar con fd(corregir test)
-
-void test_prio() {
-  int64_t pids[TOTAL_PROCESSES];
-  char *argv[] = {0};
-  uint64_t i;
-  int64_t fd2[3] = {0, 1, 2};
-
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-		pids[i] = new_process((void(*))endless_loop_print, LOW_PRIORITY, NULL, 0, fd2);
-
-  bussy_wait(WAIT);
-  draw_word(0xFFFFFF, "\nCHANGING PRIORITIES...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], prio[i]*3);
-
-  bussy_wait(WAIT);
-  draw_word(0xFFFFFF, "\nBLOCKING...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    block(pids[i]);
-
-  draw_word(0xFFFFFF, "CHANGING PRIORITIES WHILE BLOCKED...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], MEDIUM);
-
-  draw_word(0xFFFFFF, "UNBLOCKING...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    ready(pids[i]);
-
-  bussy_wait(WAIT);
-  draw_word(0xFFFFFF, "\nKILLING...\n");
-
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    kill_process(pids[i]);
-}*/
-
 
 int main()
 {	
-
 	load_idt();
-
-
-	//char a[2]="a";
-	char *b[] = {"b", NULL};
-	char* c[2]={"c"};
-	char * argv_idle[] = {"idle"};
-	char * argv_shell[] = {"sh"};
 
 	memory_manager = create_memory_manager(memory_address);
 	initialize_pipes(); 
 	
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler((void(*))sample_code_module_address);
-	//new_process(, LOW_PRIORITY, NULL, 0);
-	// new_process((void(*))t_a, HIGH_PRIORITY, NULL, 0);
-	// new_process((void(*))t_b, LOW_PRIORITY, b, 1);
-	// new_process((void(*))t_c, LOW_PRIORITY, NULL, 0);
-
-	// new_process((void(*))sample_code_module_address, HIGH_PRIORITY, argv_idle, 1);
-
-	//new_process((void(*))test_prio, LOW_PRIORITY, NULL, 0);
 
 	timer_tick();
 

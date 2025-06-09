@@ -544,19 +544,11 @@ void ctrl_c_handler(){
         return; 
     }
     PCB * other_process_in_pipe = NULL;
-	if(foreground_process->fd[STDIN] > FD_MAX){
+	if (foreground_process->fd[STDIN] > FD_MAX){
 	    other_process_in_pipe = get_pcb(get_pid_from_pipe(foreground_process->fd[STDIN] - 3, PIPE_WRITE));
 	}
     int f_gid = foreground_process->group_id;
-    draw_word(0xFFFFFF, "parent group_id: ");
-    char f_gid_str[20];
-    itoa(f_gid, f_gid_str);
-    draw_word(0xFFFFFF, f_gid_str);
     for (int i = 2; i < MAX_PID; i++) {
-        draw_word(0xFFFFFF, "child group_id: ");
-        char f_gid_str[20];
-        itoa(pcb_table[i].group_id, f_gid_str);
-        draw_word(0xFFFFFF, f_gid_str);
         if (pcb_table[i].background == 0 && pcb_table[i].group_id == f_gid && pcb_table[i].pid != foreground_process->pid &&
             (pcb_table[i].state == RUNNING || pcb_table[i].state == READY || pcb_table[i].state == BLOCKED)) {
             kill_process_no_yield(i);

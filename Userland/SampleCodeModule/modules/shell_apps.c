@@ -120,8 +120,6 @@ void shell_filter() {
 }
 
 void my_ps(){
-    print("Iniciando my_ps\n", MAXBUFF);
-
     process_info_list *plist = syscall_my_get_processes();
     if (plist == NULL) {
         print("Error: no se pudo obtener la lista de procesos\n", MAXBUFF);

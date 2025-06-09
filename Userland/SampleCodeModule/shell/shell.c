@@ -11,20 +11,20 @@ parsed_command parse_command(char *input);
 module menu[] = {
     {"help", help, BUILTIN},  
     {"clear", clear_screen, BUILTIN},
-    {"ps", my_ps, NOT_BUILTIN},
-    {"mem", my_mem_state,NOT_BUILTIN}, 
+    {"ps", my_ps, BUILTIN},
+    {"mem", my_mem_state, BUILTIN}, 
     {"testa", t_a, NOT_BUILTIN},
     {"writer", write_process_test, NOT_BUILTIN},
     {"reader", read_process_test,  NOT_BUILTIN},
     {"loop", shell_loop,  NOT_BUILTIN},
-    {"cat", shell_cat,NOT_BUILTIN},
+    {"cat", shell_cat, NOT_BUILTIN},
     {"filter", shell_filter, NOT_BUILTIN},
-    {"wc", shell_wc,NOT_BUILTIN},
-    {"phylos", philos,  NOT_BUILTIN},
+    {"wc", shell_wc, NOT_BUILTIN},
+    {"phylos", philos, NOT_BUILTIN},
     {"mmtest", test_mm, NOT_BUILTIN}, 
     {"testprio", test_prio, NOT_BUILTIN}, 
     {"testprocesses", test_processes, NOT_BUILTIN}, 
-    {"testsyncro", test_sync,  NOT_BUILTIN}, 
+    {"testsyncro", test_sync, NOT_BUILTIN},
 };
 
 // array de funciones con argumentos
@@ -39,6 +39,7 @@ special_command_t special_commands[] = {
 void help(){
     paint_all_vd(BLACK);
     print("Enter: help >> To print the different functions of the shell\n", MAXBUFF);
+    print("Enter: clear >> To clear the screen\n", MAXBUFF);
     print("Enter: ps >> To see the current processes\n", MAXBUFF);
     print("Enter: mem >> To see the current memory state\n", MAXBUFF);
     print("Enter: loop[segs] >> To test the shell loop\n", MAXBUFF);
@@ -68,7 +69,6 @@ void shell(){
     while(1){
         command_wait();
     }
-
     return ;
 }
 
@@ -163,6 +163,7 @@ void run_simple_program(char* input, int is_background) {
     for (int i = 0; i < menuDIM; i++) {
         if (my_strcmp(cmd.name, menu[i].name) == 0) {
             if (menu[i].is_builtin) {                   // Ejecutar directamente el comando built-in
+                clear_screen();
                 menu[i].function();
             } else if (is_background){
                 cmd.args[0] = menu[i].name;
@@ -240,17 +241,17 @@ void read_process_test(){
     int read=my_read(STDIN,buff,63);
     if (read > 0) {
         buff[read] = '\0';
-        print("Leido del pipe: ", 16);
+        print("Leido del pipe: ", MAXBUFF);
         print(buff, read);
         print("\n", 1);
     }
     else {
-        print("Error al leer del pipe\n", 22);
+        err_print("Error al leer del pipe\n", MAXBUFF);
+        return;
     }
     if (STDOUT >= FD_MAX) my_close_pipe(STDIN);
 
 }
-
 
 
 // shell functions
@@ -262,7 +263,7 @@ void shell_kill(char ** argv, uint64_t argc){
     }
     int64_t pid;
     if ((pid = satoi(argv[1])) <= 0){
-        print("ERROR: error getting PID", 30);
+        err_print("ERROR: error getting PID", MAXBUFF);
       return;
     }
     my_kill(pid);
@@ -277,12 +278,12 @@ void shell_nice(char** argv, uint64_t argc){
     int64_t pid;
     int64_t new_prio;
     if ((pid = satoi(argv[1])) <= 0){
-        print("ERROR: error getting PID", 30);
+        err_print("ERROR: error getting PID", MAXBUFF);
       return;
     }
     new_prio = satoi(argv[2]);
     if (new_prio <= 0 || new_prio > 7){
-        print("ERROR: error getting new priority", 30);
+        err_print("ERROR: error getting new priority", MAXBUFF);
       return;
     }  
     my_nice(pid, new_prio);
@@ -296,7 +297,7 @@ void shell_block(char ** argv, uint64_t argc){
     }
     int64_t pid;
     if ((pid = satoi(argv[1])) <= 0){
-        print("ERROR: error getting PID", 30);
+        err_print("ERROR: error getting PID", MAXBUFF);
       return;
     }
     my_block(pid);
@@ -310,7 +311,7 @@ void shell_unblock(char ** argv, uint64_t argc){
     }
     int64_t pid;
     if ((pid = satoi(argv[1])) <= 0){
-        print("ERROR: error getting PID", 30);
+        err_print("ERROR: error getting PID", MAXBUFF);
       return;
     }
     my_unblock(pid);

@@ -6,7 +6,8 @@
 #include <stddef.h>
 #include <shared_defs.h>
 
-#define MEMORY_MANAGER_SIZE 0x100000 
+#define MEMORY_MANAGER_SIZE 0x100000
+#define MEMORY 0x50000
 #define MEMORY_MANAGER_SIZE_STATE 1048576
 #define BLOCK_SIZE 64
 

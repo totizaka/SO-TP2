@@ -7,7 +7,6 @@ void endless_loop_print(uint64_t wait);
 
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
-  // char *argv[] = {0};
   uint64_t i;
   fd_t fds[FD_MAX]={STDIN,STDOUT,STDERR};
 
@@ -20,7 +19,7 @@ void test_prio() {
   print("\nCHANGING PRIORITIES...\n", MAXBUFF);
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], prio[i]*3);
+    my_nice(pids[i], prio[i]);
 
   bussy_wait(WAIT);
   print("\nBLOCKING...\n", MAXBUFF);

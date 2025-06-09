@@ -20,20 +20,7 @@ uint64_t test_mm(char *argv[], uint64_t argc) {
   uint32_t total;
   uint64_t max_memory;
 
-  char *str[20];
-  if (argc != 1){
-    itoa(argc, str);
-    err_print("ERROR: argc ", MAXBUFF);
-    err_print(str, MAXBUFF);
-    return -1;
-  }
-
-  if ((max_memory = satoi(argv[0])) <= 0){
-    // if (max_memory > 100000) {
-    //   err_print("ERROR: invalid memory size, not enough capacity\n", MAXBUFF);
-    // }
-    return -1;
-  }
+  max_memory = 0x80000;
 
   while (1) {
     rq = 0;
