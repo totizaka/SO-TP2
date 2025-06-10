@@ -4,7 +4,7 @@
 #include <naiveConsole.h>
 #include <time.h>
 #include <videoDriver.h>
-#include <mm_dummy.h>
+#include <memory_manager.h>
 #include <scheduler.h>
 #include <process.h>
 #include <semaphores.h>

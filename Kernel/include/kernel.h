@@ -9,7 +9,7 @@
 #include <idtLoader.h>
 #include <clock.h>
 #include <time.h>
-#include <mm_dummy.h> 
+#include <memory_manager.h>  // Para el administrador de memoria
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts.h>

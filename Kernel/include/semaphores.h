@@ -1,7 +1,7 @@
 #ifndef SEMAPHORES_H_
 #define SEMAPHORES_H_
 #include <stdint.h>
-#include <mm_dummy.h>
+#include <memory_manager.h>
 #include <scheduler.h>
 #include <process.h>
 #include <list.h>

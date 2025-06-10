@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <defs.h>
-#include <mm_dummy.h>
+#include <memory_manager.h>
 #include <pcb.h>
 #include <kernel.h>
 #include <interrupts.h>

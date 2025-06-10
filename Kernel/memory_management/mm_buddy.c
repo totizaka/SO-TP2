@@ -1,6 +1,6 @@
-// #ifdef BUDDY
+ #ifdef BUDDY
 
-#include <mm_dummy.h> 
+#include <memory_manager.h> 
 
 #include <stdint.h>
 #include <stddef.h>
@@ -197,4 +197,4 @@ void my_free_mem_state(memory_manager_adt manager, memory_state *state) {
     }
 }
 
-// #endif
+#endif
