@@ -75,7 +75,7 @@ int8_t remove_list(list_adt list, list_elem_t elem) {
     t_node *prev = list->tail;
     for (size_t i = 0; i < list->size; i++) {
         if (list->cmp(elem, curr->head) == 0) {
-            if (curr == prev) { // Solo un nodo
+            if (curr == prev) {
                 list->tail = NULL;
                 list->iter = NULL;
             } else {

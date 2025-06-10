@@ -9,14 +9,9 @@
 #include <idtLoader.h>
 #include <clock.h>
 #include <time.h>
-#include <mm_dummy.h>  // Para el administrador de memoria
+#include <mm_dummy.h> 
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts.h>
-// #include <test_prio.h>
-#include <test_processes.h>
-#include <test_sync.h>
-
-
 
 #endif

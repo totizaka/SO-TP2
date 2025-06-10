@@ -4,7 +4,6 @@
 static table_t table;
 static int64_t philosopher(char ** argv, int argc);
 
-
 uint8_t is_even(uint64_t id){
     return (id%2==0);
 }
@@ -16,7 +15,6 @@ uint64_t left(uint64_t i, uint64_t n){
 uint64_t right(uint64_t i, uint64_t n){
     return (i+1)%n;
 }
-
 
 void print_state(){
     sem_wait(table.mutex);
@@ -30,8 +28,6 @@ void print_state(){
     print ("\n", 1);
     sem_post(table.mutex);
 }
-
-
 
 int philos_init_error(char *msg, int i){
     err_print(msg, my_strlen(msg));
@@ -112,7 +108,6 @@ void take_forks(int i){
         sem_wait(table.philos_array[i].left_fork);
     }
 }
-
 
 void eat(int i){
 
@@ -288,7 +283,6 @@ void keyboard_handler(){
         } 
     }
 }
-
 
 void print_instructions(){
     print("Toca la tecla 'a' para agregar un filosofo y la tecla 'r' para borrar uno.\n"

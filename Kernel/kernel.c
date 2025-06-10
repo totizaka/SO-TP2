@@ -18,9 +18,7 @@ static const uint64_t page_size = 0x1000;
 
 static memory_manager_adt memory_manager;    // puntero global para accederlo
 
-
 typedef int (*EntryPoint)();
-//unsigned int keyRead();
 
 
 void clear_BSS(void * bss_address, uint64_t bss_size)
@@ -94,18 +92,13 @@ void idle_process(){
 	}
 }
 
-
 int main()
 {	
 	load_idt();
-
 	memory_manager = create_memory_manager(memory_address);
 	initialize_pipes(); 
-	
 	set_idle((void(*))idle_process, LOW_PRIORITY, NULL, 0);
 	initialize_scheduler((void(*))sample_code_module_address);
-
 	timer_tick();
-
 	return 0;
 }

@@ -33,5 +33,6 @@ int64_t piping(pid_t pid, fd_t fds[]);
 pid_t wait(pid_t pid, int64_t *ret);
 int64_t kill_process_no_yield(uint64_t pid);
 int zombie(int ret);
+void free_process_list(process_info_list *plist);
 
 #endif

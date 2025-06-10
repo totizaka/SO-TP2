@@ -5,22 +5,22 @@
 #include <shared_defs.h>
 
 typedef struct PCB{
-    pid_t pid, ppid; //si se puede usar libreria sys/type ponemos pid_t directo
+    pid_t pid, ppid;
     uint64_t rsp; 
     uint64_t stack_base;
-    void* rip; //desp ver si va a estar en el stack - ver desp si es un void*
-    process_state_t state; //ready, blocked o free
-    uint8_t priority; //no c si esta ok el tipo de dato, q escala de prioridades vamos a tener????
-    char* name; //nombre del proceso
+    void* rip;       
+    process_state_t state;      // Running, Ready, Blocked, Zombie
+    uint8_t priority;           // Higher number means higher priority
+    char* name;
     char** args;
-    int argc; //cantidad de argumentos
-    struct PCB* waiting_me; //Proceso que espera a este proceso
-    struct PCB* waiting_for; //Proceso que este proceso espera
-    int time;//Lo que queda para ejecutar
+    int argc; 
+    struct PCB* waiting_me;     // Process that is waiting for this process to finish
+    struct PCB* waiting_for;    // Process that this process is waiting for
+    int time;                   // Time slice for the process
     int ret;
-    fd_t fd[3];// file descriptors  fd[0]=entrada, fd[1]=salida, fd[2]=error
-    int8_t background; // 1 si es un proceso en background, 0 si es foreground
-    int16_t group_id; // ID del grupo de procesos al que pertenece
+    fd_t fd[3];                 // File descriptors 
+    int8_t background;          // 1 si es un proceso en background, 0 si es foreground
+    int16_t group_id;           // ID del grupo de procesos al que pertenece
 }PCB;
 
 #endif

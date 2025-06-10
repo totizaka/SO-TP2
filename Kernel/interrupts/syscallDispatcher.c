@@ -39,7 +39,7 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_regs_values, 
     (void*)syscall_my_getpid_handler, 
     (void*)syscall_my_create_process_handler, 
-    (void*)syscall_my_nice_handler, //20, 0x13
+    (void*)syscall_my_nice_handler, //0x13
     (void*)syscall_my_kill_handler, 
     (void*)syscall_my_block_handler, 
     (void*)syscall_my_unblock_handler, 
@@ -49,7 +49,7 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_my_sem_close_handler, 
     (void*)syscall_my_yield_handler, 
     (void*)syscall_my_wait_handler,
-    (void*)syscall_malloc_handler, //30, 0x1D
+    (void*)syscall_malloc_handler, //0x1c
     (void*)syscall_free_handler, 
     (void*)syscall_get_processes_handler,
     (void*)syscall_free_processses_handler,
@@ -59,18 +59,16 @@ void (*syscalls_arr[])(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     (void*)syscall_create_pipe,
     (void*)syscall_open_pipe,
     (void*)syscall_write_pipe ,
-    (void*)syscall_read_pipe,//40
-    (void*)syscall_close_pipe,//41
+    (void*)syscall_read_pipe,   // 0x26
+    (void*)syscall_close_pipe,  
     (void*)syscall_get_available_pipe_id
 };
 
 void syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t rax) {
-    
     if (rax < (sizeof(syscalls_arr) / sizeof(syscalls_arr[0])) && syscalls_arr[rax]!=0) {
         syscalls_arr[rax](rdi, rsi, rdx, r10, r8);
     }
     return;
-
 }
 
 
@@ -110,7 +108,6 @@ int64_t syscall_write (int64_t fd, char* buffer, int num_bytes) {
         return syscall_write_pipe(target, buffer, num_bytes);
     }
 }
-
 
 static uint64_t syscall_time_handler(){
     return get_current_time_binary();
@@ -203,12 +200,9 @@ static void syscall_my_unblock_handler(uint64_t pid){
     ready(get_pcb(pid));
 }
 
-//falta implementar correctamente sem funciones
-
 static int64_t syscall_my_sem_open_handler(char sem_id, uint64_t initialValue,int16_t id_by_hand){
     return my_sem_open(sem_id, initialValue, 0, id_by_hand);
 }
-
 
 static int64_t syscall_my_sem_wait_handler(char sem_id){
     return my_sem_wait(sem_id);
@@ -255,7 +249,6 @@ void syscall_my_free_mem_state(memory_state *state) {
 static int64_t syscall_my_sem_open_get_id_handler(uint64_t initialValue){
     return my_sem_open_get_id(initialValue, 0);
 }
-
 
 void syscall_create_pipe( int64_t id ){
      create_pipe( id );

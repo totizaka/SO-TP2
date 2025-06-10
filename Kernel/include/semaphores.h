@@ -8,7 +8,6 @@
 
 #define MAX_SEM 50 
 
-
 void release(uint8_t * lock);
 void acquire(uint8_t * lock);
 

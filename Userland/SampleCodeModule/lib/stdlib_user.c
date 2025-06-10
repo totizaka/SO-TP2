@@ -86,22 +86,17 @@ char * my_strtok(char *str, const char *delim) {
     } else if (last == NULL) {
         return NULL;
     }
-
-    // Saltar delimitadores al principio
     while (*last && my_strchr(delim, *last)) {
         last++;
     }
-
     if (*last == '\0') {
         last = NULL;
         return NULL;
     }
-
     char *start = last;
     while (*last && !my_strchr(delim, *last)) {
         last++;
     }
-
     if (*last) {
         *last = '\0';
         last++;
@@ -114,12 +109,12 @@ char * my_strtok(char *str, const char *delim) {
 
 void my_strcat(char *dest, const char *src) {
     while (*dest) {
-        dest++; // Move to the end of the destination string
+        dest++; 
     }
     while (*src) {
-        *dest++ = *src++; // Copy the source string to the destination
+        *dest++ = *src++; 
     }
-    *dest = '\0'; // Null-terminate the resulting string
+    *dest = '\0'; 
 }
 
 void print(char* buf, uint64_t count) {
@@ -379,11 +374,6 @@ int64_t my_yield(){
     return  syscall_my_yield();
 }
 
-int64_t exit_proc(uint64_t res, uint64_t pid){//para q usaria la res en kernel??
-    //buscar la forma de volver al proceso en el que estaba antes despues con el scheduler (al padre??)
-    return my_kill(pid);
-}
-
 int utoa_hex(uint64_t value, char *str) {
     const char *hex = "0123456789ABCDEF";
     char tmp[17]; // 16 dígitos + \0
@@ -407,7 +397,6 @@ int utoa_hex(uint64_t value, char *str) {
     return i; // cantidad de caracteres escritos
 }
 
-// Parameters
 int64_t satoi(char *str) {
   uint64_t i = 0;
   int64_t res = 0;

@@ -49,7 +49,7 @@ void help(){
     print("Enter: wc >> To test the shell wc command\n", MAXBUFF);
     print("Enter: phylos >> To test the philosophers problem\n", MAXBUFF);
     print("Enter: kill [pid] >> To kill a process with the given PID\n", MAXBUFF);
-    print("Enter: nice [pid,new_priority] >> To change the priority of a process with the given PID, new_priority must be a        number between 1(LOWEST) and 7(HIGHEST)\n", MAXBUFF);
+    print("Enter: nice [pid,new_priority] >> To change the priority of a process with the given PID, new_priority must be a        number between 1(LOWEST) and 5(HIGHEST)\n", MAXBUFF);
     print("Enter: block [pid] >> To block a process with the given PID\n", MAXBUFF);
     print("Enter: unblock [pid] >> To unblock a process with the given PID\n", MAXBUFF);
     print("\n\nApartado de tests de la catedra:\n", MAXBUFF);
@@ -75,7 +75,7 @@ void shell(){
 
 void command_wait(){
     print("\n",1);
-    print("shell_TP_ARQUI$> ", MAXBUFF);
+    print("shell_TP_SO$> ", MAXBUFF);
 
     char buff[MAXBUFF];
 
@@ -283,8 +283,8 @@ void shell_nice(char** argv, uint64_t argc){
       return;
     }
     new_prio = satoi(argv[2]);
-    if (new_prio <= 0 || new_prio > 7){
-        err_print("ERROR: error getting new priority", MAXBUFF);
+    if (new_prio <= 0 || new_prio > 5){
+        err_print("ERROR: error getting new priority, must be between 1 and 5", MAXBUFF);
       return;
     }  
     my_nice(pid, new_prio);

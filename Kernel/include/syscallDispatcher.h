@@ -13,7 +13,6 @@
 
 int64_t syscall_read (int64_t fd, char* buffer, int num_bytes);
 int64_t syscall_write (int64_t fd, char* buffer, int num_bytes);
-
 static uint64_t syscall_time_handler();
 static void syscall_draw_pixel_handler(uint32_t color, uint64_t x, uint64_t y); 
 static void syscall_draw_square_handler(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
@@ -21,7 +20,6 @@ static uint64_t syscall_get_width_vd_handler();
 static uint64_t syscall_get_height_vd_handler();
 static void syscall_sleep_handler(uint64_t secs);
 static void syscall_beep_handler(int secs, int freq);
-
 static void syscall_paint_all_vd_handler(uint32_t hexColor);
 static void syscall_errase_char_handler(uint32_t hexColor);
 static void syscall_increase_FS_handler();
@@ -52,7 +50,6 @@ static process_info_list* syscall_get_processes_handler();
 static void syscall_free_processses_handler(process_info_list *processes);
 static memory_state* syscall_my_mem_state_handler(memory_manager_adt manager);
 static void syscall_my_free_mem_state(memory_state *state);
-
 void syscall_create_pipe( int64_t id );
 int8_t syscall_open_pipe(int64_t target, int role);
 int64_t syscall_write_pipe(int64_t target, char * buffer,int num_bytes);
