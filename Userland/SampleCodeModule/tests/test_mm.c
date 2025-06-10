@@ -20,7 +20,7 @@ uint64_t test_mm(char *argv[], uint64_t argc) {
   uint32_t total;
   uint64_t max_memory;
 
-  max_memory = 0x80000;
+  max_memory = 0x50000;
 
   while (1) {
     rq = 0;

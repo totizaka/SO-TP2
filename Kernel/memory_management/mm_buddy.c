@@ -1,222 +1,200 @@
 // #ifdef BUDDY
 
-// #include <mm_dummy.h> 
+#include <mm_dummy.h> 
 
-// #include <stdint.h>
-// #include <stddef.h>
+#include <stdint.h>
+#include <stddef.h>
 
-// #define MIN_ORDER 4  // 2^4 = 16 bytes
-// #define MAX_ORDER 20 // 2^20 = 1048576 bytes
-// #define ORDER_COUNT (MAX_ORDER - MIN_ORDER + 1)
+#define MIN_ORDER 4  // 2^4 = 16 bytes
+#define MAX_ORDER 20 // 2^20 = 1048576 bytes
+#define ORDER_COUNT (MAX_ORDER - MIN_ORDER + 1)
 
-// typedef struct block {
-//   struct block *next, *prev;
-//   uint8_t order;
-//   uint8_t free;
-// } block_t;
+typedef struct block {
+  struct block *next, *prev;
+  uint8_t order;
+  uint8_t free;
+} block_t;
 
-// typedef struct memory_manager_cdt {
-//   void *base;
-//   block_t *orders[ORDER_COUNT];
-//   size_t total_size;
-// } memory_manager_cdt;
+typedef struct memory_manager_cdt {
+  void *base;
+  block_t *orders[ORDER_COUNT];
+  size_t total_size;
+} memory_manager_cdt;
 
-// static int get_order(size_t size) {
-//     size_t total = size + sizeof(block_t);
-//     int order = MIN_ORDER;
-//     while ((1UL << order) < total && order <= MAX_ORDER)
-//         order++;
-//     return order > MAX_ORDER ? -1 : order;
-// }
+static int get_order(size_t size) {
+    size_t total = size + sizeof(block_t);
+    int order = MIN_ORDER;
+    while ((1UL << order) < total && order <= MAX_ORDER)
+        order++;
+    return order > MAX_ORDER ? -1 : order;
+}
 
-// static block_t *buddy(block_t *node, void *base, uint8_t order) {
-//     uintptr_t offset = (uintptr_t)node - (uintptr_t)base;
-//     uintptr_t buddy_offset = offset ^ (1UL << order);
-//     return (block_t *)((uintptr_t)base + buddy_offset);
-// }
+static block_t *buddy(block_t *node, void *base, uint8_t order) {
+    uintptr_t offset = (uintptr_t)node - (uintptr_t)base;
+    uintptr_t buddy_offset = offset ^ (1UL << order);
+    return (block_t *)((uintptr_t)base + buddy_offset);
+}
 
-// static void remove_block(block_t **list, block_t *blk) {
-//     if (!blk)
-//         return;
+static void remove_block(block_t **list, block_t *blk) {
+    if (!blk)
+        return;
 
-//     if (blk->prev)
-//         blk->prev->next = blk->next;
-//     if (blk->next)
-//         blk->next->prev = blk->prev;
-//     if (*list == blk)
-//         *list = blk->next;
+    if (blk->prev)
+        blk->prev->next = blk->next;
+    if (blk->next)
+        blk->next->prev = blk->prev;
+    if (*list == blk)
+        *list = blk->next;
 
-//     blk->next = blk->prev = NULL;
-// }
+    blk->next = blk->prev = NULL;
+}
 
-// static void insert_block(block_t **list, block_t *blk) {
-//     if (!blk)
-//         return;
+static void insert_block(block_t **list, block_t *blk) {
+    if (!blk)
+        return;
 
-//     blk->next = *list;
-//     blk->prev = NULL;
-//     if (*list)
-//         (*list)->prev = blk;
-//     *list = blk;
-//     blk->free = 1;
-// }
+    blk->next = *list;
+    blk->prev = NULL;
+    if (*list)
+        (*list)->prev = blk;
+    *list = blk;
+    blk->free = 1;
+}
 
-// static int check_list_cycles(block_t *head) {
-//     block_t *slow = head, *fast = head;
-//     while (fast && fast->next) {
-//         slow = slow->next;
-//         fast = fast->next->next;
-//         if (slow == fast) {
-//             // Ciclo detectado
-//             return 1;
-//         }
-//     }
-//     return 0;
-// }
+memory_manager_adt create_memory_manager(void *memory) {
+    memory_manager_adt manager = (memory_manager_adt)memory;
 
-// static void debug_print_lists(memory_manager_adt manager) {
-//     for (int i = 0; i < ORDER_COUNT; i++) {
-//         block_t *curr = manager->orders[i];
-//         if (check_list_cycles(curr)) {
-//             draw_word(0xFFFFFF ,"Loop detected in free list of order \n");
-//         }
-//     }
-// }
+    uintptr_t raw_base = (uintptr_t)memory + sizeof(memory_manager_cdt);
+    uintptr_t aligned_base = (raw_base + ((1UL << MIN_ORDER) - 1)) & ~((uintptr_t)((1UL << MIN_ORDER) - 1));
 
-// memory_manager_adt create_memory_manager(void *memory) {
-//     memory_manager_adt manager = (memory_manager_adt)memory;
+    manager->base = (void *)aligned_base;
+    manager->total_size = MEMORY_MANAGER_SIZE - (aligned_base - (uintptr_t)memory);
 
-//     uintptr_t raw_base = (uintptr_t)memory + sizeof(memory_manager_cdt);
-//     uintptr_t aligned_base = (raw_base + ((1UL << MIN_ORDER) - 1)) & ~((uintptr_t)((1UL << MIN_ORDER) - 1));
+    for (int i = 0; i < ORDER_COUNT; i++)
+        manager->orders[i] = NULL;
 
-//     manager->base = (void *)aligned_base;
-//     manager->total_size = MEMORY_MANAGER_SIZE - (aligned_base - (uintptr_t)memory);
+    // Calcular el orden máximo que entra en el espacio disponible
+    int max_possible_order = MAX_ORDER;
+    while ((1UL << max_possible_order) > manager->total_size && max_possible_order > MIN_ORDER)
+        max_possible_order--;
 
-//     for (int i = 0; i < ORDER_COUNT; i++)
-//         manager->orders[i] = NULL;
+    block_t *initial = (block_t *)manager->base;
+    initial->order = max_possible_order - MIN_ORDER;
+    initial->free = 1;
+    initial->next = initial->prev = NULL;
 
-//     // Calcular el orden máximo que entra en el espacio disponible
-//     int max_possible_order = MAX_ORDER;
-//     while ((1UL << max_possible_order) > manager->total_size && max_possible_order > MIN_ORDER)
-//         max_possible_order--;
+    manager->orders[initial->order] = initial;
 
-//     block_t *initial = (block_t *)manager->base;
-//     initial->order = max_possible_order - MIN_ORDER;
-//     initial->free = 1;
-//     initial->next = initial->prev = NULL;
+    return manager;
+}
 
-//     manager->orders[initial->order] = initial;
+void *my_malloc(memory_manager_adt manager, size_t size) {
+    int target_order = get_order(size);
+    if (target_order < 0)
+        return NULL;
 
-//     return manager;
-// }
+    int o;
+    for (o = target_order - MIN_ORDER; o < ORDER_COUNT; o++) {
+        block_t *blk = manager->orders[o];
+        if (!blk)
+            continue;
 
-// void *my_malloc(memory_manager_adt manager, size_t size) {
-//     int target_order = get_order(size);
-//     if (target_order < 0)
-//         return NULL;
+        remove_block(&manager->orders[o], blk);
 
-//     int o;
-//     for (o = target_order - MIN_ORDER; o < ORDER_COUNT; o++) {
-//         block_t *blk = manager->orders[o];
-//         if (!blk)
-//             continue;
+        // Ir dividiendo hasta llegar al tamaño deseado
+        while (o > target_order - MIN_ORDER) {
+            o--;
 
-//         remove_block(&manager->orders[o], blk);
+            size_t split_size = 1UL << (o + MIN_ORDER);
+            block_t *buddy_blk = (block_t *)((uint8_t *)blk + split_size);
 
-//         // Ir dividiendo hasta llegar al tamaño deseado
-//         while (o > target_order - MIN_ORDER) {
-//             o--;
+            buddy_blk->order = o;
+            buddy_blk->free = 1;
+            buddy_blk->next = buddy_blk->prev = NULL;
 
-//             size_t split_size = 1UL << (o + MIN_ORDER);
-//             block_t *buddy_blk = (block_t *)((uint8_t *)blk + split_size);
+            insert_block(&manager->orders[o], buddy_blk);
 
-//             buddy_blk->order = o;
-//             buddy_blk->free = 1;
-//             buddy_blk->next = buddy_blk->prev = NULL;
+            blk->order = o;
+        }
 
-//             insert_block(&manager->orders[o], buddy_blk);
+        blk->free = 0;
+        blk->next = blk->prev = NULL;
 
-//             blk->order = o;
-//         }
+        return (void *)(blk + 1); // Retornar después del header
+    }
 
-//         blk->free = 0;
-//         blk->next = blk->prev = NULL;
+    return NULL;
+}
 
-//         return (void *)(blk + 1); // Retornar después del header
-//     }
+void my_free(memory_manager_adt manager, void *ptr) {
+    if (!ptr)
+        return;
 
-//     return NULL;
-// }
+    block_t *blk = (block_t *)ptr - 1;
+    blk->free = 1;
 
-// void my_free(memory_manager_adt manager, void *ptr) {
-//     if (!ptr)
-//         return;
+    while (blk->order + 1 < ORDER_COUNT) {
+        block_t *b = buddy(blk, manager->base, blk->order + MIN_ORDER);
 
-//     block_t *blk = (block_t *)ptr - 1;
-//     blk->free = 1;
+        // Verificar que el buddy esté dentro de los límites del heap
+        if (!b)
+            break;
 
-//     while (blk->order + 1 < ORDER_COUNT) {
-//         block_t *b = buddy(blk, manager->base, blk->order + MIN_ORDER);
+        uintptr_t base = (uintptr_t)manager->base;
+        uintptr_t buddy_addr = (uintptr_t)b;
+        size_t block_size = 1UL << (blk->order + MIN_ORDER);
+        if (buddy_addr < base || buddy_addr + block_size > base + manager->total_size)
+            break;
 
-//         // Verificar que el buddy esté dentro de los límites del heap
-//         if (!b)
-//             break;
+        if (!b->free || b->order != blk->order)
+            break;
 
-//         uintptr_t base = (uintptr_t)manager->base;
-//         uintptr_t buddy_addr = (uintptr_t)b;
-//         size_t block_size = 1UL << (blk->order + MIN_ORDER);
-//         if (buddy_addr < base || buddy_addr + block_size > base + manager->total_size)
-//             break;
+        remove_block(&manager->orders[b->order], b);
+        if (b < blk)
+            blk = b;
 
-//         if (!b->free || b->order != blk->order)
-//             break;
+        blk->order++;
+    }
 
-//         remove_block(&manager->orders[b->order], b);
-//         if (b < blk)
-//             blk = b;
+    insert_block(&manager->orders[blk->order], blk);
+}
 
-//         blk->order++;
-//     }
+size_t my_get_available_memory(memory_manager_adt manager) {
+    if (!manager) return 0;
 
-//     insert_block(&manager->orders[blk->order], blk);
-// }
+    size_t total_free = 0;
 
-// size_t my_get_available_memory(memory_manager_adt manager) {
-//     if (!manager) return 0;
+    for (int i = 0; i < ORDER_COUNT; i++) {
+        block_t *curr = manager->orders[i];
+        size_t block_size = 1UL << (i + MIN_ORDER);
 
-//     size_t total_free = 0;
+        while (curr) {
+            if (curr->free) {
+                // Resta el tamaño del header del bloque total
+                size_t usable = block_size > sizeof(block_t) ? block_size - sizeof(block_t) : 0;
+                total_free += usable;
+            }
+            curr = curr->next;
+        }
+    }
 
-//     for (int i = 0; i < ORDER_COUNT; i++) {
-//         block_t *curr = manager->orders[i];
-//         size_t block_size = 1UL << (i + MIN_ORDER);
+    return total_free;
+}
 
-//         while (curr) {
-//             if (curr->free) {
-//                 // Resta el tamaño del header del bloque total
-//                 size_t usable = block_size > sizeof(block_t) ? block_size - sizeof(block_t) : 0;
-//                 total_free += usable;
-//             }
-//             curr = curr->next;
-//         }
-//     }
+memory_state* my_mem_state(memory_manager_adt manager) {
+    if (!manager) return NULL;
 
-//     return total_free;
-// }
+    memory_state *state = my_malloc(manager ,sizeof(memory_state));
+    state->total_size = MEMORY_MANAGER_SIZE_STATE;
+    state->free = my_get_available_memory(manager);
+    state->occupied = state->total_size - state->free;
+    return state;
+}
 
-// memory_state* my_mem_state(memory_manager_adt manager) {
-//     if (!manager) return NULL;
-
-//     memory_state *state = my_malloc(manager ,sizeof(memory_state));
-//     state->total_size = MEMORY_MANAGER_SIZE_STATE;
-//     state->free = my_get_available_memory(manager);
-//     state->occupied = state->total_size - state->free;
-//     return state;
-// }
-
-// void my_free_mem_state(memory_manager_adt manager, memory_state *state) {
-//     if (state) {
-//         my_free(manager, state);
-//     }
-// }
+void my_free_mem_state(memory_manager_adt manager, memory_state *state) {
+    if (state) {
+        my_free(manager, state);
+    }
+}
 
 // #endif
