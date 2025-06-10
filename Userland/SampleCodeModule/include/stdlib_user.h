@@ -43,7 +43,7 @@ void errase_char(uint32_t hexColor);
 void paint_all_vd(uint32_t hexColor);
 void draw_pixel(uint32_t color, uint64_t x, uint64_t y);
 void draw_square(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
-char get_char_user();
+signed char get_char_user();
 
 // my_syscalls wrappers font size functions
 void increaseFontSize();

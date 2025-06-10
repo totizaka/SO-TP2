@@ -7,20 +7,20 @@
 // extern uint64_t syscall_read(uint64_t fd, char* buf);
 // extern uint64_t syscall_write(uint64_t fd, const char *buf, uint64_t count);
 extern uint64_t syscall_time();
-extern uint64_t syscall_draw_pixel();
-extern uint64_t syscall_draw_square();
+extern uint64_t syscall_draw_pixel(uint32_t color, uint64_t x, uint64_t y);
+extern uint64_t syscall_draw_square(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
 extern uint64_t syscall_get_width_vd();
 extern uint64_t syscall_get_height_vd();
-extern uint64_t syscall_sleep();
-extern uint64_t syscall_paint_all_vd();
-extern uint64_t syscall_errase_char();
+extern uint64_t syscall_sleep(uint64_t secs);
+extern uint64_t syscall_paint_all_vd(uint32_t hexColor);
+extern uint64_t syscall_errase_char(uint32_t hexColor);
 extern uint64_t syscall_increase_FS();
 extern uint64_t syscall_decrease_FS();
 extern uint64_t syscall_set_pixel_size();
 extern uint64_t syscall_get_current_pixel_size();
 extern uint64_t syscall_errase_line();
-extern void syscall_beep();
-extern uint64_t syscall_regs();
+extern void syscall_beep(int secs, int freq);
+extern uint64_t syscall_regs(uint64_t * regs);
 
 // SO
 

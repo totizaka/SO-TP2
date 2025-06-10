@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include <philos.h>
 
@@ -277,7 +279,7 @@ void close_mutexes(){
 }
 
 void keyboard_handler(){
-    char c;
+    signed char c;
 
     while((c = get_char_user()) != EOF && c != 'q'){
       

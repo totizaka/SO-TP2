@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <videoDriver.h>
 #include <stdint.h>
 
@@ -99,7 +101,7 @@ void draw_char(uint32_t hexColor, char c, uint64_t x, uint64_t y){
 		global_x = 0;
 		return;
 	}
-    if(c<32 && c>126){
+    if(c<32 || c>126){
         return;
     }
 	

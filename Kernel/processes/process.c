@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <process.h>
 #define STACK_SIZE (4 * 1024)
 
@@ -65,8 +67,11 @@ static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
             my_free(get_memory_manager() ,ans);
             return NULL;
         }
-        memcpy(p, argv[i], len);
-        ans[i-1] = p;
+        if(argv[i]){
+            memcpy(p, argv[i], len);
+            ans[i-1] = p;
+        }
+        
     }
 
     ans[real_argc] = NULL;
@@ -295,7 +300,7 @@ int64_t kill_process_no_yield(uint64_t pid){
 
 int64_t find_free_pcb(){
     int64_t to_ret=1;
-    while(pcb_table[to_ret].state!=FREE && to_ret < MAX_PID){
+    while(to_ret < MAX_PID && pcb_table[to_ret].state!=FREE){
         to_ret++;
     }
     if(to_ret == MAX_PID){
@@ -311,7 +316,7 @@ int64_t get_pid(){
 
 
 PCB* get_pcb(uint64_t pid){
-    if(pid < 0 || pid >= MAX_PID){
+    if(pid >= MAX_PID){
         return NULL;
     }
     return &pcb_table[pid];
@@ -319,7 +324,7 @@ PCB* get_pcb(uint64_t pid){
 
 
 int64_t nice(int64_t pid, uint8_t new_prio){
-    if(pid<1 || pid>MAX_PID || pcb_table[pid].state == FREE){
+    if(pid<1 || pid>=MAX_PID || pcb_table[pid].state == FREE){
         return -1;
     }
     // Prioridad inválida

@@ -1,18 +1,21 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <kernel.h>
 	
+#define MEMORY_ADDRESS 0x600000
+#define SAMPLE_CODE_MODULE 0x400000
+#define SAMPLE_DATA_MODULE 0x500000
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t end_of_kernel_binary;
 extern uint8_t end_of_kernel;
-/*char scan_codes[128] = { 0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ',
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-*/
 
-static void * const sample_code_module_address = (void*)0x400000;
-static void * const sample_data_module_address = (void*)0x500000;
-static void * const memory_address = (void*)0x600000;
+
+static void * const sample_code_module_address = (void*)(uintptr_t)SAMPLE_CODE_MODULE;
+static void * const sample_data_module_address = (void*)(uintptr_t)SAMPLE_DATA_MODULE;
+static void * const memory_address = (void*)(uintptr_t)MEMORY_ADDRESS;
 
 static const uint64_t page_size = 0x1000;
 
@@ -20,7 +23,6 @@ static memory_manager_adt memory_manager;    // puntero global para accederlo
 
 
 typedef int (*EntryPoint)();
-//unsigned int keyRead();
 
 
 void clear_BSS(void * bss_address, uint64_t bss_size)

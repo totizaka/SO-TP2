@@ -5,7 +5,6 @@
 
 #include <stdint.h>
 #include <stdlib_user.h>
-#include <snake.h>
 
 #define MAX_LINE 128
 #define BLACK 0x000000
@@ -26,7 +25,6 @@ void div0_exc();
 void show_regs();
 void show_time();
 void font_size();
-void snake();
 extern void opcode();
 extern void div0();
 #endif

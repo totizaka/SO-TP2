@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shell.h>
 #include <test_mm.h>
 #include <test_prio.h>
@@ -109,7 +111,7 @@ void run_piped_program(char *input1, char *input2, int is_background) {
     parsed_command cmd2 = parse_command(input2);
 
     int c1 = -1, c2 = -1;
-    for (int i = 0; i < menuDIM + 1; i++) {
+    for (int i = 0; i < menuDIM ; i++) {
         if (my_strcmp(cmd1.name, menu[i].name) == 0){
             c1 = i;
             cmd1.args[0] = menu[i].name;  // Asegurarse de que el primer argumento sea el nombre del comando
@@ -150,7 +152,7 @@ void run_piped_program(char *input1, char *input2, int is_background) {
         my_wait(pid2, NULL);
         my_close_pipe(id_pipe);  // solo después de que ambos hayan terminado
 
-    } else if (is_background) {
+    } else {
         my_create_process((void*)menu[c1].function, cmd1.args, cmd1.argc, IS_BACKGROUND, fds1);
         my_create_process((void*)menu[c2].function, cmd2.args, cmd2.argc, IS_BACKGROUND, fds2);
     }

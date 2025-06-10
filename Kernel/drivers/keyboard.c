@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <keyboard.h>
 #include <naiveConsole.h> 
 #include <process.h>
@@ -7,7 +9,7 @@
 
 extern int key_pressed();
 
-unsigned char scan_code = 0;
+uint8_t scan_code = 0;
 static char char_to_ret[BUFF_MAX] = {0};
 int current=0;
 int dim=0;
@@ -27,8 +29,7 @@ void keyboard_handler() {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
-    // Verificar si el scan_code es válido y si corresponde a una tecla imprimible
-    if (scan_code < 0 || scan_code >= 128) {
+   if ( scan_code >= 128) {
         return;
     }
 

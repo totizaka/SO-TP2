@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shell_apps.h>
 
 int8_t vowel(char c) {
@@ -278,50 +280,6 @@ void show_time(){
     print_time();
 }
 
-void snake(){
-    paint_all_vd(BLACK);
-
-    char buff[MAXBUFF];
-
-    int aux1 = get_current_pixel_size();
-    set_pixel_size(3);
-    print("WELCOME TO THE SNAKE-GAME\n", MAXBUFF);
-    set_pixel_size(2);
-    print("Key Control:\nPlayer1: 'w', 'd', 'a', 's'\nPlayer2: 'i', 'l', 'j', 'k'\n", MAXBUFF);
-    int correctAmount=0;
-    while(!correctAmount){
-
-        print("\nWrite letter \"q\" to exit\n\nIntroduce Players to start game (1 or 2): ", MAXBUFF);
-
-        my_get_string(buff, MAXBUFF);
-
-        if(buff[0] =='q'&& buff[1] == '\0'){
-            set_pixel_size(aux1);
-            paint_all_vd(BLACK);
-            return;
-        }
-        else if(buff[0] =='1'&& buff[1] == '\0'){
-            correctAmount=1;
-            uint8_t aux2 = get_current_pixel_size();
-            game_loop_1(); //while (gameLoop=='r') y en gameloop pongo que get char hasta q sea r o q(si es q sale ) 
-            set_pixel_size(aux2);
-        }
-        else if (buff[0] =='2' && buff[1] == '\0'){
-            correctAmount=1;
-            uint8_t aux2 = get_current_pixel_size();
-            game_loop_2();
-            set_pixel_size(aux2);
-        }
-        else{
-            paint_all_vd(0x000000);
-            err_print("Invalid amount!! \n",18); 
-        }
-    }
-    set_pixel_size(aux1);
-    paint_all_vd(BLACK);
-    return;
-}
-
 void font_size(){
     
     paint_all_vd(BLACK);
@@ -352,7 +310,6 @@ void font_size(){
             err_print("Invalid amount!! \n",18); 
         }
     }
-    paint_all_vd(0x000000);
 }
 
 uint64_t regs[18];

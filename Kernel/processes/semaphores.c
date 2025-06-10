@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <semaphores.h>
 
 typedef struct sem{
@@ -19,7 +21,7 @@ int comp(list_elem_t e1, list_elem_t e2){
 }
 
 int invalid_ID(uint64_t num, int max){
-    return (num < 0 || num >= max);
+    return (num >= max);
 }
 
 int invalid_ID_sem(int64_t sem_id){

@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib_user.h>
-#include <snake.h>
 #include <philos.h>
 #include <shell_apps.h>
 #include <test_mm.h>

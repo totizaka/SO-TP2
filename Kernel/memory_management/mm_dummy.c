@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #ifndef BUDDY
 #include <memory_manager.h>
@@ -130,6 +132,7 @@ memory_state* my_mem_state(memory_manager_adt manager) {
     if (!manager) return NULL;
 
     memory_state *state = my_malloc(manager ,sizeof(memory_state));
+    if(!state) return NULL;
     state->total_size = MEMORY_MANAGER_SIZE_STATE;
     state->free = my_get_available_memory(manager);
     state->occupied = state->total_size - state->free;
