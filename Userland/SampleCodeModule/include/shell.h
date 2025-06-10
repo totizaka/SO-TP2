@@ -10,7 +10,7 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-#define menuDIM 15
+#define menuDIM 13
 #define BLACK 0x000000
 #define BUILTIN 1
 #define NOT_BUILTIN 0

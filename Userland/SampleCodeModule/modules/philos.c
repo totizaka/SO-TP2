@@ -10,14 +10,6 @@ uint8_t is_even(uint64_t id){
     return (id%2==0);
 }
 
-uint64_t left(uint64_t i, uint64_t n){
-    return (i+n-1)%n;
-}
-
-uint64_t right(uint64_t i, uint64_t n){
-    return (i+1)%n;
-}
-
 void print_state(){
     sem_wait(table.mutex);
     for(int i=0; i<table.amount; i++){
