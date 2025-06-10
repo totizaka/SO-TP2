@@ -4,7 +4,7 @@
 #include <semaphores.h>
 #include <stdint.h>
 
-#define MAX_PIPES 50
+#define MAX_PIPES 25
 #define BUFFER 1024
 
 #define PIPE_READ 0
