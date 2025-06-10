@@ -66,7 +66,7 @@ int64_t init_philos(){
         }
         table.philos_array[i].right_fork = table.philos_array[left].left_fork;
         
-        if(   new_philo(i) ==-1){
+        if(new_philo(i) ==-1){
             return philos_init_error( "ERROR: error creando proceso de filosofo\n",i);}
         }
         

@@ -14,7 +14,7 @@ typedef struct list_cdt {
 
 // Crea una nueva lista (cola circular vacía)
 list_adt new_list(t_cmp cmp) {
-    list_adt aux = my_malloc(get_memory_manager(), sizeof(*aux));
+    list_adt aux =  my_malloc(get_memory_manager(), sizeof(*aux));
     if (aux == NULL) {
         return NULL;
     }

@@ -143,6 +143,7 @@ int64_t my_sem_wait ( int64_t sem_id){
     block_no_yield(running);//bloquea el proceso que esta corriendo
     release(&sem_array[sem_id].lock);//libera el semaforo
     yield();
+    return 0;
 }
 
 int64_t my_sem_close ( int64_t sem_id){

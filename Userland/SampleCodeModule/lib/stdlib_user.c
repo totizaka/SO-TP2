@@ -122,7 +122,7 @@ void my_strcat(char *dest, const char *src) {
     *dest = '\0'; // Null-terminate the resulting string
 }
 
-void print(const char* buf, uint64_t count) {
+void print(char* buf, uint64_t count) {
 	syscall_my_write(STDOUT, buf, count);
 }
 
@@ -343,11 +343,11 @@ int64_t my_getpid(){
     return syscall_my_getpid();
 }
 
-int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
+int64_t my_create_process(void* rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
     return syscall_my_create_process(rip, argv, argc, background, fds);
 }
 
-int64_t my_create_process_shell(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
+int64_t my_create_process_shell(void * rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]){
     uint64_t pid = my_create_process(rip, argv, argc, background, fds);
     if (!background){
         int64_t ret;
@@ -407,6 +407,30 @@ int utoa_hex(uint64_t value, char *str) {
     return i; // cantidad de caracteres escritos
 }
 
+// Parameters
+int64_t satoi(char *str) {
+  uint64_t i = 0;
+  int64_t res = 0;
+  int8_t sign = 1;
+
+  if (!str)
+    return 0;
+
+  if (str[i] == '-') {
+    i++;
+    sign = -1;
+  }
+
+  for (; str[i] != '\0'; ++i) {
+    if (str[i] < '0' || str[i] > '9')
+      return 0;
+    res = res * 10 + str[i] - '0';
+  }
+
+  return res * sign;
+}
+
+
 void my_free_ps(process_info_list *plist) {
     syscall_my_free_processes(plist);
 }
@@ -447,11 +471,11 @@ int64_t my_get_available_pipe_id(){
     return syscall_my_get_available_pipe_id();
 }
 
-int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes){
+int64_t my_write_pipe(int64_t target, char * buffer,int num_bytes){
     return syscall_my_write_pipe(target, buffer, num_bytes);
 }
 
-int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes){
+int64_t my_read_pipe(int64_t target, char * buffer,  int num_bytes){
     return syscall_my_read_pipe(target, buffer, num_bytes);
 }
 
@@ -463,32 +487,3 @@ int64_t my_write(int64_t fd, char* buffer, int num_bytes){
     return syscall_my_write(fd, buffer, num_bytes);
 }
 
-
-
-
-
-// borrar
-
-// para probar kill, nice, block y unblock
-void t_a(){
-	int x;
-	// 	while(1){
-	// 	print("a", MAXBUFF);
-	// 	for(int i=0; i<10000000;i++){
-	// 		i--;
-	// 		i++;
-	// 		x = i;
-	// 	}
-    // }
-    char str[31];
-    for (int i = 0; i < 30; i++){
-        str[i] = 'a';
-        for(int i=0; i<10000000;i++){
-            i--;
-            i++;
-            x = i;
-        }
-    }
-    str[30] = '\0';
-    print(str, 30);
-}

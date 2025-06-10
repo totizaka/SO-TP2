@@ -37,5 +37,19 @@ typedef struct table_t
 
 
 int64_t philos(char **argv, uint64_t argc);
+int new_philo(int i);
+void print_instructions();
+int open_mutexes();
+void close_mutexes();
+void clean_resources();
+void keyboard_handler();
+void think();
+void take_forks(int i);
+void eat(int i);
+void put_forks(uint64_t i);
+int add_philo();
+int remove_philo();
+void print_state();
+
 #endif
 

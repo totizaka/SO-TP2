@@ -15,7 +15,7 @@ int read_line_with_backspace(char *buffer, int max_len) {
     while (i < max_len - 1) {
         c = get_char_user();
 
-        if (c == EOF) {
+        if (c == MYEOF) {
             buffer[0] = '\0';
             return 1; // Ctrl+D → EOF
         }

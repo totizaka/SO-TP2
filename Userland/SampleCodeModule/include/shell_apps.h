@@ -1,11 +1,13 @@
 #ifndef _SHELL_APPS_H_
 #define _SHELL_APPS_H_
 
+#define MYEOF 0
+
 #include <stdint.h>
 #include <stdlib_user.h>
+#include <snake.h>
 
 #define MAX_LINE 128
-#define EOF 0 // Valor especial para Ctrl+D
 #define BLACK 0x000000
 
 // SO
@@ -25,4 +27,6 @@ void show_regs();
 void show_time();
 void font_size();
 void snake();
+extern void opcode();
+extern void div0();
 #endif

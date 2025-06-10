@@ -107,7 +107,5 @@ int main()
 
 	timer_tick();
 
-	draw_word(0xFFFFFF, "No deberia llegar aca \n");
-
 	return 0;
 }

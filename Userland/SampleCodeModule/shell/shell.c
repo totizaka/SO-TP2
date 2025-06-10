@@ -5,34 +5,35 @@
 #include <test_sync.h>
 
 int run_special_command(parsed_command cmd);
+void run_piped_program(char *input1, char *input2, int is_background);
+void run_simple_program(char* input, int is_background);
 parsed_command parse_command(char *input);
 
 
 module menu[] = {
-    {"help", help, BUILTIN},  
+    {"help", help, BUILTIN},
     {"clear", clear_screen, BUILTIN},
     {"ps", my_ps, BUILTIN},
-    {"mem", my_mem_state, BUILTIN}, 
-    {"testa", t_a, NOT_BUILTIN},
+    {"mem", my_mem_state, BUILTIN},
     {"writer", write_process_test, NOT_BUILTIN},
     {"reader", read_process_test,  NOT_BUILTIN},
     {"loop", shell_loop,  NOT_BUILTIN},
     {"cat", shell_cat, NOT_BUILTIN},
     {"filter", shell_filter, NOT_BUILTIN},
     {"wc", shell_wc, NOT_BUILTIN},
-    {"phylos", philos, NOT_BUILTIN},
-    {"mmtest", test_mm, NOT_BUILTIN}, 
-    {"testprio", test_prio, NOT_BUILTIN}, 
-    {"testprocesses", test_processes, NOT_BUILTIN}, 
-    {"testsyncro", test_sync, NOT_BUILTIN},
+    {"phylos", (void*)philos, NOT_BUILTIN},
+    {"mmtest", (void*)test_mm, NOT_BUILTIN},
+    {"testprio", (void*)test_prio, NOT_BUILTIN},
+    {"testprocesses", (void*)test_processes, NOT_BUILTIN}, 
+    {"testsyncro", (void*)test_sync, NOT_BUILTIN},
 };
 
 // array de funciones con argumentos
 special_command_t special_commands[] = {
-    {"kill", shell_kill},
-    {"nice", shell_nice},
-    {"block", shell_block},
-    {"unblock", shell_unblock},
+    {"kill", (void*)shell_kill},
+    {"nice", (void*)shell_nice},
+    {"block", (void*)shell_block},
+    {"unblock", (void*)shell_unblock},
     {NULL, NULL}
 };
 
@@ -95,7 +96,7 @@ void command_wait(){
         else if (comand_bg.background){
             run_simple_program(comand_bg.cm, IS_BACKGROUND);
         }
-        else if (buff){
+        else {
             run_simple_program(buff, IS_FOREGROUND);
         }
         }else{
@@ -138,8 +139,8 @@ void run_piped_program(char *input1, char *input2, int is_background) {
     clear_screen();
 
     if(!is_background){
-        uint64_t pid1 = my_create_process((void (*)())menu[c1].function, cmd1.args, cmd1.argc, IS_FOREGROUND, fds1);
-        uint64_t pid2 = my_create_process((void (*)())menu[c2].function, cmd2.args, cmd2.argc, IS_FOREGROUND, fds2);
+        uint64_t pid1 = my_create_process((void*)menu[c1].function, cmd1.args, cmd1.argc, IS_FOREGROUND, fds1);
+        uint64_t pid2 = my_create_process((void*)menu[c2].function, cmd2.args, cmd2.argc, IS_FOREGROUND, fds2);
 
         if (pid1 == -1 || pid2 == -1) {
             err_print("Fallo la creacion de procesos con pipe\n", 39);
@@ -150,8 +151,8 @@ void run_piped_program(char *input1, char *input2, int is_background) {
         my_close_pipe(id_pipe);  // solo después de que ambos hayan terminado
 
     } else if (is_background) {
-        my_create_process((void (*)())menu[c1].function, cmd1.args, cmd1.argc, IS_BACKGROUND, fds1);
-        my_create_process((void (*)())menu[c2].function, cmd2.args, cmd2.argc, IS_BACKGROUND, fds2);
+        my_create_process((void*)menu[c1].function, cmd1.args, cmd1.argc, IS_BACKGROUND, fds1);
+        my_create_process((void*)menu[c2].function, cmd2.args, cmd2.argc, IS_BACKGROUND, fds2);
     }
 }
 

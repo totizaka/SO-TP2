@@ -36,7 +36,7 @@ void print_time();
 uint64_t get_seconds();
 
 // my_syscalls wrappers write/read functions
-void print(const char* buf, uint64_t count);
+void print(char* buf, uint64_t count);
 void err_print(char* buff, int count);
 void errase_line();
 void errase_char(uint32_t hexColor);
@@ -58,7 +58,7 @@ void my_free_mem_state(memory_state *state);
 
 // my_syscalls wrappers process functions
 int64_t my_getpid();
-int64_t my_create_process(uint64_t rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
+int64_t my_create_process(void* rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
 int64_t my_nice(uint64_t pid, uint64_t new_prio);
 int64_t my_kill(uint64_t pid);
 int64_t my_yield();
@@ -67,6 +67,7 @@ int64_t my_block(uint64_t pid);
 int64_t my_unblock(uint64_t pid);
 int64_t exit_proc(uint64_t res, uint64_t pid);
 void my_free_ps(process_info_list *plist);
+int64_t my_create_process_shell(void* rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
 
 // my_syscalls wrappers semaphores functions
 int64_t sem_open ( int64_t sem_id, int value);
@@ -97,7 +98,8 @@ void my_strcat(char *dest, const char *src);
 char * my_strtok(char *str, const char *delim);
 char * my_strchr(const char *s, int c);
 char * my_strncpy(char *dest, const char *src, int n);
-
+int utoa_hex(uint64_t value, char *str);
+int64_t satoi(char *str);
 // my number managers functions
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
@@ -105,9 +107,5 @@ uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
 // my_get_comands functions
 comand_background get_comand_background(char* input);
 comands_pipe get_comand_background_pipe(char* input);
-
-//borrar
-
-void t_a();
 
 #endif

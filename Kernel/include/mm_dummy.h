@@ -25,5 +25,6 @@ size_t my_get_available_memory(memory_manager_adt manager);
 memory_state* my_mem_state(memory_manager_adt manager);
 
 void my_free_mem_state(memory_manager_adt manager, memory_state *state);
+memory_manager_adt get_memory_manager();
 
 #endif

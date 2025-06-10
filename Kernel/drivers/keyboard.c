@@ -3,7 +3,7 @@
 #include <process.h>
 
 #define BUFF_MAX 50
-#define EOF 0 // Definimos EOF como 0
+#define MYEOF 0 // Definimos EOF como 0
 
 extern int key_pressed();
 
@@ -49,7 +49,7 @@ void keyboard_handler() {
     } else if (scan_code == 0x20 && ctrl_pressed) { // Scan code de D
         _cli();
         if (dim < BUFF_MAX){
-            char_to_ret[dim] = EOF; // 0 lo usamos como señal de EOF en read_line
+            char_to_ret[dim] = MYEOF; // 0 lo usamos como señal de EOF en read_line
             dim++;
             if (blocked != NULL) {
                 ready(blocked);
@@ -112,10 +112,10 @@ int read_stdin(char * buff, int count){
         block(blocked);
     }
     int i=0;
-    while(buf_has_next() && i<count && char_to_ret[current]!=EOF){
+    while(buf_has_next() && i<count && char_to_ret[current]!=MYEOF){
         buff[i++]=get_char_pressed();
     }
-    if ( char_to_ret[current] == EOF) {
+    if ( char_to_ret[current] == MYEOF) {
 		get_char_pressed();
 	}
     return i;

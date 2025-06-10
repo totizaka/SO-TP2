@@ -138,7 +138,7 @@ int assign_group_id_by_pipe(PCB *current) {
 
 //primer arg va a ser el nombre por convencion argv[0] = nombre del proceso
 
-uint64_t new_process(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]) {
+uint64_t new_process(void * rip, uint8_t priority, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]) {
     int64_t pid = find_free_pcb();
     if (pid == -1){
         return -1; 
@@ -332,7 +332,7 @@ int64_t nice(int64_t pid, uint8_t new_prio){
 
 
 
-uint64_t load_stack(uint64_t rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
+uint64_t load_stack(void* rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
     stack* to_ret=(stack*)(rsp - sizeof(stack));
     to_ret->stack_regs.rdi = (uint64_t) rip;
     to_ret->stack_regs.rsi = (uint64_t) argv;
@@ -384,7 +384,7 @@ int zombie(int ret){
 
 
 
-void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
+void set_idle(void * rip, uint8_t priority, char ** argv, uint64_t argc){
     pid_t pid=0;
     uint64_t rsp_malloc = (uint64_t) my_malloc(get_memory_manager(), STACK_SIZE);
     char ** args_cpy = copy_argv(pid, argv, argc);
@@ -394,8 +394,6 @@ void set_idle(uint64_t rip, uint8_t priority, char ** argv, uint64_t argc){
         pcb_table[pid].state = FREE;
         return ;
     }
-
-    char* argv_idle[] = {"idle_process", NULL};
 
     PCB *current = &pcb_table[pid];
     //current->name="idle"; //despues cambiarlo a strcpy con malloc por ahi?
@@ -543,10 +541,6 @@ void ctrl_c_handler(){
     if (shell_process == NULL || ((foreground_process = shell_process->waiting_for) == NULL)){
         return; 
     }
-    PCB * other_process_in_pipe = NULL;
-	if (foreground_process->fd[STDIN] > FD_MAX){
-	    other_process_in_pipe = get_pcb(get_pid_from_pipe(foreground_process->fd[STDIN] - 3, PIPE_WRITE));
-	}
     int f_gid = foreground_process->group_id;
     for (int i = 2; i < MAX_PID; i++) {
         if (pcb_table[i].background == 0 && pcb_table[i].group_id == f_gid && pcb_table[i].pid != foreground_process->pid &&

@@ -17,8 +17,6 @@
 #include <test_processes.h>
 #include <test_sync.h>
 
-memory_manager_adt get_memory_manager();
-
 
 
 #endif

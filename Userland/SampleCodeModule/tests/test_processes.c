@@ -14,7 +14,6 @@ int64_t test_processes(char *argv[], uint64_t argc) {
   uint8_t alive = 0;
   uint8_t action;
   uint64_t max_processes;
-  char *argvAux[] = {0};
 
     if (argc != 1){
       print("test_processes: ERROR: expected 1 argument (max processes)\n", MAXBUFF);

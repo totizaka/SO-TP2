@@ -105,14 +105,14 @@ uint64_t scheduler(uint64_t current_rsp){
     if (running != NULL && running->state!=FREE){
         running->rsp = current_rsp;
     }else {
-        running==NULL;
+        running=NULL;
     }
     if (is_empty(readys)){
         //Si no existen procesos para correr => corre el idle 
         running = get_idle();
         idle = get_idle();
         //is_idle = 1; // Indicamos que estamos en el idle
-        running->time = UINT64_MAX; // El idle no tiene quantum, corre indefinidamente
+        running->time = 0; // El idle no tiene quantum, corre indefinidamente
         current_rsp = running->rsp;
     }else{
     if (running == NULL || running->state != RUNNING || running == idle){ 
