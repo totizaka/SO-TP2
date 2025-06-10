@@ -8,7 +8,6 @@
 #include "test_util.h"
 #include <stdlib_user.h>
 
-
 uint64_t test_sync(char *argv[], uint64_t argc);
 
 #endif

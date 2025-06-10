@@ -4,7 +4,6 @@
 #include <sys_calls.h>
 #include "test_util.h"
 #include <stdio.h>
-// #include <stdlib.h>
 #include <string.h>
 #include <shell.h>
 
@@ -27,15 +26,9 @@ uint64_t test_mm(char *argv[], uint64_t argc) {
   while (1) {
     rq = 0;
     total = 0;
-    int count = 0;
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
-      count++;
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      char buf[20];
-      itoa(mm_rqs[rq].size, buf);
-      print(buf, MAXBUFF);
-      print("\n", MAXBUFF);
       mm_rqs[rq].address = my_malloc(mm_rqs[rq].size);
 
       if (mm_rqs[rq].address) {

@@ -27,6 +27,7 @@ int assign_new_group_id() {
 }
 
 void process_wrapper ( main_function rip, char ** argv, uint64_t argc, pid_t pid );
+
 int64_t piping(pid_t pid, fd_t fds[]);
 
 static uint64_t my_strlen ( const char *str ) 
@@ -43,10 +44,7 @@ static char ** copy_argv(uint64_t pid, char ** argv, uint64_t argc){
         return NULL;
     }
 
-   /// pcb_array[pid].argc = argc;
-    
     if(argc == 1){
-       // pcb_array[pid].argv == NULL;
         return NULL;
     }
     
@@ -136,8 +134,6 @@ int assign_group_id_by_pipe(PCB *current) {
             }
         }
     }
-
-    // ✔ Si no encontró pipes válidos, devuelve 0
     return 0;
 }
 
@@ -204,15 +200,6 @@ uint64_t new_process(void * rip, uint8_t priority, char ** argv, uint64_t argc, 
     } else {
         current->group_id = pcb_table[current->ppid].group_id;
     }
-
-    // if (current->pid == 1) {
-    //     current->group_id = 1;
-    // } else if (current->ppid == 1) {
-    //     current->group_id = assign_new_group_id();
-    // } else {
-    //     current->group_id = pcb_table[current->ppid].group_id;
-    // }
-
     ready(current);
     amount_of_processes++;
     return pid;
@@ -240,9 +227,6 @@ int64_t piping(pid_t pid, fd_t fds[]) {
     return 0;
 }
 
-
-
-//Implementado como si las listas NO estuvieran en shm
 int64_t block_process(uint64_t pid){
     if(pid < 1 || pid >= MAX_PID){
          return -1;
@@ -264,8 +248,6 @@ int64_t ready_process(uint64_t pid){
     }
     pcb_table[pid].state = READY;
     return 1;
-    
-    //falta cambiarlo de cola cuando ya las tengamos implementadas en el scheduler
 }
 
 // Mata un proceso y hace yield si es necesario.
@@ -273,8 +255,8 @@ int64_t kill_process(uint64_t pid){
     if(kill_process_no_yield(pid) == -1){
         return -1;
     }
+    // Si el proceso que se está matando es el que está corriendo, hacemos yield
     if(&pcb_table[pid] == get_running()){
-        // Si el proceso que se está matando es el que está corriendo, hacemos yield
         timer_tick();
     }
     return 0;
@@ -283,7 +265,6 @@ int64_t kill_process(uint64_t pid){
 // Mata un proceso sin hacer yield.
 int64_t kill_process_no_yield(uint64_t pid){
     if (pid <= 1 || pid >= MAX_PID || pcb_table[pid].state == FREE){
-        //no puedo matar ni idle ni shell
         return -1;
     }
     remove_from_scheduler(&pcb_table[pid]);
@@ -335,8 +316,6 @@ int64_t nice(int64_t pid, uint8_t new_prio){
     return 1;
 }
 
-
-
 uint64_t load_stack(void* rip, uint64_t rsp, char ** argv, uint64_t argc, uint64_t pid){
     stack* to_ret=(stack*)(rsp - sizeof(stack));
     to_ret->stack_regs.rdi = (uint64_t) rip;
@@ -351,8 +330,6 @@ uint64_t load_stack(void* rip, uint64_t rsp, char ** argv, uint64_t argc, uint64
 
    return (uint64_t) to_ret;
 }
-
-
 
 void process_wrapper(main_function rip, char **argv, uint64_t argc, int64_t pid) {
     int ret = rip(argv, argc);
@@ -369,7 +346,7 @@ void process_wrapper(main_function rip, char **argv, uint64_t argc, int64_t pid)
 int zombie(int ret){
     PCB *process = get_running();
     if (process == NULL || process->state == FREE) {
-        return -1; // No hay proceso corriendo o el proceso ya está libre
+        return -1;
     }
     process->ret = ret;
     remove_from_scheduler(process); // Eliminar de la lista de procesos listos
@@ -401,7 +378,6 @@ void set_idle(void * rip, uint8_t priority, char ** argv, uint64_t argc){
     }
 
     PCB *current = &pcb_table[pid];
-    //current->name="idle"; //despues cambiarlo a strcpy con malloc por ahi?
     current->stack_base = rsp_malloc;
     current->pid = pid;
     current->name = argv != NULL && argv[0] != NULL ? argv[0] : "Idle Process"; // Set name to first arg or default
@@ -522,8 +498,7 @@ pid_t wait(pid_t pid, int64_t *ret) {
     if (pcb_to_wait->state != ZOMBIE) {
         pcb_to_wait->waiting_me = running;
         running->waiting_for = pcb_to_wait;
-        block(running);  // Bloquea al proceso running
-        // running->waiting_for = NULL;
+        block(running);
     }
     // Si el hijo fue eliminado antes de terminar
     if (pcb_to_wait->state != ZOMBIE) {

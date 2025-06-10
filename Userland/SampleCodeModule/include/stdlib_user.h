@@ -65,7 +65,6 @@ int64_t my_yield();
 int64_t my_wait(uint64_t pid, int64_t *ret);
 int64_t my_block(uint64_t pid);
 int64_t my_unblock(uint64_t pid);
-int64_t exit_proc(uint64_t res, uint64_t pid);
 void my_free_ps(process_info_list *plist);
 int64_t my_create_process_shell(void* rip, char ** argv, uint64_t argc, int8_t background, fd_t fds[FD_MAX]);
 
@@ -81,8 +80,6 @@ void my_create_pipe(int64_t id);
 int8_t my_open_pipe(int64_t target, int role);
 int8_t my_close_pipe(int64_t target);
 int64_t my_get_available_pipe_id();
-// int64_t my_write_pipe(int64_t target, int * buffer,int num_bytes);
-// int64_t my_read_pipe(int64_t target, int * buffer,  int num_bytes);
 comands_pipe get_comands_pipe(char* input);
 
 // my_read/write functions

@@ -13,10 +13,5 @@
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts.h>
-// #include <test_prio.h>
-#include <test_processes.h>
-#include <test_sync.h>
-
-
 
 #endif

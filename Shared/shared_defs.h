@@ -6,13 +6,13 @@
 #define STDOUT 1
 #define STDERR 2 
 
-#define FD_MAX 3 // CANT DE FILE DESCRIPTORS
+#define FD_MAX 3 				// CANT DE FILE DESCRIPTORS
 typedef int64_t target_t;
 typedef int64_t fd_t;
 
 #define LOW_PRIORITY 1
-#define MEDIUM_PRIORITY 4
-#define HIGH_PRIORITY 7
+#define MEDIUM_PRIORITY 3
+#define HIGH_PRIORITY 5
 
 typedef enum {
     FREE = 0,

@@ -42,7 +42,7 @@ void help();
 void shell();
 void command_wait();
 void shell_kill(char ** argv, uint64_t argc);
-void shell_nice(char ** argv, uint64_t argc);//ver si tenemos en userland un enum de prios??
+void shell_nice(char ** argv, uint64_t argc);
 void shell_block(char ** argv, uint64_t argc);
 void shell_unblock(char ** argv, uint64_t argc);
 void philos_shell();

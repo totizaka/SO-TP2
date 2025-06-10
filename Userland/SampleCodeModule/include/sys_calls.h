@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <shared_defs.h>
 
-// extern uint64_t syscall_read(uint64_t fd, char* buf);
-// extern uint64_t syscall_write(uint64_t fd, const char *buf, uint64_t count);
 extern uint64_t syscall_time();
 extern uint64_t syscall_draw_pixel(uint32_t color, uint64_t x, uint64_t y);
 extern uint64_t syscall_draw_square(uint32_t color, uint64_t x, uint64_t y, uint64_t thickness);
