@@ -17,8 +17,6 @@ module menu[] = {
     {"clear", clear_screen, BUILTIN},
     {"ps", my_ps, BUILTIN},
     {"mem", my_mem_state, BUILTIN},
-    {"writer", write_process_test, NOT_BUILTIN},
-    {"reader", read_process_test,  NOT_BUILTIN},
     {"loop", shell_loop,  NOT_BUILTIN},
     {"cat", shell_cat, NOT_BUILTIN},
     {"filter", shell_filter, NOT_BUILTIN},
@@ -224,39 +222,6 @@ int run_special_command(parsed_command cmd) {
     return 0;
 }
 
-
-//eliminar
-
-void write_process_test(){
-    char *to_print = "holis!! ESTOY PIPEANDOOOO";
-    int num_byte = my_strlen(to_print);
-    if (my_write(STDOUT, to_print, num_byte)!=-1){
-        return;
-    }
-    else{
-        print("no anda my_write", MAXBUFF);
-    }
-    if (STDOUT >= FD_MAX) my_close_pipe(STDOUT);
-}
-
-void read_process_test(){
-    char buff[64];
-    int read=my_read(STDIN,buff,63);
-    if (read > 0) {
-        buff[read] = '\0';
-        print("Leido del pipe: ", MAXBUFF);
-        print(buff, read);
-        print("\n", 1);
-    }
-    else {
-        err_print("Error al leer del pipe\n", MAXBUFF);
-        return;
-    }
-    if (STDOUT >= FD_MAX) my_close_pipe(STDIN);
-
-}
-
-
 // shell functions
 
 void shell_kill(char ** argv, uint64_t argc){
@@ -265,8 +230,8 @@ void shell_kill(char ** argv, uint64_t argc){
         return;
     }
     int64_t pid;
-    if ((pid = satoi(argv[1])) <= 0){
-        err_print("ERROR: error getting PID", MAXBUFF);
+    if ((pid = satoi(argv[1])) <= 1){
+        err_print("ERROR: invalid PID", MAXBUFF);
       return;
     }
     my_kill(pid);
@@ -280,8 +245,8 @@ void shell_nice(char** argv, uint64_t argc){
     }
     int64_t pid;
     int64_t new_prio;
-    if ((pid = satoi(argv[1])) <= 0){
-        err_print("ERROR: error getting PID", MAXBUFF);
+    if ((pid = satoi(argv[1])) <= 1){
+        err_print("ERROR: invalid PID", MAXBUFF);
       return;
     }
     new_prio = satoi(argv[2]);
@@ -299,8 +264,8 @@ void shell_block(char ** argv, uint64_t argc){
         return;
     }
     int64_t pid;
-    if ((pid = satoi(argv[1])) <= 0){
-        err_print("ERROR: error getting PID", MAXBUFF);
+    if ((pid = satoi(argv[1])) <= 1){
+        err_print("ERROR: invalid PID", MAXBUFF);
       return;
     }
     my_block(pid);
@@ -313,8 +278,8 @@ void shell_unblock(char ** argv, uint64_t argc){
         return;
     }
     int64_t pid;
-    if ((pid = satoi(argv[1])) <= 0){
-        err_print("ERROR: error getting PID", MAXBUFF);
+    if ((pid = satoi(argv[1])) <= 1){
+        err_print("ERROR: invalid PID", MAXBUFF);
       return;
     }
     my_unblock(pid);

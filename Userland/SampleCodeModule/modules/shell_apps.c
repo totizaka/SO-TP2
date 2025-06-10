@@ -111,13 +111,16 @@ void shell_filter() {
     char c;
     char s[2] = {0};
 
-    while ((c = get_char_handled_input()) > 0) {
+    while (1) {
+        c = get_char_handled_input();
+        if (c == MYEOF) {
+            break;  // Detectar Ctrl+D
+        }
         if (!vowel(c)) {
             s[0] = c;
             print(s, 1);
         }
     }
-
     print("\n", 1);
 }
 
