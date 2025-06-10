@@ -17,7 +17,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -I../Shared -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../Shared $(MM) -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
@@ -32,47 +32,3 @@ clean:
 .PHONY: all clean
 
 
-
-# include Makefile.inc
-
-# KERNEL_BUDDY=kernel.bin
-# KERNEL_DUMMY=kernel.bin
-# SOURCES_DUMMY=$(wildcard *.c) $(wildcard memory_management/mm_dummy.c) $(wildcard processes/*.c)
-# SOURCES_BUDDY=$(wildcard *.c) $(wildcard memory_management/mm_buddy.c) $(wildcard processes/*.c)
-# SOURCES_ASM=$(wildcard asm/*.asm)
-# OBJECTS_DUMMY=$(SOURCES_DUMMY:.c=.o)
-# OBJECTS_BUDDY=$(SOURCES_BUDDY:.c=.o)
-# OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
-# LOADERSRC=loader.asm
-
-# LOADEROBJECT=$(LOADERSRC:.asm=.o)
-# STATICLIBS=
-
-
-# buddy: $(KERNEL_BUDDY)
-
-# $(KERNEL_BUDDY): $(LOADEROBJECT) $(OBJECTS_BUDDY) $(STATICLIBS) $(OBJECTS_ASM)
-# 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL_BUDDY) $(LOADEROBJECT) $(OBJECTS_BUDDY) $(OBJECTS_ASM) $(STATICLIBS)
-# 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS_BUDDY) $(OBJECTS_ASM) $(STATICLIBS)
-
-
-# all: $(KERNEL_DUMMY)
-
-# $(KERNEL_DUMMY): $(LOADEROBJECT) $(OBJECTS_DUMMY) $(STATICLIBS) $(OBJECTS_ASM)
-# 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL_DUMMY) $(LOADEROBJECT) $(OBJECTS_DUMMY) $(OBJECTS_ASM) $(STATICLIBS)
-# 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS_DUMMY) $(OBJECTS_ASM) $(STATICLIBS)
-
-
-# %.o: %.c
-# 	$(GCC) $(GCCFLAGS) -I./include -I../Shared -c $< -o $@
-
-# %.o : %.asm
-# 	$(ASM) $(ASMFLAGS) $< -o $@
-
-# $(LOADEROBJECT):
-# 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
-
-# clean:
-# 	rm -rf asm/*.o *.o *.bin
-
-# .PHONY: dummy clean buddy

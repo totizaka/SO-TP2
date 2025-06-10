@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <defs.h>
 #include <stddef.h>
-#include <mm_dummy.h>
+#include <memory_manager.h>
 #include <pcb.h>
 
 
