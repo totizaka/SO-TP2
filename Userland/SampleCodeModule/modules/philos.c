@@ -82,7 +82,7 @@ int64_t philos(char **argv, uint64_t argc){
 }
 
 void think(){
-    nano_sleep(THINKING_TIME);
+    nano_sleep(GetUniform(THINKING_TIME));
 }
 
 void take_forks(int i){
@@ -109,7 +109,7 @@ void eat(int i){
 
     table.philos_array[i].state=EATING;
     
-    nano_sleep(EATING_TIME);
+    nano_sleep(GetUniform(EATING_TIME));
 
     sem_post(table.mutex);
 

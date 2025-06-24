@@ -97,6 +97,7 @@ char * my_strchr(const char *s, int c);
 char * my_strncpy(char *dest, const char *src, int n);
 int utoa_hex(uint64_t value, char *str);
 int64_t satoi(char *str);
+char* trim(char* input);
 // my number managers functions
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);

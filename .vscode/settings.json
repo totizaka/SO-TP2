@@ -4,6 +4,7 @@
         "process.h": "c",
         "string.h": "c",
         "kernel.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "stdint.h": "c"
     }
 }

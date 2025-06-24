@@ -185,30 +185,6 @@ void run_simple_program(char* input, int is_background) {
 }
 
 
-char* left_trim(char* input){
-    while(*input==' '){
-        input++;
-    }
-    return input;
-}
-
-char* right_trim(char* input){
-    int len=my_strlen(input);
-
-    while (len>0 && input[len-1]==' '){
-        input[len-1]='\0';
-        len--;
-    }
-    return input;
-}
-
-char* trim(char* input) {//funcion para sacar espacios adelante y atras
-    input = left_trim(input);
-    right_trim(input);
-    return input;
-}
-
-
 parsed_command parse_command(char *input) {
     parsed_command result = {0};
     result.argc = 1;  //porque el name va en agrv[0]

@@ -478,3 +478,26 @@ int64_t my_write(int64_t fd, char* buffer, int num_bytes){
     return syscall_my_write(fd, buffer, num_bytes);
 }
 
+char* left_trim(char* input){
+    while(*input==' '){
+        input++;
+    }
+    return input;
+}
+
+char* right_trim(char* input){
+    int len=my_strlen(input);
+
+    while (len>0 && input[len-1]==' '){
+        input[len-1]='\0';
+        len--;
+    }
+    return input;
+}
+
+char* trim(char* input) {//funcion para sacar espacios adelante y atras
+    input = left_trim(input);
+    right_trim(input);
+    return input;
+}
+
