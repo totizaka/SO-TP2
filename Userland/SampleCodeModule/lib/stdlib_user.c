@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib_user.h>
 
+static uint32_t m_z = 362436069;
+static uint32_t m_w = 521288629;
 
 // my_str functions
 
@@ -501,3 +503,14 @@ char* trim(char* input) {//funcion para sacar espacios adelante y atras
     return input;
 }
 
+
+uint32_t GetUint() {
+  m_z = 36969 * (m_z & 65535) + (m_z >> 16);
+  m_w = 18000 * (m_w & 65535) + (m_w >> 16);
+  return (m_z << 16) + m_w;
+}
+
+uint32_t GetUniform(uint32_t max) {
+  uint32_t u = GetUint();
+  return (u + 1.0) * 2.328306435454494e-10 * max;
+}

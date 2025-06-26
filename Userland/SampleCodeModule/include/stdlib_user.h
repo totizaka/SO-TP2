@@ -101,6 +101,8 @@ char* trim(char* input);
 // my number managers functions
 uint64_t itoa(uint64_t number, char* s);
 uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base);
+uint32_t GetUniform(uint32_t max);
+uint32_t GetUint();
 
 // my_get_comands functions
 comand_background get_comand_background(char* input);
